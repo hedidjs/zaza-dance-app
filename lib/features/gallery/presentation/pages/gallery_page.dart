@@ -315,7 +315,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage>
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      item.description ?? '',
+                      item.descriptionHe ?? '',
                       style: TextStyle(
                         color: AppColors.primaryText,
                         fontSize: 12,
@@ -432,10 +432,10 @@ class _GalleryPageState extends ConsumerState<GalleryPage>
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    if (item.description != null) ...[
+                    if (item.descriptionHe != null) ...[
                       const SizedBox(height: 2),
                       Text(
-                        item.description!,
+                        item.descriptionHe!,
                         style: TextStyle(
                           color: AppColors.primaryText.withValues(alpha: 0.8),
                           fontSize: 10,
@@ -556,12 +556,12 @@ class _GalleryPageState extends ConsumerState<GalleryPage>
                   const SizedBox(height: 12),
                   
                   // Description
-                  if (item.description != null)
+                  if (item.descriptionHe != null)
                     Expanded(
                       flex: 1,
                       child: SingleChildScrollView(
                         child: Text(
-                          item.description!,
+                          item.descriptionHe!,
                           style: TextStyle(
                             color: AppColors.primaryText,
                             fontSize: 16,
