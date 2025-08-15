@@ -10,14 +10,14 @@ import '../../../../shared/widgets/animated_gradient_background.dart';
 import '../../../../shared/widgets/neon_text.dart';
 import '../../../../shared/models/update_model.dart';
 
-class UpdatesPage extends StatefulWidget {
+class UpdatesPage extends ConsumerStatefulWidget {
   const UpdatesPage({super.key});
 
   @override
-  State<UpdatesPage> createState() => _UpdatesPageState();
+  ConsumerState<UpdatesPage> createState() => _UpdatesPageState();
 }
 
-class _UpdatesPageState extends State<UpdatesPage>
+class _UpdatesPageState extends ConsumerState<UpdatesPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   
