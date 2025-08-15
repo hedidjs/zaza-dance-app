@@ -113,8 +113,8 @@ class _GalleryPageState extends ConsumerState<GalleryPage>
     );
   }
 
-  Widget _buildGalleryGrid(int categoryIndex) {
-    final items = _getFilteredItems(categoryIndex);
+  Widget _buildGalleryGrid(List<GalleryModel> allItems, int categoryIndex) {
+    final items = _getFilteredItems(allItems, categoryIndex);
     
     if (items.isEmpty) {
       return Center(
