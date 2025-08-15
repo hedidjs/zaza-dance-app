@@ -165,8 +165,8 @@ class _UpdatesPageState extends ConsumerState<UpdatesPage>
     );
   }
 
-  Widget _buildUpdatesFeed(int categoryIndex) {
-    final updates = _getFilteredUpdates(categoryIndex);
+  Widget _buildUpdatesFeed(List<UpdateModel> allUpdates, int categoryIndex) {
+    final updates = _getFilteredUpdates(allUpdates, categoryIndex);
     
     if (updates.isEmpty) {
       return Center(
