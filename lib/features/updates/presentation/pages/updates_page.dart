@@ -809,7 +809,7 @@ class UpdateDetailsPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'תאריך: ${update.createdAt.day}/${update.createdAt.month}/${update.createdAt.year}',
+                      'תאריך: ${update.publishDate.day}/${update.publishDate.month}/${update.publishDate.year}',
                       style: TextStyle(
                         color: AppColors.primaryText,
                         fontSize: 14,
