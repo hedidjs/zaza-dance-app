@@ -586,6 +586,8 @@ class _UpdatesPageState extends State<UpdatesPage>
         return AppColors.neonPurple;
       case UpdateType.event:
         return AppColors.neonBlue;
+      case UpdateType.news:
+        return AppColors.neonTurquoise;
     }
   }
 
