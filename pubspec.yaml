@@ -44,6 +44,9 @@ dependencies:
   # Notifications
   flutter_local_notifications: ^17.2.3
   
+  # Device Info
+  device_info_plus: ^11.1.0
+  
   cupertino_icons: ^1.0.8
 
 dev_dependencies:
