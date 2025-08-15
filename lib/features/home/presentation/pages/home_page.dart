@@ -140,7 +140,11 @@ class HomePage extends StatelessWidget {
                 subtitle: 'תמונות וסרטונים',
                 color: AppColors.neonTurquoise,
                 onTap: () {
-                  // TODO: Navigate to gallery
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const GalleryPage(),
+                    ),
+                  );
                 },
               ),
             ),
