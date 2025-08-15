@@ -409,7 +409,7 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  void _onBottomNavTap(int index) {
+  void _onBottomNavTap(BuildContext context, int index) {
     switch (index) {
       case 0:
         // Already on home page
@@ -431,7 +431,7 @@ class HomePage extends StatelessWidget {
     }
   }
 
-  Widget _buildBottomNavigation() {
+  Widget _buildBottomNavigation(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
