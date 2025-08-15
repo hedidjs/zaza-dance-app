@@ -11,14 +11,14 @@ import '../../../../shared/widgets/animated_gradient_background.dart';
 import '../../../../shared/widgets/neon_text.dart';
 import '../../../../shared/models/tutorial_model.dart';
 
-class TutorialsPage extends StatefulWidget {
+class TutorialsPage extends ConsumerStatefulWidget {
   const TutorialsPage({super.key});
 
   @override
-  State<TutorialsPage> createState() => _TutorialsPageState();
+  ConsumerState<TutorialsPage> createState() => _TutorialsPageState();
 }
 
-class _TutorialsPageState extends State<TutorialsPage>
+class _TutorialsPageState extends ConsumerState<TutorialsPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   VideoPlayerController? _videoController;
