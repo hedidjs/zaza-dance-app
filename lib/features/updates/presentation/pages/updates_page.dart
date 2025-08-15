@@ -554,7 +554,7 @@ class _UpdatesPageState extends State<UpdatesPage>
           Row(
             children: [
               Text(
-                'מאת: ${update.authorName}',
+                'מאת: ${update.authorName ?? 'לא ידוע'}',
                 style: TextStyle(
                   color: AppColors.secondaryText,
                   fontSize: 12,
