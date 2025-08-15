@@ -503,7 +503,7 @@ class _UpdatesPageState extends State<UpdatesPage>
           
           // Title
           Text(
-            update.title,
+            update.titleHe,
             style: TextStyle(
               color: AppColors.primaryText,
               fontSize: isPinned ? 18 : 16,
@@ -753,7 +753,7 @@ class UpdateDetailsPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               NeonText(
-                text: update.title,
+                text: update.titleHe,
                 fontSize: 24,
                 glowColor: AppColors.neonPink,
               ),
