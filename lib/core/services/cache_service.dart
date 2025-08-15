@@ -241,11 +241,10 @@ class CacheService {
   /// Clean up old cache files
   Future<void> cleanupOldCache() async {
     try {
-      await Future.wait([
-        _imageCache.removeExpiredCacheEntries(),
-        _videoCache.removeExpiredCacheEntries(),
-        _thumbnailCache.removeExpiredCacheEntries(),
-      ]);
+      // Clean up each cache individually
+      await _imageCache.emptyCache();
+      await _videoCache.emptyCache();
+      await _thumbnailCache.emptyCache();
       
       if (kDebugMode) {
         print('Old cache entries cleaned up');
