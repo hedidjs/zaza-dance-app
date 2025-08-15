@@ -69,7 +69,7 @@ class TutorialModel {
   String get title => titleHe;
   String get description => descriptionHe ?? '';
   int get duration => durationSeconds ?? 0;
-  String get category => category?.nameHe ?? '';
+  String get categoryName => category?.nameHe ?? '';
   String get instructor => instructorName ?? '';
 
   factory TutorialModel.fromJson(Map<String, dynamic> json) {
