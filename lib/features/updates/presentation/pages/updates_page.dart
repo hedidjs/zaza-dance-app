@@ -575,7 +575,7 @@ class _UpdatesPageState extends State<UpdatesPage>
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          update.likeCount.toString(),
+                          update.likesCount.toString(),
                           style: TextStyle(
                             color: AppColors.secondaryText,
                             fontSize: 12,
