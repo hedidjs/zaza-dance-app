@@ -612,6 +612,8 @@ class _UpdatesPageState extends State<UpdatesPage>
         return 'טיפ מדריך';
       case UpdateType.event:
         return 'אירוע';
+      case UpdateType.news:
+        return 'חדשות';
     }
   }
 
