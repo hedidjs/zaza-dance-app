@@ -10,14 +10,14 @@ import '../../../../shared/widgets/animated_gradient_background.dart';
 import '../../../../shared/widgets/neon_text.dart';
 import '../../../../shared/models/gallery_model.dart';
 
-class GalleryPage extends StatefulWidget {
+class GalleryPage extends ConsumerStatefulWidget {
   const GalleryPage({super.key});
 
   @override
-  State<GalleryPage> createState() => _GalleryPageState();
+  ConsumerState<GalleryPage> createState() => _GalleryPageState();
 }
 
-class _GalleryPageState extends State<GalleryPage>
+class _GalleryPageState extends ConsumerState<GalleryPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   
