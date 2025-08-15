@@ -174,6 +174,8 @@ class OfflineDownloadService {
       final cacheService = CacheService();
       final fileInfo = await cacheService.thumbnailCache.downloadFile(tutorial.thumbnailUrl!);
       
+      // Convert FileInfo to File
+      
       // Update progress
       _notifyProgressListeners(tutorial.id, DownloadProgress(
         tutorialId: tutorial.id,
