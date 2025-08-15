@@ -471,7 +471,7 @@ class _UpdatesPageState extends State<UpdatesPage>
                 ),
               ),
               const Spacer(),
-              if (update.isNew)
+              if (DateTime.now().difference(update.publishDate).inDays < 3)
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
