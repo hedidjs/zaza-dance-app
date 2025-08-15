@@ -43,6 +43,7 @@ dependencies:
   
   # Notifications
   flutter_local_notifications: ^17.2.3
+  timezone: ^0.9.4
   
   # Device Info
   device_info_plus: ^11.1.0
