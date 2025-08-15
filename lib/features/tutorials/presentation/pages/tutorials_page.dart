@@ -478,7 +478,7 @@ class _TutorialsPageState extends State<TutorialsPage>
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '${tutorial.instructorName ?? 'מדריך לא ידוע'} • ${tutorial.durationText}',
+                      '${tutorial.instructorName ?? 'מדריך לא ידוע'} • ${tutorial.formattedDuration}',
                       style: TextStyle(
                         color: AppColors.primaryText.withValues(alpha: 0.8),
                         fontSize: 14,
@@ -554,7 +554,7 @@ class _TutorialsPageState extends State<TutorialsPage>
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          tutorial.durationText,
+                          tutorial.formattedDuration,
                           style: TextStyle(
                             color: AppColors.primaryText,
                             fontSize: 10,
@@ -789,7 +789,7 @@ class TutorialPlayerPage extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    'משך: ${tutorial.durationText}',
+                    'משך: ${tutorial.formattedDuration}',
                     style: TextStyle(
                       color: AppColors.secondaryText,
                       fontSize: 16,
