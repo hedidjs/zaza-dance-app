@@ -9,7 +9,7 @@ import '../../shared/data/mock_data.dart';
 
 /// Whether to use real Supabase data (true) or mock data (false)
 /// Change this to switch between data sources
-const bool _useRealData = true;
+const bool _useRealData = false;
 
 // MARK: - Services
 final supabaseServiceProvider = Provider<SupabaseService>((ref) {
