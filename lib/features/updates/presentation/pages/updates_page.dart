@@ -139,7 +139,13 @@ class _UpdatesPageState extends State<UpdatesPage>
       isPinned: false,
       likesCount: 19,
       commentsCount: 4,
+      sharesCount: 0,
+      tags: [],
+      publishDate: DateTime.now().subtract(const Duration(days: 5)),
+      isActive: true,
+      isFeatured: false,
       createdAt: DateTime.now().subtract(const Duration(days: 5)),
+      updatedAt: DateTime.now().subtract(const Duration(days: 5)),
     ),
   ];
 
