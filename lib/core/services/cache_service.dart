@@ -162,17 +162,28 @@ class CacheService {
 
   Future<_ManagerCacheInfo> _getManagerCacheSize(CacheManager manager) async {
     try {
-      final files = await manager.getFileInfos();
+      // Get cache directory info
+      final cacheDir = await manager.getTemporaryDirectory();
       int totalSize = 0;
+      int fileCount = 0;
       
-      for (final fileInfo in files) {
-        final file = fileInfo.file;
-        if (await file.exists()) {
-          totalSize += await file.length();
+      if (await cacheDir.exists()) {
+        final files = await cacheDir.list(recursive: true).toList();
+        
+        for (final entity in files) {
+          if (entity is File) {
+            try {
+              final size = await entity.length();
+              totalSize += size;
+              fileCount++;
+            } catch (e) {
+              // Skip files that can't be read
+            }
+          }
         }
       }
       
-      return _ManagerCacheInfo(size: totalSize, files: files.length);
+      return _ManagerCacheInfo(size: totalSize, files: fileCount);
     } catch (e) {
       return _ManagerCacheInfo(size: 0, files: 0);
     }
