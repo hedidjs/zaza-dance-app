@@ -74,6 +74,8 @@ class _UpdatesPageState extends ConsumerState<UpdatesPage>
 
   @override
   Widget build(BuildContext context) {
+    final updatesAsync = ref.watch(updatesProvider);
+    
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -107,12 +109,45 @@ class _UpdatesPageState extends ConsumerState<UpdatesPage>
       ),
       body: AnimatedGradientBackground(
         child: SafeArea(
-          child: TabBarView(
-            controller: _tabController,
-            children: categories.asMap().entries.map((entry) {
-              final categoryIndex = entry.key;
-              return _buildUpdatesFeed(categoryIndex);
-            }).toList(),
+          child: updatesAsync.when(
+            data: (updates) => TabBarView(
+              controller: _tabController,
+              children: categories.asMap().entries.map((entry) {
+                final categoryIndex = entry.key;
+                return _buildUpdatesFeed(updates, categoryIndex);
+              }).toList(),
+            ),
+            loading: () => Center(
+              child: CircularProgressIndicator(
+                color: AppColors.neonTurquoise,
+              ),
+            ),
+            error: (error, stack) => Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.error_outline,
+                    size: 80,
+                    color: AppColors.secondaryText,
+                  ),
+                  const SizedBox(height: 20),
+                  NeonText(
+                    text: 'שגיאה בטעינת העדכונים',
+                    fontSize: 18,
+                    glowColor: AppColors.neonPink,
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'אנא נסו שוב מאוחר יותר',
+                    style: TextStyle(
+                      color: AppColors.secondaryText,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ),
