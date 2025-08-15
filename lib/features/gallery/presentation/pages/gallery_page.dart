@@ -199,8 +199,8 @@ class _GalleryPageState extends ConsumerState<GalleryPage>
     );
   }
 
-  Widget _buildFeaturedCarousel() {
-    final featuredItems = _allItems.where((item) => item.isFeatured).toList();
+  Widget _buildFeaturedCarousel(List<GalleryModel> items) {
+    final featuredItems = items.where((item) => item.isFeatured).toList();
     
     return SizedBox(
       height: 200,
