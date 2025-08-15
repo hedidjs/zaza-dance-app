@@ -554,7 +554,7 @@ class _UpdatesPageState extends State<UpdatesPage>
           Row(
             children: [
               Text(
-                'מאת: ${update.author}',
+                'מאת: ${update.authorName}',
                 style: TextStyle(
                   color: AppColors.secondaryText,
                   fontSize: 12,
@@ -801,7 +801,7 @@ class UpdateDetailsPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'מאת: ${update.author}',
+                      'מאת: ${update.authorName}',
                       style: TextStyle(
                         color: AppColors.primaryText,
                         fontSize: 14,
