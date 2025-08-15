@@ -174,8 +174,6 @@ class OfflineDownloadService {
       final cacheService = CacheService();
       final fileInfo = await cacheService.thumbnailCache.downloadFile(tutorial.thumbnailUrl!);
       
-      // Convert FileInfo to File
-      
       // Update progress
       _notifyProgressListeners(tutorial.id, DownloadProgress(
         tutorialId: tutorial.id,
@@ -183,7 +181,7 @@ class OfflineDownloadService {
         progress: 0.95, // Thumbnail brings us to 95%
       ));
 
-      return fileInfo;
+      return fileInfo.file;
     } catch (e) {
       if (kDebugMode) {
         print('Error downloading thumbnail file: $e');
