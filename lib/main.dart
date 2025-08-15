@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'core/constants/app_constants.dart';
 import 'core/theme/app_theme.dart';
+import 'core/services/cache_service.dart';
 import 'features/home/presentation/pages/home_page.dart';
 
 Future<void> main() async {
