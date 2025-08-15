@@ -45,6 +45,8 @@ class _GalleryPageState extends ConsumerState<GalleryPage>
 
   @override
   Widget build(BuildContext context) {
+    final galleryAsync = ref.watch(galleryItemsProvider);
+    
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -66,12 +68,45 @@ class _GalleryPageState extends ConsumerState<GalleryPage>
       ),
       body: AnimatedGradientBackground(
         child: SafeArea(
-          child: TabBarView(
-            controller: _tabController,
-            children: categories.asMap().entries.map((entry) {
-              final categoryIndex = entry.key;
-              return _buildGalleryGrid(categoryIndex);
-            }).toList(),
+          child: galleryAsync.when(
+            data: (items) => TabBarView(
+              controller: _tabController,
+              children: categories.asMap().entries.map((entry) {
+                final categoryIndex = entry.key;
+                return _buildGalleryGrid(items, categoryIndex);
+              }).toList(),
+            ),
+            loading: () => Center(
+              child: CircularProgressIndicator(
+                color: AppColors.neonTurquoise,
+              ),
+            ),
+            error: (error, stack) => Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.error_outline,
+                    size: 80,
+                    color: AppColors.secondaryText,
+                  ),
+                  const SizedBox(height: 20),
+                  NeonText(
+                    text: 'שגיאה בטעינת הגלריה',
+                    fontSize: 18,
+                    glowColor: AppColors.neonPink,
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'אנא נסו שוב מאוחר יותר',
+                    style: TextStyle(
+                      color: AppColors.secondaryText,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ),
