@@ -221,8 +221,8 @@ class _TutorialsPageState extends ConsumerState<TutorialsPage>
     );
   }
 
-  Widget _buildTutorialsGrid(int categoryIndex) {
-    final tutorials = _getFilteredTutorials(categoryIndex);
+  Widget _buildTutorialsGrid(List<TutorialModel> allTutorials, int categoryIndex) {
+    final tutorials = _getFilteredTutorials(allTutorials, categoryIndex);
     
     if (tutorials.isEmpty) {
       return Center(
