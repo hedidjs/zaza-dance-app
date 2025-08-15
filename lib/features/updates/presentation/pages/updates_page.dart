@@ -41,7 +41,7 @@ class _UpdatesPageState extends State<UpdatesPage>
     ),
     UpdateModel(
       id: '2',
-      title: 'הישג מדהים של מיה!',
+      titleHe: 'הישג מדהים של מיה!',
       content: 'מיה מהקבוצה המתקדמת זכתה במקום הראשון בתחרות הארצית! אנחנו כל כך גאים בך מיה 💪',
       author: 'צוות המדריכים',
       imageUrl: 'https://picsum.photos/400/300?random=2',
@@ -54,7 +54,7 @@ class _UpdatesPageState extends State<UpdatesPage>
     ),
     UpdateModel(
       id: '3',
-      title: 'טיפ השבוע מרון המדריך',
+      titleHe: 'טיפ השבוע מרון המדריך',
       content: 'השבוע נלמד על חשיבות החימום לפני אימון. זכרו - 10 דקות חימום יכולות למנוע פציעות ולשפר את הביצועים שלכם!',
       author: 'רון המדריך',
       imageUrl: 'https://picsum.photos/400/300?random=3',
@@ -67,7 +67,7 @@ class _UpdatesPageState extends State<UpdatesPage>
     ),
     UpdateModel(
       id: '4',
-      title: 'אירוע מיוחד - ג\'אם סשן פתוח',
+      titleHe: 'אירוע מיוחד - ג\'אם סשן פתוח',
       content: 'ביום שישי הקרוב נקיים ג\'אם סשן פתוח לכל התלמידים! בואו להראות מה למדתם ולהתרגל יחד. כניסה חינם!',
       author: 'ההנהלה',
       imageUrl: 'https://picsum.photos/400/300?random=4',
@@ -80,7 +80,7 @@ class _UpdatesPageState extends State<UpdatesPage>
     ),
     UpdateModel(
       id: '5',
-      title: 'דני זוכה במקום השני!',
+      titleHe: 'דני זוכה במקום השני!',
       content: 'דני מהקבוצה הבינונית הגיע למקום השני בתחרות הברייקדאנס המקומית. איזה הישג מרשים!',
       author: 'צוות המדריכים',
       imageUrl: 'https://picsum.photos/400/300?random=5',
@@ -93,7 +93,7 @@ class _UpdatesPageState extends State<UpdatesPage>
     ),
     UpdateModel(
       id: '6',
-      title: 'סדנה מיוחדת עם אמן אורח',
+      titleHe: 'סדנה מיוחדת עם אמן אורח',
       content: 'השבוע הבא נארח את יוסי - רקדן ההיפ הופ המפורסם. סדנה מיוחדת לרמה מתקדמת. מקומות מוגבלים!',
       author: 'ההנהלה',
       imageUrl: 'https://picsum.photos/400/300?random=6',
@@ -106,7 +106,7 @@ class _UpdatesPageState extends State<UpdatesPage>
     ),
     UpdateModel(
       id: '7',
-      title: 'טיפ חימום מהיר',
+      titleHe: 'טיפ חימום מהיר',
       content: 'זוכרים את תרגילי הקרסול? הם חיוניים למניעת פציעות ברגליים. עשו אותם לפני כל אימון!',
       author: 'שרה המדריכה',
       imageUrl: null,
