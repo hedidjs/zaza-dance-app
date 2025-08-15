@@ -110,13 +110,13 @@ class CacheService {
   /// Download video for offline viewing
   Future<File?> downloadVideoForOffline(String videoUrl) async {
     try {
-      final file = await _videoCache.downloadFile(videoUrl);
+      final fileInfo = await _videoCache.downloadFile(videoUrl);
       
       if (kDebugMode) {
         print('Downloaded video for offline: $videoUrl');
       }
       
-      return file;
+      return fileInfo.file;
     } catch (e) {
       if (kDebugMode) {
         print('Error downloading video: $e');
