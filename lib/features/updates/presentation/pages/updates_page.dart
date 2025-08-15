@@ -194,7 +194,7 @@ class _UpdatesPageState extends State<UpdatesPage>
     filtered.sort((a, b) {
       if (a.isPinned && !b.isPinned) return -1;
       if (!a.isPinned && b.isPinned) return 1;
-      return b.createdAt.compareTo(a.createdAt);
+      return b.publishDate.compareTo(a.publishDate);
     });
     
     return filtered;
