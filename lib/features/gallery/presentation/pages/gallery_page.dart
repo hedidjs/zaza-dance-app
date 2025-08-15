@@ -35,12 +35,12 @@ class _GalleryPageState extends ConsumerState<GalleryPage>
     super.dispose();
   }
 
-  List<GalleryItemModel> _getFilteredItems(int categoryIndex) {
-    if (categoryIndex == 0) return _allItems; // הכל
+  List<GalleryModel> _getFilteredItems(List<GalleryModel> allItems, int categoryIndex) {
+    if (categoryIndex == 0) return allItems; // הכל
     
     // כאן נוכל להוסיף לוגיקה לסינון לפי קטגוריות
     // בינתיים מחזיר את כל הפריטים
-    return _allItems;
+    return allItems;
   }
 
   @override
