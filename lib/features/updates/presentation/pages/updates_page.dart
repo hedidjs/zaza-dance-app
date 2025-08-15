@@ -515,7 +515,7 @@ class _UpdatesPageState extends State<UpdatesPage>
           
           // Content
           Text(
-            update.content,
+            update.contentHe,
             style: TextStyle(
               color: AppColors.primaryText.withValues(alpha: 0.9),
               fontSize: 14,
@@ -771,7 +771,7 @@ class UpdateDetailsPage extends StatelessWidget {
                 const SizedBox(height: 20),
               ],
               Text(
-                update.content,
+                update.contentHe,
                 style: TextStyle(
                   color: AppColors.primaryText,
                   fontSize: 16,
