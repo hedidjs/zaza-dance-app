@@ -453,7 +453,7 @@ class HomePage extends StatelessWidget {
         currentIndex: 0,
         selectedItemColor: AppColors.neonPink,
         unselectedItemColor: AppColors.secondaryText,
-        onTap: _onBottomNavTap,
+        onTap: (index) => _onBottomNavTap(context, index),
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
