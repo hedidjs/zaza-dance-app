@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_glow/flutter_glow.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/providers/data_providers.dart';
 import '../../../../shared/widgets/animated_gradient_background.dart';
 import '../../../../shared/widgets/neon_text.dart';
 import '../../../../shared/models/update_model.dart';
