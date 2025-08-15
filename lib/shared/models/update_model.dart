@@ -57,7 +57,12 @@ class UpdateModel {
       content: json['content'] as String,
       excerpt: json['excerpt'] as String?,
       imageUrl: json['image_url'] as String?,
+      author: json['author'] as String?,
+      updateType: UpdateType.fromString(json['update_type'] as String? ?? 'announcement'),
       isPinned: json['is_pinned'] as bool? ?? false,
+      isNew: json['is_new'] as bool? ?? false,
+      likeCount: json['like_count'] as int? ?? 0,
+      commentCount: json['comment_count'] as int? ?? 0,
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: json['updated_at'] != null 
           ? DateTime.parse(json['updated_at'] as String)
