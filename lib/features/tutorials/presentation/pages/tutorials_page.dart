@@ -27,83 +27,98 @@ class _TutorialsPageState extends State<TutorialsPage>
   final List<TutorialModel> _allTutorials = [
     TutorialModel(
       id: '1',
-      title: 'בסיסי - צעדי היפ הופ ראשונים',
-      description: 'למדו את הצעדים הבסיסיים של ההיפ הופ. מתאים למתחילים לחלוטין.',
-      instructorId: 'instructor_1',
-      instructorName: 'רון המדריך',
+      titleHe: 'בסיסי - צעדי היפ הופ ראשונים',
+      descriptionHe: 'למדו את הצעדים הבסיסיים של ההיפ הופ. מתאים למתחילים לחלוטין.',
       videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
       thumbnailUrl: 'https://picsum.photos/400/300?random=1',
-      durationMinutes: 15,
+      durationSeconds: 900,
       difficultyLevel: DifficultyLevel.beginner,
-      isPremium: false,
-      viewCount: 1250,
-      likeCount: 89,
-      isPublished: true,
+      instructorName: 'רון המדריך',
+      tags: [],
+      isFeatured: false,
+      likesCount: 89,
+      viewsCount: 1250,
+      downloadsCount: 0,
+      sortOrder: 0,
+      isActive: true,
       createdAt: DateTime.now().subtract(const Duration(days: 3)),
+      updatedAt: DateTime.now().subtract(const Duration(days: 3)),
     ),
     TutorialModel(
       id: '2',
-      title: 'פופינג ולוקינג - טכניקות מתקדמות',
-      description: 'שלבו תנועות פופינג ולוקינג מרהיבות בכוריאוגרפיה שלכם.',
-      instructorId: 'instructor_2',
-      instructorName: 'מיה המדריכה',
+      titleHe: 'פופינג ולוקינג - טכניקות מתקדמות',
+      descriptionHe: 'שלבו תנועות פופינג ולוקינג מרהיבות בכוריאוגרפיה שלכם.',
       videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_2mb.mp4',
       thumbnailUrl: 'https://picsum.photos/400/300?random=2',
-      durationMinutes: 22,
+      durationSeconds: 1320,
       difficultyLevel: DifficultyLevel.advanced,
-      isPremium: true,
-      viewCount: 890,
-      likeCount: 67,
-      isPublished: true,
+      instructorName: 'מיה המדריכה',
+      tags: [],
+      isFeatured: true,
+      likesCount: 67,
+      viewsCount: 890,
+      downloadsCount: 0,
+      sortOrder: 0,
+      isActive: true,
       createdAt: DateTime.now().subtract(const Duration(days: 7)),
+      updatedAt: DateTime.now().subtract(const Duration(days: 7)),
     ),
     TutorialModel(
       id: '3',
-      title: 'ברייקדאנס - סיבובים וכוח',
-      description: 'התחילו את המסע שלכם בעולם הברייקדאנס עם תנועות כוח בסיסיות.',
-      instructorId: 'instructor_3',
-      instructorName: 'דני המדריך',
+      titleHe: 'ברייקדאנס - סיבובים וכוח',
+      descriptionHe: 'התחילו את המסע שלכם בעולם הברייקדאנס עם תנועות כוח בסיסיות.',
       videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_5mb.mp4',
       thumbnailUrl: 'https://picsum.photos/400/300?random=3',
-      durationMinutes: 18,
+      durationSeconds: 1080,
       difficultyLevel: DifficultyLevel.intermediate,
-      isPremium: false,
-      viewCount: 2100,
-      likeCount: 145,
-      isPublished: true,
+      instructorName: 'דני המדריך',
+      tags: [],
+      isFeatured: false,
+      likesCount: 145,
+      viewsCount: 2100,
+      downloadsCount: 0,
+      sortOrder: 0,
+      isActive: true,
       createdAt: DateTime.now().subtract(const Duration(days: 1)),
+      updatedAt: DateTime.now().subtract(const Duration(days: 1)),
     ),
     TutorialModel(
       id: '4',
-      title: 'כוריאוגרפיה מלאה - רמיקס 2024',
-      description: 'כוריאוגרפיה מלאה לשיר פופולרי. מתאים לרמה בינונית.',
-      instructorId: 'instructor_4',
-      instructorName: 'שרה המדריכה',
+      titleHe: 'כוריאוגרפיה מלאה - רמיקס 2024',
+      descriptionHe: 'כוריאוגרפיה מלאה לשיר פופולרי. מתאים לרמה בינונית.',
       videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
       thumbnailUrl: 'https://picsum.photos/400/300?random=4',
-      durationMinutes: 12,
+      durationSeconds: 720,
       difficultyLevel: DifficultyLevel.intermediate,
-      isPremium: false,
-      viewCount: 3450,
-      likeCount: 234,
-      isPublished: true,
+      instructorName: 'שרה המדריכה',
+      tags: [],
+      isFeatured: false,
+      likesCount: 234,
+      viewsCount: 3450,
+      downloadsCount: 0,
+      sortOrder: 0,
+      isActive: true,
       createdAt: DateTime.now().subtract(const Duration(hours: 12)),
+      updatedAt: DateTime.now().subtract(const Duration(hours: 12)),
     ),
     TutorialModel(
       id: '5',
-      title: 'סטייל וביטוי - מצאו את הקול שלכם',
-      description: 'פתחו את הסטייל האישי שלכם ותביעו אישיות בריקוד.',
-      instructorId: 'instructor_5',
-      instructorName: 'אלכס המדריך',
+      titleHe: 'סטייל וביטוי - מצאו את הקול שלכם',
+      descriptionHe: 'פתחו את הסטייל האישי שלכם ותביעו אישיות בריקוד.',
       videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_2mb.mp4',
       thumbnailUrl: 'https://picsum.photos/400/300?random=5',
-      durationMinutes: 25,
+      durationSeconds: 1500,
       difficultyLevel: DifficultyLevel.beginner,
-      isPremium: false,
-      viewCount: 1780,
-      likeCount: 123,
-      isPublished: true,
+      instructorName: 'אלכס המדריך',
+      tags: [],
+      isFeatured: false,
+      likesCount: 123,
+      viewsCount: 1780,
+      downloadsCount: 0,
+      sortOrder: 0,
+      isActive: true,
       createdAt: DateTime.now().subtract(const Duration(days: 5)),
+      updatedAt: DateTime.now().subtract(const Duration(days: 5)),
     ),
   ];
 
@@ -147,21 +162,21 @@ class _TutorialsPageState extends State<TutorialsPage>
         filtered = filtered.where((t) => t.difficultyLevel == DifficultyLevel.advanced).toList();
         break;
       case 4: // כוריאוגרפיה
-        filtered = filtered.where((t) => t.title.contains('כוריאוגרפיה')).toList();
+        filtered = filtered.where((t) => t.titleHe.contains('כוריאוגרפיה')).toList();
         break;
       case 5: // ברייקדאנס
-        filtered = filtered.where((t) => t.title.contains('ברייקדאנס')).toList();
+        filtered = filtered.where((t) => t.titleHe.contains('ברייקדאנס')).toList();
         break;
       case 6: // פופינג
-        filtered = filtered.where((t) => t.title.contains('פופינג')).toList();
+        filtered = filtered.where((t) => t.titleHe.contains('פופינג')).toList();
         break;
     }
     
     // Filter by search query
     if (_searchQuery.isNotEmpty) {
       filtered = filtered.where((tutorial) =>
-        tutorial.title.contains(_searchQuery) ||
-        (tutorial.description != null && tutorial.description!.contains(_searchQuery)) ||
+        tutorial.titleHe.contains(_searchQuery) ||
+        (tutorial.descriptionHe != null && tutorial.descriptionHe!.contains(_searchQuery)) ||
         (tutorial.instructorName != null && tutorial.instructorName!.contains(_searchQuery))
       ).toList();
     }
@@ -456,7 +471,7 @@ class _TutorialsPageState extends State<TutorialsPage>
                     ),
                     const SizedBox(height: 8),
                     NeonText(
-                      text: tutorial.title,
+                      text: tutorial.titleHe,
                       fontSize: 18,
                       glowColor: AppColors.neonTurquoise,
                       fontWeight: FontWeight.bold,
@@ -549,8 +564,8 @@ class _TutorialsPageState extends State<TutorialsPage>
                       ),
                     ),
                     
-                    // Premium badge
-                    if (tutorial.isPremium)
+                    // Featured badge
+                    if (tutorial.isFeatured)
                       Positioned(
                         top: 8,
                         left: 8,
@@ -593,16 +608,16 @@ class _TutorialsPageState extends State<TutorialsPage>
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: _getDifficultyColor(tutorial.difficultyLevel).withValues(alpha: 0.2),
+                          color: _getDifficultyColor(tutorial.difficultyLevel ?? DifficultyLevel.beginner).withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: _getDifficultyColor(tutorial.difficultyLevel).withValues(alpha: 0.4),
+                            color: _getDifficultyColor(tutorial.difficultyLevel ?? DifficultyLevel.beginner).withValues(alpha: 0.4),
                           ),
                         ),
                         child: Text(
-                          tutorial.difficultyLevel.displayName,
+                          (tutorial.difficultyLevel ?? DifficultyLevel.beginner).displayName,
                           style: TextStyle(
-                            color: _getDifficultyColor(tutorial.difficultyLevel),
+                            color: _getDifficultyColor(tutorial.difficultyLevel ?? DifficultyLevel.beginner),
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
                           ),
@@ -614,7 +629,7 @@ class _TutorialsPageState extends State<TutorialsPage>
                       // Title
                       Expanded(
                         child: Text(
-                          tutorial.title,
+                          tutorial.titleHe,
                           style: TextStyle(
                             color: AppColors.primaryText,
                             fontSize: 12,
@@ -649,7 +664,7 @@ class _TutorialsPageState extends State<TutorialsPage>
                           ),
                           const SizedBox(width: 2),
                           Text(
-                            _formatViewCount(tutorial.viewCount),
+                            _formatViewCount(tutorial.viewsCount),
                             style: TextStyle(
                               color: AppColors.secondaryText,
                               fontSize: 10,
@@ -714,7 +729,7 @@ class TutorialPlayerPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         title: Text(
-          tutorial.title,
+          tutorial.titleHe,
           style: TextStyle(color: AppColors.primaryText),
         ),
         leading: IconButton(
@@ -751,14 +766,14 @@ class TutorialPlayerPage extends StatelessWidget {
               child: Column(
                 children: [
                   NeonText(
-                    text: tutorial.title,
+                    text: tutorial.titleHe,
                     fontSize: 20,
                     glowColor: AppColors.neonPink,
                   ),
                   const SizedBox(height: 10),
-                  if (tutorial.description != null)
+                  if (tutorial.descriptionHe != null)
                     Text(
-                      tutorial.description!,
+                      tutorial.descriptionHe!,
                       style: TextStyle(
                         color: AppColors.primaryText,
                         fontSize: 14,
@@ -781,7 +796,7 @@ class TutorialPlayerPage extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    'רמה: ${tutorial.difficultyLevel.displayName}',
+                    'רמה: ${(tutorial.difficultyLevel ?? DifficultyLevel.beginner).displayName}',
                     style: TextStyle(
                       color: AppColors.secondaryText,
                       fontSize: 16,
