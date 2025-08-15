@@ -42,7 +42,7 @@ class _UpdatesPageState extends State<UpdatesPage>
     UpdateModel(
       id: '2',
       titleHe: 'הישג מדהים של מיה!',
-      content: 'מיה מהקבוצה המתקדמת זכתה במקום הראשון בתחרות הארצית! אנחנו כל כך גאים בך מיה 💪',
+      contentHe: 'מיה מהקבוצה המתקדמת זכתה במקום הראשון בתחרות הארצית! אנחנו כל כך גאים בך מיה 💪',
       author: 'צוות המדריכים',
       imageUrl: 'https://picsum.photos/400/300?random=2',
       updateType: UpdateType.achievement,
@@ -55,7 +55,7 @@ class _UpdatesPageState extends State<UpdatesPage>
     UpdateModel(
       id: '3',
       titleHe: 'טיפ השבוע מרון המדריך',
-      content: 'השבוע נלמד על חשיבות החימום לפני אימון. זכרו - 10 דקות חימום יכולות למנוע פציעות ולשפר את הביצועים שלכם!',
+      contentHe: 'השבוע נלמד על חשיבות החימום לפני אימון. זכרו - 10 דקות חימום יכולות למנוע פציעות ולשפר את הביצועים שלכם!',
       author: 'רון המדריך',
       imageUrl: 'https://picsum.photos/400/300?random=3',
       updateType: UpdateType.tip,
@@ -68,7 +68,7 @@ class _UpdatesPageState extends State<UpdatesPage>
     UpdateModel(
       id: '4',
       titleHe: 'אירוע מיוחד - ג\'אם סשן פתוח',
-      content: 'ביום שישי הקרוב נקיים ג\'אם סשן פתוח לכל התלמידים! בואו להראות מה למדתם ולהתרגל יחד. כניסה חינם!',
+      contentHe: 'ביום שישי הקרוב נקיים ג\'אם סשן פתוח לכל התלמידים! בואו להראות מה למדתם ולהתרגל יחד. כניסה חינם!',
       author: 'ההנהלה',
       imageUrl: 'https://picsum.photos/400/300?random=4',
       updateType: UpdateType.event,
@@ -81,7 +81,7 @@ class _UpdatesPageState extends State<UpdatesPage>
     UpdateModel(
       id: '5',
       titleHe: 'דני זוכה במקום השני!',
-      content: 'דני מהקבוצה הבינונית הגיע למקום השני בתחרות הברייקדאנס המקומית. איזה הישג מרשים!',
+      contentHe: 'דני מהקבוצה הבינונית הגיע למקום השני בתחרות הברייקדאנס המקומית. איזה הישג מרשים!',
       author: 'צוות המדריכים',
       imageUrl: 'https://picsum.photos/400/300?random=5',
       updateType: UpdateType.achievement,
@@ -94,7 +94,7 @@ class _UpdatesPageState extends State<UpdatesPage>
     UpdateModel(
       id: '6',
       titleHe: 'סדנה מיוחדת עם אמן אורח',
-      content: 'השבוע הבא נארח את יוסי - רקדן ההיפ הופ המפורסם. סדנה מיוחדת לרמה מתקדמת. מקומות מוגבלים!',
+      contentHe: 'השבוע הבא נארח את יוסי - רקדן ההיפ הופ המפורסם. סדנה מיוחדת לרמה מתקדמת. מקומות מוגבלים!',
       author: 'ההנהלה',
       imageUrl: 'https://picsum.photos/400/300?random=6',
       updateType: UpdateType.announcement,
@@ -107,7 +107,7 @@ class _UpdatesPageState extends State<UpdatesPage>
     UpdateModel(
       id: '7',
       titleHe: 'טיפ חימום מהיר',
-      content: 'זוכרים את תרגילי הקרסול? הם חיוניים למניעת פציעות ברגליים. עשו אותם לפני כל אימון!',
+      contentHe: 'זוכרים את תרגילי הקרסול? הם חיוניים למניעת פציעות ברגליים. עשו אותם לפני כל אימון!',
       author: 'שרה המדריכה',
       imageUrl: null,
       updateType: UpdateType.tip,
