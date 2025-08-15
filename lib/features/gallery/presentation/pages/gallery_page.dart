@@ -20,66 +20,6 @@ class GalleryPage extends ConsumerStatefulWidget {
 class _GalleryPageState extends ConsumerState<GalleryPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  
-  // Mock data - בעתיד יחובר ל-Supabase
-  final List<GalleryItemModel> _allItems = [
-    GalleryItemModel(
-      id: '1',
-      title: 'שיעור היפ הופ מתקדמים',
-      description: 'אימון אנרגטי עם הכוריאוגרפיה החדשה',
-      mediaUrl: 'https://picsum.photos/400/600?random=1',
-      mediaType: MediaType.image,
-      isFeatured: true,
-      createdAt: DateTime.now().subtract(const Duration(days: 2)),
-    ),
-    GalleryItemModel(
-      id: '2',
-      title: 'הופעה בתחרות עירונית',
-      description: 'התלמידים שלנו זורחים על הבמה',
-      mediaUrl: 'https://picsum.photos/400/600?random=2',
-      mediaType: MediaType.video,
-      thumbnailUrl: 'https://picsum.photos/400/600?random=2',
-      isFeatured: true,
-      createdAt: DateTime.now().subtract(const Duration(days: 5)),
-    ),
-    GalleryItemModel(
-      id: '3',
-      title: 'אמצע השיעור',
-      description: 'תלמידים מתרגלים את הצעדים החדשים',
-      mediaUrl: 'https://picsum.photos/400/600?random=3',
-      mediaType: MediaType.image,
-      isFeatured: false,
-      createdAt: DateTime.now().subtract(const Duration(days: 1)),
-    ),
-    GalleryItemModel(
-      id: '4',
-      title: 'הכנות לתחרות',
-      description: 'שבועות של אימונים מתוקים לפני ההופעה הגדולה',
-      mediaUrl: 'https://picsum.photos/400/600?random=4',
-      mediaType: MediaType.video,
-      thumbnailUrl: 'https://picsum.photos/400/600?random=4',
-      isFeatured: false,
-      createdAt: DateTime.now().subtract(const Duration(days: 7)),
-    ),
-    GalleryItemModel(
-      id: '5',
-      title: 'תלמידת השנה',
-      description: 'מיה זוכת התואר - גאים בך!',
-      mediaUrl: 'https://picsum.photos/400/600?random=5',
-      mediaType: MediaType.image,
-      isFeatured: true,
-      createdAt: DateTime.now().subtract(const Duration(days: 10)),
-    ),
-    GalleryItemModel(
-      id: '6',
-      title: 'הסטודיו החדש',
-      description: 'מרחב יצירה מושלם לריקוד',
-      mediaUrl: 'https://picsum.photos/400/600?random=6',
-      mediaType: MediaType.image,
-      isFeatured: false,
-      createdAt: DateTime.now().subtract(const Duration(days: 15)),
-    ),
-  ];
 
   List<String> get categories => ['הכל', 'שיעורים', 'הופעות', 'חיי הסטודיו', 'תלמידים'];
   
