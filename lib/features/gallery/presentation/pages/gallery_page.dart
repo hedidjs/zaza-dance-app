@@ -308,7 +308,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     NeonText(
-                      text: item.title,
+                      text: item.titleHe,
                       fontSize: 16,
                       glowColor: AppColors.neonTurquoise,
                       fontWeight: FontWeight.bold,
@@ -423,7 +423,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      item.title,
+                      item.titleHe,
                       style: TextStyle(
                         color: AppColors.primaryText,
                         fontSize: 12,
@@ -547,7 +547,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage>
                   
                   // Title
                   NeonText(
-                    text: item.title,
+                    text: item.titleHe,
                     fontSize: 24,
                     glowColor: AppColors.neonPink,
                     fontWeight: FontWeight.bold,
