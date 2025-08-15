@@ -1,36 +1,50 @@
+import 'category_model.dart';
+
 class TutorialModel {
   final String id;
-  final String title;
-  final String? description;
-  final String instructorId;
-  final String? instructorName;
-  final DifficultyLevel difficultyLevel;
-  final int? durationMinutes;
-  final String? videoUrl;
+  final String titleHe;
+  final String? titleEn;
+  final String? descriptionHe;
+  final String? descriptionEn;
+  final String videoUrl;
   final String? thumbnailUrl;
-  final bool isPremium;
-  final int viewCount;
-  final int likeCount;
-  final bool isPublished;
+  final int? durationSeconds;
+  final DifficultyLevel? difficultyLevel;
+  final String? categoryId;
+  final CategoryModel? category;
+  final String? instructorName;
+  final List<String> tags;
+  final bool isFeatured;
+  final int likesCount;
+  final int viewsCount;
+  final int downloadsCount;
+  final int sortOrder;
+  final bool isActive;
   final DateTime createdAt;
-  final DateTime? updatedAt;
+  final DateTime updatedAt;
 
   const TutorialModel({
     required this.id,
-    required this.title,
-    this.description,
-    required this.instructorId,
-    this.instructorName,
-    required this.difficultyLevel,
-    this.durationMinutes,
-    this.videoUrl,
+    required this.titleHe,
+    this.titleEn,
+    this.descriptionHe,
+    this.descriptionEn,
+    required this.videoUrl,
     this.thumbnailUrl,
-    required this.isPremium,
-    required this.viewCount,
-    required this.likeCount,
-    required this.isPublished,
+    this.durationSeconds,
+    this.difficultyLevel,
+    this.categoryId,
+    this.category,
+    this.instructorName,
+    required this.tags,
+    required this.isFeatured,
+    required this.likesCount,
+    required this.viewsCount,
+    required this.downloadsCount,
+    required this.sortOrder,
+    required this.isActive,
     required this.createdAt,
-    this.updatedAt,
+    required this.updatedAt,
   });
 
   String get durationText {
