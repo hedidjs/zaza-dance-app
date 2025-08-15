@@ -409,6 +409,28 @@ class HomePage extends StatelessWidget {
     );
   }
 
+  void _onBottomNavTap(int index) {
+    switch (index) {
+      case 0:
+        // Already on home page
+        break;
+      case 1:
+        // TODO: Navigate to tutorials
+        break;
+      case 2:
+        // Navigate to gallery
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => const GalleryPage(),
+          ),
+        );
+        break;
+      case 3:
+        // TODO: Navigate to updates
+        break;
+    }
+  }
+
   Widget _buildBottomNavigation() {
     return Container(
       decoration: BoxDecoration(
@@ -431,7 +453,7 @@ class HomePage extends StatelessWidget {
         currentIndex: 0,
         selectedItemColor: AppColors.neonPink,
         unselectedItemColor: AppColors.secondaryText,
-        onTap: (index) => _onBottomNavTap(index),
+        onTap: _onBottomNavTap,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
