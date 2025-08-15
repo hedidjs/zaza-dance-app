@@ -218,7 +218,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage>
     );
   }
 
-  Widget _buildFeaturedItem(GalleryItemModel item, int index) {
+  Widget _buildFeaturedItem(GalleryModel item, int index) {
     return GestureDetector(
       onTap: () => _openItemDetails(item),
       child: Container(
@@ -333,7 +333,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage>
     );
   }
 
-  Widget _buildGalleryItem(GalleryItemModel item, int index) {
+  Widget _buildGalleryItem(GalleryModel item, int index) {
     return GestureDetector(
       onTap: () => _openItemDetails(item),
       child: Container(
@@ -454,7 +454,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage>
     );
   }
 
-  void _openItemDetails(GalleryItemModel item) {
+  void _openItemDetails(GalleryModel item) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -463,7 +463,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage>
     );
   }
 
-  Widget _buildItemDetailsSheet(GalleryItemModel item) {
+  Widget _buildItemDetailsSheet(GalleryModel item) {
     return Container(
       height: MediaQuery.of(context).size.height * 0.8,
       decoration: BoxDecoration(
