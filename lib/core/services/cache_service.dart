@@ -269,13 +269,3 @@ class CacheInfo {
     }
   }
 }
-
-class _ManagerCacheInfo {
-  final int size;
-  final int files;
-
-  const _ManagerCacheInfo({
-    required this.size,
-    required this.files,
-  });
-}
