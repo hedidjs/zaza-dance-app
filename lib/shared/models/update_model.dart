@@ -93,7 +93,12 @@ class UpdateModel {
     String? content,
     String? excerpt,
     String? imageUrl,
+    String? author,
+    UpdateType? updateType,
     bool? isPinned,
+    bool? isNew,
+    int? likeCount,
+    int? commentCount,
     DateTime? updatedAt,
   }) {
     return UpdateModel(
@@ -102,9 +107,33 @@ class UpdateModel {
       content: content ?? this.content,
       excerpt: excerpt ?? this.excerpt,
       imageUrl: imageUrl ?? this.imageUrl,
+      author: author ?? this.author,
+      updateType: updateType ?? this.updateType,
       isPinned: isPinned ?? this.isPinned,
+      isNew: isNew ?? this.isNew,
+      likeCount: likeCount ?? this.likeCount,
+      commentCount: commentCount ?? this.commentCount,
       createdAt: createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+}
+
+enum UpdateType {
+  announcement('announcement', 'הודעה'),
+  studentSpotlight('student_spotlight', 'הישג תלמיד'),
+  instructorTip('instructor_tip', 'טיפ מדריך'),
+  event('event', 'אירוע');
+
+  const UpdateType(this.value, this.displayName);
+
+  final String value;
+  final String displayName;
+
+  static UpdateType fromString(String value) {
+    return UpdateType.values.firstWhere(
+      (type) => type.value == value,
+      orElse: () => UpdateType.announcement,
     );
   }
 }
