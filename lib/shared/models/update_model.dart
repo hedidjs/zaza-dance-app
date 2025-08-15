@@ -77,7 +77,12 @@ class UpdateModel {
       'content': content,
       'excerpt': excerpt,
       'image_url': imageUrl,
+      'author': author,
+      'update_type': updateType.value,
       'is_pinned': isPinned,
+      'is_new': isNew,
+      'like_count': likeCount,
+      'comment_count': commentCount,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt?.toIso8601String(),
     };
