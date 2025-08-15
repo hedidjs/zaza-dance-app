@@ -52,10 +52,3 @@ flutter:
     - assets/images/
     - assets/videos/
     
-  # Fonts
-  fonts:
-    - family: Assistant
-      fonts:
-        - asset: assets/fonts/Assistant-Regular.ttf
-        - asset: assets/fonts/Assistant-Bold.ttf
-          weight: 700
