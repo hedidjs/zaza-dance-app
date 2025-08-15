@@ -129,7 +129,11 @@ class HomePage extends StatelessWidget {
                 subtitle: 'תרגלו מהבית',
                 color: AppColors.neonPink,
                 onTap: () {
-                  // TODO: Navigate to tutorials
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const TutorialsPage(),
+                    ),
+                  );
                 },
               ),
             ),
