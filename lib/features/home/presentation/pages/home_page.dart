@@ -441,7 +441,12 @@ class HomePage extends StatelessWidget {
         );
         break;
       case 3:
-        // TODO: Navigate to updates
+        // Navigate to updates
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => const UpdatesPage(),
+          ),
+        );
         break;
     }
   }
