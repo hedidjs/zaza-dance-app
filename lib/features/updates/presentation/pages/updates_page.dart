@@ -145,7 +145,7 @@ class _UpdatesPageState extends State<UpdatesPage>
         filtered = filtered.where((u) => u.updateType == UpdateType.announcement).toList();
         break;
       case 2: // הישגי תלמידים
-        filtered = filtered.where((u) => u.updateType == UpdateType.studentSpotlight).toList();
+        filtered = filtered.where((u) => u.updateType == UpdateType.achievement).toList();
         break;
       case 3: // טיפים ממדריכים
         filtered = filtered.where((u) => u.updateType == UpdateType.instructorTip).toList();
@@ -580,7 +580,7 @@ class _UpdatesPageState extends State<UpdatesPage>
     switch (type) {
       case UpdateType.announcement:
         return AppColors.neonPink;
-      case UpdateType.studentSpotlight:
+      case UpdateType.achievement:
         return AppColors.neonTurquoise;
       case UpdateType.instructorTip:
         return AppColors.neonPurple;
@@ -593,7 +593,7 @@ class _UpdatesPageState extends State<UpdatesPage>
     switch (type) {
       case UpdateType.announcement:
         return Icons.campaign;
-      case UpdateType.studentSpotlight:
+      case UpdateType.achievement:
         return Icons.star;
       case UpdateType.instructorTip:
         return Icons.lightbulb;
@@ -606,7 +606,7 @@ class _UpdatesPageState extends State<UpdatesPage>
     switch (type) {
       case UpdateType.announcement:
         return 'הודעה';
-      case UpdateType.studentSpotlight:
+      case UpdateType.achievement:
         return 'הישג תלמיד';
       case UpdateType.instructorTip:
         return 'טיפ מדריך';
@@ -796,7 +796,7 @@ class UpdateDetailsPage extends StatelessWidget {
     switch (type) {
       case UpdateType.announcement:
         return 'הודעה';
-      case UpdateType.studentSpotlight:
+      case UpdateType.achievement:
         return 'הישג תלמיד';
       case UpdateType.instructorTip:
         return 'טיפ מדריך';
