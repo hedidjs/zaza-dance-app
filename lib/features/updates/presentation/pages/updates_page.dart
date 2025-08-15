@@ -41,8 +41,8 @@ class _UpdatesPageState extends ConsumerState<UpdatesPage>
     super.dispose();
   }
 
-  List<UpdateModel> _getFilteredUpdates(int categoryIndex) {
-    List<UpdateModel> filtered = _allUpdates;
+  List<UpdateModel> _getFilteredUpdates(List<UpdateModel> allUpdates, int categoryIndex) {
+    List<UpdateModel> filtered = List.from(allUpdates);
     
     // Filter by category
     switch (categoryIndex) {
