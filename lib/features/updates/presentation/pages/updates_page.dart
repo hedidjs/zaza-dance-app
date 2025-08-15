@@ -490,7 +490,7 @@ class _UpdatesPageState extends State<UpdatesPage>
                 ),
               const SizedBox(width: 8),
               Text(
-                _formatTimeAgo(update.createdAt),
+                _formatTimeAgo(update.publishDate),
                 style: TextStyle(
                   color: AppColors.secondaryText,
                   fontSize: 12,
