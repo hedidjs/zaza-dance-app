@@ -103,7 +103,13 @@ class _UpdatesPageState extends State<UpdatesPage>
       isPinned: false,
       likesCount: 52,
       commentsCount: 19,
+      sharesCount: 0,
+      tags: [],
+      publishDate: DateTime.now().subtract(const Duration(days: 3)),
+      isActive: true,
+      isFeatured: false,
       createdAt: DateTime.now().subtract(const Duration(days: 3)),
+      updatedAt: DateTime.now().subtract(const Duration(days: 3)),
     ),
     UpdateModel(
       id: '6',
