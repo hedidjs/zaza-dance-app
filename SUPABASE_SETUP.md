@@ -10,7 +10,8 @@
    static const String supabaseAnonKey = 'YOUR_ACTUAL_SUPABASE_ANON_KEY';
    ```
 
-4. Run the SQL schema from `lib/core/database/supabase_schema.sql` in your Supabase SQL editor
+4. Run the SQL schema from `lib/core/database/supabase_schema_fixed.sql` in your Supabase SQL editor
+   ⚠️ **Important**: Use the `supabase_schema_fixed.sql` file (not the original one) to avoid permission errors
 5. Run the storage setup from `lib/core/database/storage_buckets.sql` in your Supabase SQL editor
 
 ## Enable Real Data
