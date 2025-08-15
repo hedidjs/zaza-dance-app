@@ -53,7 +53,7 @@ class OfflineDownloadService {
 
   /// Download tutorial for offline viewing
   Future<bool> downloadTutorial(TutorialModel tutorial) async {
-    if (tutorial.videoUrl == null) {
+    if (tutorial.videoUrl.isEmpty) {
       if (kDebugMode) {
         print('Tutorial ${tutorial.id} has no video URL');
       }
