@@ -47,102 +47,153 @@ class TutorialModel {
     required this.updatedAt,
   });
 
-  String get durationText {
-    if (durationMinutes == null) return '';
-    final minutes = durationMinutes!;
-    if (minutes < 60) {
-      return '${minutes} דקות';
+  String get formattedDuration {
+    if (durationSeconds == null) return '';
+    
+    final hours = durationSeconds! ~/ 3600;
+    final minutes = (durationSeconds! % 3600) ~/ 60;
+    final seconds = durationSeconds! % 60;
+    
+    if (hours > 0) {
+      return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
     } else {
-      final hours = minutes ~/ 60;
-      final remainingMinutes = minutes % 60;
-      if (remainingMinutes == 0) {
-        return '${hours} שעות';
-      } else {
-        return '${hours} שעות ${remainingMinutes} דקות';
-      }
+      return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
     }
   }
+
+  String get difficultyText {
+    return difficultyLevel?.displayName ?? '';
+  }
+
+  // Legacy getters for compatibility
+  String get title => titleHe;
+  String get description => descriptionHe ?? '';
+  int get duration => durationSeconds ?? 0;
+  String get category => category?.nameHe ?? '';
+  String get instructor => instructorName ?? '';
 
   factory TutorialModel.fromJson(Map<String, dynamic> json) {
     return TutorialModel(
       id: json['id'] as String,
-      title: json['title'] as String,
-      description: json['description'] as String?,
-      instructorId: json['instructor_id'] as String,
-      instructorName: json['instructor_name'] as String?,
-      difficultyLevel: DifficultyLevel.fromString(
-        json['difficulty_level'] as String? ?? 'beginner',
-      ),
-      durationMinutes: json['duration_minutes'] as int?,
-      videoUrl: json['video_url'] as String?,
+      titleHe: json['title_he'] as String,
+      titleEn: json['title_en'] as String?,
+      descriptionHe: json['description_he'] as String?,
+      descriptionEn: json['description_en'] as String?,
+      videoUrl: json['video_url'] as String,
       thumbnailUrl: json['thumbnail_url'] as String?,
-      isPremium: json['is_premium'] as bool? ?? false,
-      viewCount: json['view_count'] as int? ?? 0,
-      likeCount: json['like_count'] as int? ?? 0,
-      isPublished: json['is_published'] as bool? ?? false,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: json['updated_at'] != null 
-          ? DateTime.parse(json['updated_at'] as String)
+      durationSeconds: json['duration_seconds'] as int?,
+      difficultyLevel: json['difficulty_level'] != null 
+          ? DifficultyLevel.fromString(json['difficulty_level'] as String)
           : null,
+      categoryId: json['category_id'] as String?,
+      category: json['categories'] != null 
+          ? CategoryModel.fromJson(json['categories'] as Map<String, dynamic>)
+          : null,
+      instructorName: json['instructor_name'] as String?,
+      tags: List<String>.from(json['tags'] as List? ?? []),
+      isFeatured: json['is_featured'] as bool? ?? false,
+      likesCount: json['likes_count'] as int? ?? 0,
+      viewsCount: json['views_count'] as int? ?? 0,
+      downloadsCount: json['downloads_count'] as int? ?? 0,
+      sortOrder: json['sort_order'] as int? ?? 0,
+      isActive: json['is_active'] as bool? ?? true,
+      createdAt: DateTime.parse(json['created_at'] as String),
+      updatedAt: DateTime.parse(json['updated_at'] as String),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'title': title,
-      'description': description,
-      'instructor_id': instructorId,
-      'difficulty_level': difficultyLevel.value,
-      'duration_minutes': durationMinutes,
+      'title_he': titleHe,
+      'title_en': titleEn,
+      'description_he': descriptionHe,
+      'description_en': descriptionEn,
       'video_url': videoUrl,
       'thumbnail_url': thumbnailUrl,
-      'is_premium': isPremium,
-      'view_count': viewCount,
-      'like_count': likeCount,
-      'is_published': isPublished,
+      'duration_seconds': durationSeconds,
+      'difficulty_level': difficultyLevel?.value,
+      'category_id': categoryId,
+      'instructor_name': instructorName,
+      'tags': tags,
+      'is_featured': isFeatured,
+      'likes_count': likesCount,
+      'views_count': viewsCount,
+      'downloads_count': downloadsCount,
+      'sort_order': sortOrder,
+      'is_active': isActive,
       'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt?.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
     };
   }
 
   TutorialModel copyWith({
-    String? title,
-    String? description,
-    DifficultyLevel? difficultyLevel,
-    int? durationMinutes,
+    String? id,
+    String? titleHe,
+    String? titleEn,
+    String? descriptionHe,
+    String? descriptionEn,
     String? videoUrl,
     String? thumbnailUrl,
-    bool? isPremium,
-    int? viewCount,
-    int? likeCount,
-    bool? isPublished,
+    int? durationSeconds,
+    DifficultyLevel? difficultyLevel,
+    String? categoryId,
+    CategoryModel? category,
+    String? instructorName,
+    List<String>? tags,
+    bool? isFeatured,
+    int? likesCount,
+    int? viewsCount,
+    int? downloadsCount,
+    int? sortOrder,
+    bool? isActive,
+    DateTime? createdAt,
     DateTime? updatedAt,
   }) {
     return TutorialModel(
-      id: id,
-      title: title ?? this.title,
-      description: description ?? this.description,
-      instructorId: instructorId,
-      instructorName: instructorName,
-      difficultyLevel: difficultyLevel ?? this.difficultyLevel,
-      durationMinutes: durationMinutes ?? this.durationMinutes,
+      id: id ?? this.id,
+      titleHe: titleHe ?? this.titleHe,
+      titleEn: titleEn ?? this.titleEn,
+      descriptionHe: descriptionHe ?? this.descriptionHe,
+      descriptionEn: descriptionEn ?? this.descriptionEn,
       videoUrl: videoUrl ?? this.videoUrl,
       thumbnailUrl: thumbnailUrl ?? this.thumbnailUrl,
-      isPremium: isPremium ?? this.isPremium,
-      viewCount: viewCount ?? this.viewCount,
-      likeCount: likeCount ?? this.likeCount,
-      isPublished: isPublished ?? this.isPublished,
-      createdAt: createdAt,
+      durationSeconds: durationSeconds ?? this.durationSeconds,
+      difficultyLevel: difficultyLevel ?? this.difficultyLevel,
+      categoryId: categoryId ?? this.categoryId,
+      category: category ?? this.category,
+      instructorName: instructorName ?? this.instructorName,
+      tags: tags ?? this.tags,
+      isFeatured: isFeatured ?? this.isFeatured,
+      likesCount: likesCount ?? this.likesCount,
+      viewsCount: viewsCount ?? this.viewsCount,
+      downloadsCount: downloadsCount ?? this.downloadsCount,
+      sortOrder: sortOrder ?? this.sortOrder,
+      isActive: isActive ?? this.isActive,
+      createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }
+
+  @override
+  String toString() {
+    return 'TutorialModel(id: $id, titleHe: $titleHe, instructor: $instructorName)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is TutorialModel && other.id == id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
 }
 
 enum DifficultyLevel {
-  beginner('beginner', 'מתחיל'),
+  beginner('beginner', 'מתחילים'),
   intermediate('intermediate', 'בינוני'),
-  advanced('advanced', 'מתקדם');
+  advanced('advanced', 'מתקדמים');
 
   const DifficultyLevel(this.value, this.displayName);
 
@@ -155,4 +206,7 @@ enum DifficultyLevel {
       orElse: () => DifficultyLevel.beginner,
     );
   }
+
+  @override
+  String toString() => value;
 }
