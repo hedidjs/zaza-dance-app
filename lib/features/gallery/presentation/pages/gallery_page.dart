@@ -287,7 +287,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage>
               ),
               
               // Video play button
-              if (item.isVideo)
+              if (item.mediaType == MediaType.video)
                 Positioned(
                   top: 16,
                   right: 16,
@@ -402,7 +402,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage>
               ),
               
               // Video play button
-              if (item.isVideo)
+              if (item.mediaType == MediaType.video)
                 Positioned(
                   top: 8,
                   right: 8,
@@ -528,7 +528,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage>
                                 ),
                               ),
                             ),
-                            if (item.isVideo)
+                            if (item.mediaType == MediaType.video)
                               Center(
                                 child: GlowIcon(
                                   Icons.play_circle_filled,
