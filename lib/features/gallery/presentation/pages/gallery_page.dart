@@ -249,7 +249,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage>
               // Background image
               Positioned.fill(
                 child: CachedNetworkImage(
-                  imageUrl: item.displayUrl,
+                  imageUrl: item.thumbnailUrl ?? item.mediaUrl,
                   fit: BoxFit.cover,
                   placeholder: (context, url) => Container(
                     color: AppColors.darkCard,
@@ -363,7 +363,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage>
               // Background image
               Positioned.fill(
                 child: CachedNetworkImage(
-                  imageUrl: item.displayUrl,
+                  imageUrl: item.thumbnailUrl ?? item.mediaUrl,
                   fit: BoxFit.cover,
                   placeholder: (context, url) => Container(
                     color: AppColors.darkCard,
@@ -516,7 +516,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage>
                           children: [
                             Positioned.fill(
                               child: CachedNetworkImage(
-                                imageUrl: item.displayUrl,
+                                imageUrl: item.thumbnailUrl ?? item.mediaUrl,
                                 fit: BoxFit.cover,
                                 placeholder: (context, url) => Container(
                                   color: AppColors.darkCard,
