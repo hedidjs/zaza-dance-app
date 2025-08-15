@@ -48,8 +48,8 @@ class _TutorialsPageState extends ConsumerState<TutorialsPage>
     super.dispose();
   }
 
-  List<TutorialModel> _getFilteredTutorials(int categoryIndex) {
-    List<TutorialModel> filtered = _allTutorials;
+  List<TutorialModel> _getFilteredTutorials(List<TutorialModel> allTutorials, int categoryIndex) {
+    List<TutorialModel> filtered = List.from(allTutorials);
     
     // Filter by category
     switch (categoryIndex) {
