@@ -621,11 +621,8 @@ class _UpdatesPageState extends ConsumerState<UpdatesPage>
   }
 
   Future<void> _refreshUpdates() async {
-    // Simulate refresh delay
-    await Future.delayed(const Duration(seconds: 1));
-    setState(() {
-      // In real app, this would fetch latest updates from Supabase
-    });
+    // Invalidate the provider to trigger a refresh
+    ref.invalidate(updatesProvider);
   }
 }
 
