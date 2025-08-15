@@ -49,7 +49,7 @@ class _UpdatesPageState extends State<UpdatesPage>
       isPinned: false,
       isNew: true,
       likesCount: 67,
-      commentCount: 23,
+      commentsCount: 23,
       createdAt: DateTime.now().subtract(const Duration(hours: 5)),
     ),
     UpdateModel(
@@ -62,7 +62,7 @@ class _UpdatesPageState extends State<UpdatesPage>
       isPinned: false,
       isNew: false,
       likesCount: 34,
-      commentCount: 8,
+      commentsCount: 8,
       createdAt: DateTime.now().subtract(const Duration(days: 1)),
     ),
     UpdateModel(
@@ -75,7 +75,7 @@ class _UpdatesPageState extends State<UpdatesPage>
       isPinned: true,
       isNew: false,
       likesCount: 28,
-      commentCount: 15,
+      commentsCount: 15,
       createdAt: DateTime.now().subtract(const Duration(days: 2)),
     ),
     UpdateModel(
@@ -88,7 +88,7 @@ class _UpdatesPageState extends State<UpdatesPage>
       isPinned: false,
       isNew: false,
       likesCount: 52,
-      commentCount: 19,
+      commentsCount: 19,
       createdAt: DateTime.now().subtract(const Duration(days: 3)),
     ),
     UpdateModel(
@@ -101,7 +101,7 @@ class _UpdatesPageState extends State<UpdatesPage>
       isPinned: false,
       isNew: false,
       likesCount: 73,
-      commentCount: 31,
+      commentsCount: 31,
       createdAt: DateTime.now().subtract(const Duration(days: 4)),
     ),
     UpdateModel(
@@ -114,7 +114,7 @@ class _UpdatesPageState extends State<UpdatesPage>
       isPinned: false,
       isNew: false,
       likesCount: 19,
-      commentCount: 4,
+      commentsCount: 4,
       createdAt: DateTime.now().subtract(const Duration(days: 5)),
     ),
   ];
