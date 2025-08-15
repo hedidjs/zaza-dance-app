@@ -419,7 +419,7 @@ class HomePage extends StatelessWidget {
         ),
         border: Border(
           top: BorderSide(
-            color: AppColors.neonPink.withOpacity(0.2),
+            color: AppColors.neonPink.withValues(alpha: 0.2),
             width: 1,
           ),
         ),
@@ -431,6 +431,26 @@ class HomePage extends StatelessWidget {
         currentIndex: 0,
         selectedItemColor: AppColors.neonPink,
         unselectedItemColor: AppColors.secondaryText,
+        onTap: (index) {
+          switch (index) {
+            case 0:
+              // כבר בדף הבית
+              break;
+            case 1:
+              // TODO: Navigate to tutorials
+              break;
+            case 2:
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const GalleryPage(),
+                ),
+              );
+              break;
+            case 3:
+              // TODO: Navigate to updates
+              break;
+          }
+        },
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
