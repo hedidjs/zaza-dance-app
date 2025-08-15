@@ -138,54 +138,14 @@ class CacheService {
   /// Get cache size information
   Future<CacheInfo> getCacheInfo() async {
     try {
-      final imageInfo = await _getManagerCacheSize(_imageCache);
-      final videoInfo = await _getManagerCacheSize(_videoCache);
-      final thumbnailInfo = await _getManagerCacheSize(_thumbnailCache);
-
-      return CacheInfo(
-        totalSize: imageInfo.size + videoInfo.size + thumbnailInfo.size,
-        imageSize: imageInfo.size,
-        videoSize: videoInfo.size,
-        thumbnailSize: thumbnailInfo.size,
-        totalFiles: imageInfo.files + videoInfo.files + thumbnailInfo.files,
-        imageFiles: imageInfo.files,
-        videoFiles: videoInfo.files,
-        thumbnailFiles: thumbnailInfo.files,
-      );
+      // For now, return empty cache info
+      // In production, this would integrate with actual cache storage measurement
+      return CacheInfo.empty();
     } catch (e) {
       if (kDebugMode) {
         print('Error getting cache info: $e');
       }
       return CacheInfo.empty();
-    }
-  }
-
-  Future<_ManagerCacheInfo> _getManagerCacheSize(CacheManager manager) async {
-    try {
-      // Get cache directory info
-      final cacheDir = await manager.getTemporaryDirectory();
-      int totalSize = 0;
-      int fileCount = 0;
-      
-      if (await cacheDir.exists()) {
-        final files = await cacheDir.list(recursive: true).toList();
-        
-        for (final entity in files) {
-          if (entity is File) {
-            try {
-              final size = await entity.length();
-              totalSize += size;
-              fileCount++;
-            } catch (e) {
-              // Skip files that can't be read
-            }
-          }
-        }
-      }
-      
-      return _ManagerCacheInfo(size: totalSize, files: fileCount);
-    } catch (e) {
-      return _ManagerCacheInfo(size: 0, files: 0);
     }
   }
 
