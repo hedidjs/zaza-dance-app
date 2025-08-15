@@ -4,7 +4,12 @@ class UpdateModel {
   final String content;
   final String? excerpt;
   final String? imageUrl;
+  final String? author;
+  final UpdateType updateType;
   final bool isPinned;
+  final bool isNew;
+  final int likeCount;
+  final int commentCount;
   final DateTime createdAt;
   final DateTime? updatedAt;
 
@@ -14,7 +19,12 @@ class UpdateModel {
     required this.content,
     this.excerpt,
     this.imageUrl,
+    this.author,
+    required this.updateType,
     required this.isPinned,
+    required this.isNew,
+    required this.likeCount,
+    required this.commentCount,
     required this.createdAt,
     this.updatedAt,
   });
