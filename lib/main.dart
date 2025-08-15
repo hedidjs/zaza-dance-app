@@ -18,6 +18,9 @@ Future<void> main() async {
     anonKey: AppConstants.supabaseAnonKey,
   );
   
+  // Initialize Cache Service
+  await CacheService().initialize();
+  
   // Set system UI overlay style
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
