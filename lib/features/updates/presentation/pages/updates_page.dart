@@ -47,7 +47,6 @@ class _UpdatesPageState extends State<UpdatesPage>
       imageUrl: 'https://picsum.photos/400/300?random=2',
       updateType: UpdateType.achievement,
       isPinned: false,
-      isNew: true,
       likesCount: 67,
       commentsCount: 23,
       createdAt: DateTime.now().subtract(const Duration(hours: 5)),
