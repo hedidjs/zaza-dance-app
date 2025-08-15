@@ -185,7 +185,7 @@ class NotificationService {
         DateTime.now().millisecondsSinceEpoch.remainder(100000),
         title,
         body,
-        scheduledDate,
+        tz.TZDateTime.from(scheduledDate, tz.local),
         notificationDetails,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         uiLocalNotificationDateInterpretation:
