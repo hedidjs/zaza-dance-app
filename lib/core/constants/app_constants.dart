@@ -4,8 +4,8 @@ class AppConstants {
   static const String appDescription = 'בית דיגיטלי לקהילת חוג ההיפ הופ';
   
   // Database
-  static const String supabaseUrl = 'YOUR_SUPABASE_URL';
-  static const String supabaseAnonKey = 'YOUR_SUPABASE_ANON_KEY';
+  static const String supabaseUrl = https://yyvoavzgapsyycjwirmg.supabase.co;
+  static const String supabaseAnonKey = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5dm9hdnpnYXBzeXljandpcm1nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUyOTgyMzgsImV4cCI6MjA3MDg3NDIzOH0.IU_dW_8K-yuV1grWIWJdetU7jK-b-QDPFYp_m5iFP90;
   
   // Storage buckets
   static const String profileImagesBucket = 'profile-images';
