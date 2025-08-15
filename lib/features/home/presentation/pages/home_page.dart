@@ -168,7 +168,11 @@ class HomePage extends StatelessWidget {
                 subtitle: 'מה חדש בסטודיו',
                 color: AppColors.neonPurple,
                 onTap: () {
-                  // TODO: Navigate to updates
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const UpdatesPage(),
+                    ),
+                  );
                 },
               ),
             ),
