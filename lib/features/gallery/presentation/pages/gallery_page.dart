@@ -161,7 +161,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage>
                     glowColor: AppColors.neonPink,
                   ),
                   const SizedBox(height: 16),
-                  _buildFeaturedCarousel(),
+                  _buildFeaturedCarousel(items),
                   const SizedBox(height: 30),
                   NeonText(
                     text: 'הכל',
