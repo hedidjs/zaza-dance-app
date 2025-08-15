@@ -801,7 +801,7 @@ class UpdateDetailsPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'מאת: ${update.authorName}',
+                      'מאת: ${update.authorName ?? 'לא ידוע'}',
                       style: TextStyle(
                         color: AppColors.primaryText,
                         fontSize: 14,
