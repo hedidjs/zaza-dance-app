@@ -804,6 +804,8 @@ class UpdateDetailsPage extends StatelessWidget {
         return 'טיפ מדריך';
       case UpdateType.event:
         return 'אירוע';
+      case UpdateType.news:
+        return 'חדשות';
     }
   }
 }
