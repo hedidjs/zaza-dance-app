@@ -601,6 +601,8 @@ class _UpdatesPageState extends State<UpdatesPage>
         return Icons.lightbulb;
       case UpdateType.event:
         return Icons.event;
+      case UpdateType.news:
+        return Icons.newspaper;
     }
   }
 
