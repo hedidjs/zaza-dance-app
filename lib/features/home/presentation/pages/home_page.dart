@@ -420,7 +420,12 @@ class HomePage extends StatelessWidget {
         // Already on home page
         break;
       case 1:
-        // TODO: Navigate to tutorials
+        // Navigate to tutorials
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => const TutorialsPage(),
+          ),
+        );
         break;
       case 2:
         // Navigate to gallery
