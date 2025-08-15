@@ -145,10 +145,10 @@ class OfflineDownloadService {
   /// Download video file
   Future<File?> _downloadVideoFile(TutorialModel tutorial) async {
     try {
-      if (tutorial.videoUrl == null) return null;
+      if (tutorial.videoUrl.isEmpty) return null;
 
       final cacheService = CacheService();
-      final file = await cacheService.downloadVideoForOffline(tutorial.videoUrl!);
+      final file = await cacheService.downloadVideoForOffline(tutorial.videoUrl);
       
       // Update progress
       _notifyProgressListeners(tutorial.id, DownloadProgress(
