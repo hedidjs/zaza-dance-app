@@ -51,8 +51,8 @@ class AuthService {
         email: email,
         password: password,
         data: {
-          'full_name': fullName,
-          'phone_number': phoneNumber,
+          'display_name': fullName,
+          'phone': phoneNumber,
           'address': address,
           'role': role,
         },
@@ -62,16 +62,15 @@ class AuthService {
         return AuthResult.error('Failed to create user account');
       }
 
-      // Create user profile in profiles table
-      await _supabase.from('profiles').insert({
-        'id': response.user!.id,
-        'full_name': fullName,
-        'phone_number': phoneNumber,
-        'address': address,
-        'role': role,
-        'profile_image_url': AppConstants.defaultProfileImageUrl,
-        'created_at': DateTime.now().toIso8601String(),
-      });
+      // Create user profile in users table
+      await DatabaseService.createUserProfile(
+        userId: response.user!.id,
+        email: email,
+        displayName: fullName,
+        phone: phoneNumber,
+        address: address,
+        role: role,
+      );
 
       if (kDebugMode) {
         print('AuthService: User registered successfully');
