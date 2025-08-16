@@ -476,7 +476,9 @@ class _LandingPageState extends State<LandingPage>
         ],
       ),
       child: ElevatedButton.icon(
-        onPressed: () {},
+        onPressed: () {
+          // TODO: Implement contact functionality
+        },
         style: ElevatedButton.styleFrom(
           backgroundColor: color.withOpacity(0.2),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
