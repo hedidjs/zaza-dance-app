@@ -128,6 +128,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage>
         bottomNavigationBar: const AppBottomNavigation(
           currentPage: NavigationPage.gallery,
         ),
+      ),
     );
   }
 
