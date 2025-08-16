@@ -124,11 +124,9 @@ class _GalleryPageState extends ConsumerState<GalleryPage>
             ),
           ),
         ),
-      ),
-      drawer: const AppDrawer(),
-      bottomNavigationBar: const AppBottomNavigation(
-        currentPage: NavigationPage.gallery,
-      ),
+        bottomNavigationBar: const AppBottomNavigation(
+          currentPage: NavigationPage.gallery,
+        ),
     );
   }
 
