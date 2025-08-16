@@ -280,13 +280,15 @@ class _LandingPageState extends State<LandingPage>
       child: Scaffold(
         body: Container(
           decoration: const BoxDecoration(
-            gradient: RadialGradient(
-              center: Alignment.center,
-              radius: 1.5,
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              stops: [0.0, 0.3, 0.7, 1.0],
               colors: [
-                Color(0xFF2A2A2A),
-                Color(0xFF1A1A1A),
-                Color(0xFF0A0A0A),
+                Color(0xFF0F0F23), // Deep navy with subtle purple hint
+                Color(0xFF1A1A2E), // Darker navy
+                Color(0xFF16213E), // Even darker with blue tint
+                Color(0xFF0F0F23), // Back to deep navy
               ],
             ),
           ),
@@ -295,13 +297,13 @@ class _LandingPageState extends State<LandingPage>
               child: Column(
                 children: [
                   _buildHeroSection(),
-                  const SizedBox(height: 60),
+                  const SizedBox(height: 80),
                   _buildAboutSection(),
-                  const SizedBox(height: 60),
+                  const SizedBox(height: 80),
                   _buildFeaturesSection(),
-                  const SizedBox(height: 60),
+                  const SizedBox(height: 80),
                   _buildContactSection(),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 60),
                 ],
               ),
             ),
