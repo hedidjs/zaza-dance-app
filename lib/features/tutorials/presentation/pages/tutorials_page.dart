@@ -743,7 +743,10 @@ class _TutorialPlayerPageState extends ConsumerState<TutorialPlayerPage> {
                   onPressed: _shareVideo,
                 ),
                 IconButton(
-                  icon: Icon(Icons.bookmark_border, color: AppColors.neonPink),
+                  icon: Icon(
+                    _isBookmarked ? Icons.bookmark : Icons.bookmark_border, 
+                    color: AppColors.neonPink
+                  ),
                   onPressed: _toggleBookmark,
                 ),
               ],
