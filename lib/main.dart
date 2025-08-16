@@ -317,34 +317,75 @@ class _LandingPageState extends State<LandingPage>
     return FadeTransition(
       opacity: _fadeAnimation,
       child: Container(
-        height: MediaQuery.of(context).size.height * 0.8,
-        padding: const EdgeInsets.all(20),
+        height: MediaQuery.of(context).size.height * 0.85,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildNeonText(
-              'זזה דאנס',
-              fontSize: 72,
-              color: const Color(0xFFFF00FF),
+            // Main logo with subtle glow
+            AnimatedBuilder(
+              animation: _pulseAnimation,
+              builder: (context, child) {
+                return _buildEnhancedNeonText(
+                  'זזה דאנס',
+                  fontSize: 64,
+                  color: const Color(0xFFE91E63), // Softer pink instead of pure fuchsia
+                  glowIntensity: _pulseAnimation.value,
+                );
+              },
             ),
-            const SizedBox(height: 20),
-            _buildNeonText(
+            const SizedBox(height: 16),
+            
+            // English subtitle with different color
+            _buildEnhancedNeonText(
               'ZAZA DANCE',
-              fontSize: 36,
-              color: const Color(0xFF40E0D0),
+              fontSize: 28,
+              color: const Color(0xFF26C6DA), // Softer cyan instead of pure turquoise
+              glowIntensity: 0.4,
             ),
-            const SizedBox(height: 40),
-            Text(
-              'בית דיגיטלי לקהילת ההיפ הופ',
-              style: GoogleFonts.assistant(
-                fontSize: 24,
-                color: Colors.white70,
-                fontWeight: FontWeight.w300,
+            
+            const SizedBox(height: 50),
+            
+            // Tagline with elegant typography
+            SlideTransition(
+              position: _slideAnimation,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 30),
+                child: Column(
+                  children: [
+                    Text(
+                      'בית דיגיטלי לקהילת ההיפ הופ',
+                      style: GoogleFonts.assistant(
+                        fontSize: 22,
+                        color: Colors.white.withOpacity(0.9),
+                        fontWeight: FontWeight.w400,
+                        height: 1.4,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'כאן הקצב מתחיל והחלומות מתגשמים',
+                      style: GoogleFonts.assistant(
+                        fontSize: 16,
+                        color: Colors.white.withOpacity(0.7),
+                        fontWeight: FontWeight.w300,
+                        height: 1.3,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
               ),
-              textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 60),
-            _buildCtaButton(),
+            
+            const SizedBox(height: 70),
+            
+            // Enhanced CTA button
+            SlideTransition(
+              position: _slideAnimation,
+              child: _buildEnhancedCtaButton(),
+            ),
           ],
         ),
       ),
