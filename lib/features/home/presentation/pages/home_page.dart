@@ -11,6 +11,7 @@ import '../../../../shared/widgets/app_bottom_navigation.dart';
 import '../../../gallery/presentation/pages/gallery_page.dart';
 import '../../../tutorials/presentation/pages/tutorials_page.dart';
 import '../../../updates/presentation/pages/updates_page.dart';
+import '../../../profile/presentation/pages/profile_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
