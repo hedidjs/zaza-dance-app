@@ -193,21 +193,24 @@ class _NeonParticlesState extends State<NeonParticles>
       ),
     );
 
-    _offsetAnimations = _controllers.map((controller) {
-      return Tween<Offset>(
-        begin: Offset(
-          (index % 5) * 0.2 - 0.4, // Random X position
-          1.2, // Start below screen
-        ),
-        end: Offset(
-          (index % 5) * 0.2 - 0.4 + (index % 3 - 1) * 0.3, // Drift horizontally
-          -0.2, // End above screen
-        ),
-      ).animate(CurvedAnimation(
-        parent: controller,
-        curve: Curves.linear,
-      ));
-    }).toList();
+    _offsetAnimations = [];
+    for (int index = 0; index < _controllers.length; index++) {
+      _offsetAnimations.add(
+        Tween<Offset>(
+          begin: Offset(
+            (index % 5) * 0.2 - 0.4, // Random X position
+            1.2, // Start below screen
+          ),
+          end: Offset(
+            (index % 5) * 0.2 - 0.4 + (index % 3 - 1) * 0.3, // Drift horizontally
+            -0.2, // End above screen
+          ),
+        ).animate(CurvedAnimation(
+          parent: _controllers[index],
+          curve: Curves.linear,
+        )),
+      );
+    }
 
     _opacityAnimations = _controllers.map((controller) {
       return Tween<double>(
