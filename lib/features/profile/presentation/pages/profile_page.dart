@@ -9,6 +9,7 @@ import '../../../../shared/widgets/enhanced_neon_effects.dart';
 import '../../../../shared/widgets/neon_text.dart';
 import '../../providers/profile_provider.dart';
 import '../../services/profile_service.dart';
+import 'edit_profile_page.dart';
 
 class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({super.key});
