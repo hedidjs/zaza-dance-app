@@ -11,6 +11,7 @@ import '../../../../shared/widgets/animated_gradient_background.dart';
 import '../../../../shared/widgets/neon_text.dart';
 import '../../../../shared/widgets/app_drawer.dart';
 import '../../../../shared/widgets/app_bottom_navigation.dart';
+import '../../../../shared/widgets/enhanced_video_player.dart';
 import '../../../../shared/models/tutorial_model.dart';
 
 class TutorialsPage extends ConsumerStatefulWidget {
