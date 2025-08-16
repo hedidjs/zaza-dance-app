@@ -9,6 +9,7 @@ import 'core/providers/auth_provider.dart';
 import 'core/services/deep_link_service.dart';
 import 'features/auth/presentation/pages/login_page.dart';
 import 'features/auth/presentation/pages/register_page.dart';
+import 'features/auth/presentation/pages/auth_callback_page.dart';
 import 'features/home/presentation/pages/home_page.dart';
 import 'features/tutorials/presentation/pages/tutorials_page.dart';
 import 'features/gallery/presentation/pages/gallery_page.dart';
