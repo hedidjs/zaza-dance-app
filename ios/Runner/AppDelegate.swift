@@ -3,17 +3,31 @@ import UIKit
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
+  
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
     
-    // Configure Flutter engine for better stability
-    let controller: FlutterViewController = window?.rootViewController as! FlutterViewController
-    controller.modalPresentationStyle = .fullScreen
+    // Create Flutter engine early for better stability
+    let flutterEngine = FlutterEngine(name: "main_engine")
+    flutterEngine.run()
     
-    // Register plugins
-    GeneratedPluginRegistrant.register(with: self)
+    // Configure Flutter view controller if not using scenes
+    if #available(iOS 13.0, *) {
+      // Using Scene Delegate for iOS 13+
+    } else {
+      // Create window and controller for iOS 12
+      let controller = FlutterViewController(engine: flutterEngine, nibName: nil, bundle: nil)
+      controller.modalPresentationStyle = .fullScreen
+      
+      window = UIWindow(frame: UIScreen.main.bounds)
+      window?.rootViewController = controller
+      window?.makeKeyAndVisible()
+      
+      // Register plugins
+      GeneratedPluginRegistrant.register(with: controller)
+    }
     
     // Enable background refresh
     UIApplication.shared.setMinimumBackgroundFetchInterval(UIApplication.backgroundFetchIntervalMinimum)
