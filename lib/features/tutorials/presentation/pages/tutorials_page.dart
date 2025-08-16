@@ -842,7 +842,7 @@ class _TutorialPlayerPageState extends State<TutorialPlayerPage> {
     Color chipColor;
     String difficultyText;
     
-    switch (widget.tutorial.difficulty) {
+    switch (widget.tutorial.difficultyLevel) {
       case DifficultyLevel.beginner:
         chipColor = AppColors.success;
         difficultyText = 'מתחילים';
