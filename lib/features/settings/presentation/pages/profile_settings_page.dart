@@ -782,12 +782,15 @@ class _ProfileSettingsPageState extends ConsumerState<ProfileSettingsPage> {
             ),
             NeonButton(
               text: 'שלח',
-              onPressed: () {
+              onPressed: () async {
                 Navigator.of(context).pop();
-                // TODO: שליחת אימייל לשינוי סיסמה
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('הודעה נשלחה לאימייל'),
+                try {
+                  await Supabase.instance.client.auth.resetPasswordForEmail(
+                    ref.read(currentUserProvider).value?.email ?? '',
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('הודעה נשלחה לאימייל לשינוי סיסמה'),
                     backgroundColor: AppColors.info,
                     behavior: SnackBarBehavior.floating,
                     shape: RoundedRectangleBorder(
