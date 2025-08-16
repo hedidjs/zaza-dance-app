@@ -1,2 +1,22 @@
 #include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"
 #include "Generated.xcconfig"
+
+// iOS Deployment Target
+IPHONEOS_DEPLOYMENT_TARGET = 12.0
+
+// App Configuration
+PRODUCT_BUNDLE_IDENTIFIER = com.zazadance.zazaDance
+DEVELOPMENT_TEAM = 
+
+// Performance and Stability Settings
+ENABLE_BITCODE = NO
+SWIFT_OPTIMIZATION_LEVEL = -Onone
+GCC_OPTIMIZATION_LEVEL = 0
+
+// Memory Management
+CLANG_ENABLE_OBJC_ARC = YES
+CLANG_ANALYZER_NONNULL = YES
+
+// Debugging
+DEBUG_INFORMATION_FORMAT = dwarf
+ONLY_ACTIVE_ARCH = YES
