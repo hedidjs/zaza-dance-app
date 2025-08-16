@@ -197,20 +197,13 @@ class AuthService {
         print('AuthService: Updating profile for user: ${user.id}');
       }
 
-      final updateData = <String, dynamic>{};
-      if (fullName != null) updateData['full_name'] = fullName;
-      if (phoneNumber != null) updateData['phone_number'] = phoneNumber;
-      if (address != null) updateData['address'] = address;
-      if (profileImageUrl != null) updateData['profile_image_url'] = profileImageUrl;
-
-      if (updateData.isNotEmpty) {
-        updateData['updated_at'] = DateTime.now().toIso8601String();
-
-        await _supabase
-            .from('profiles')
-            .update(updateData)
-            .eq('id', user.id);
-      }
+      await DatabaseService.updateUserProfile(
+        userId: user.id,
+        displayName: fullName,
+        phone: phoneNumber,
+        address: address,
+        profileImageUrl: profileImageUrl,
+      );
 
       if (kDebugMode) {
         print('AuthService: Profile updated successfully');
