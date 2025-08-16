@@ -206,13 +206,19 @@ class LandingPage extends StatefulWidget {
 class _LandingPageState extends State<LandingPage>
     with TickerProviderStateMixin {
   late AnimationController _animationController;
+  late AnimationController _pulseController;
+  late AnimationController _slideController;
   late Animation<double> _fadeAnimation;
+  late Animation<double> _pulseAnimation;
+  late Animation<Offset> _slideAnimation;
 
   @override
   void initState() {
     super.initState();
+    
+    // Main fade animation
     _animationController = AnimationController(
-      duration: const Duration(seconds: 2),
+      duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
     _fadeAnimation = Tween<double>(
@@ -220,14 +226,50 @@ class _LandingPageState extends State<LandingPage>
       end: 1.0,
     ).animate(CurvedAnimation(
       parent: _animationController,
+      curve: Curves.easeOutCubic,
+    ));
+    
+    // Subtle pulse animation for glow effects
+    _pulseController = AnimationController(
+      duration: const Duration(seconds: 3),
+      vsync: this,
+    );
+    _pulseAnimation = Tween<double>(
+      begin: 0.3,
+      end: 0.7,
+    ).animate(CurvedAnimation(
+      parent: _pulseController,
       curve: Curves.easeInOut,
     ));
+    
+    // Slide animation for sections
+    _slideController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.3),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _slideController,
+      curve: Curves.easeOutCubic,
+    ));
+
+    // Start animations
     _animationController.forward();
+    _pulseController.repeat(reverse: true);
+    
+    // Delayed slide animation
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) _slideController.forward();
+    });
   }
 
   @override
   void dispose() {
     _animationController.dispose();
+    _pulseController.dispose();
+    _slideController.dispose();
     super.dispose();
   }
 
