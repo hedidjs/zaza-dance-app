@@ -523,15 +523,23 @@ class _NotificationSettingsPageState extends ConsumerState<NotificationSettingsP
       await prefs.setString('quiet_end', '${_quietHoursEnd.hour}:${_quietHoursEnd.minute}');
       
       ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('הגדרות נשמרו בהצלחה'),
-        backgroundColor: AppColors.success,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+        SnackBar(
+          content: Text('הגדרות נשמרו בהצלחה'),
+          backgroundColor: AppColors.success,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
-      ),
-    );
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('שגיאה בשמירת הגדרות: $e'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    }
   }
 
   void _resetToDefaults() {
