@@ -858,39 +858,71 @@ class _LandingPageState extends State<LandingPage>
     return _buildEnhancedContactButtons();
   }
 
-  Widget _buildContactButton(String label, IconData icon, Color color) {
+  Widget _buildEnhancedContactButton(String label, IconData icon, Color color, {bool isWide = false}) {
     return Container(
+      width: isWide ? double.infinity : null,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(15),
+        gradient: LinearGradient(
+          colors: [
+            color.withOpacity(0.15),
+            color.withOpacity(0.05),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        border: Border.all(
+          color: color.withOpacity(0.3),
+          width: 1,
+        ),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.3),
-            blurRadius: 10,
-            spreadRadius: 2,
+            color: color.withOpacity(0.1),
+            blurRadius: 8,
+            spreadRadius: 1,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
-      child: ElevatedButton.icon(
-        onPressed: () {
-          // TODO: Implement contact functionality
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: color.withOpacity(0.2),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-            side: BorderSide(color: color.withOpacity(0.5)),
-          ),
-        ),
-        icon: Icon(icon, color: color, size: 20),
-        label: Text(
-          label,
-          style: GoogleFonts.assistant(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(15),
+          onTap: () {
+            // TODO: Implement contact functionality
+          },
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: isWide ? 24 : 16, 
+              vertical: 16
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: isWide ? MainAxisSize.max : MainAxisSize.min,
+              children: [
+                Icon(
+                  icon, 
+                  color: color, 
+                  size: isWide ? 24 : 20
+                ),
+                SizedBox(width: isWide ? 12 : 8),
+                Text(
+                  label,
+                  style: GoogleFonts.assistant(
+                    color: Colors.white.withOpacity(0.9),
+                    fontWeight: FontWeight.w600,
+                    fontSize: isWide ? 16 : 14,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildContactButton(String label, IconData icon, Color color) {
+    return _buildEnhancedContactButton(label, icon, color);
   }
 }
