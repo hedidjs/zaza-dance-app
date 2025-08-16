@@ -74,9 +74,9 @@ class HomePage extends StatelessWidget {
             ),
           ),
         ),
-      ),
-      bottomNavigationBar: const AppBottomNavigation(
-        currentPage: NavigationPage.home,
+        bottomNavigationBar: const AppBottomNavigation(
+          currentPage: NavigationPage.home,
+        ),
       ),
     );
   }
