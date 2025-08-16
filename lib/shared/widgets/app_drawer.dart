@@ -11,7 +11,7 @@ import '../../features/updates/presentation/pages/updates_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
-import '../../features/admin/presentation/pages/admin_page.dart';
+// import '../../features/admin/presentation/pages/admin_page.dart'; // Temporarily disabled
 import 'enhanced_neon_effects.dart';
 import 'neon_text.dart';
 
