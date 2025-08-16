@@ -7,6 +7,7 @@ import '../../../../shared/widgets/animated_gradient_background.dart';
 import '../../../../shared/widgets/neon_text.dart';
 import '../../../../shared/widgets/neon_hebrew_text.dart';
 import '../../../../shared/widgets/app_drawer.dart';
+import '../../../../shared/widgets/app_bottom_navigation.dart';
 import '../../../gallery/presentation/pages/gallery_page.dart';
 import '../../../tutorials/presentation/pages/tutorials_page.dart';
 import '../../../updates/presentation/pages/updates_page.dart';
