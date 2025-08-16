@@ -597,11 +597,20 @@ class _UpdatesPageState extends ConsumerState<UpdatesPage>
     }
   }
 
-  void _toggleLike(UpdateModel update) {
-    setState(() {
-      // Toggle like logic would go here
-      // In real app, this would call Supabase API
-    });
+  void _toggleLike(UpdateModel update) async {
+    try {
+      final interactionNotifier = ref.read(interactionProvider.notifier);
+      await interactionNotifier.toggleLike('update', update.id);
+      
+      // אין צורך ב-setState כי InteractionProvider מנהל את המצב
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('שגיאה בעדכון לייק: $e'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    }
   }
 
   void _openUpdateDetails(UpdateModel update) {
