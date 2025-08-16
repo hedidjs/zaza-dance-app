@@ -62,7 +62,23 @@ class _EnhancedVideoPlayerState extends State<EnhancedVideoPlayer>
   void initState() {
     super.initState();
     _setupAnimations();
+    _loadVideoQuality();
     _initializeVideo();
+  }
+
+  void _loadVideoQuality() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final quality = prefs.getString('video_quality') ?? 'auto';
+      setState(() {
+        _selectedQuality = quality;
+      });
+    } catch (e) {
+      // אם יש שגיאה, נשתמש בברירת המחדל
+      setState(() {
+        _selectedQuality = 'auto';
+      });
+    }
   }
 
   void _setupAnimations() {
