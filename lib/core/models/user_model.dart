@@ -133,6 +133,12 @@ class UserModel extends Equatable {
     return parts.isNotEmpty ? parts.first : null;
   }
 
+  /// Alias for phoneNumber for compatibility
+  String? get phone => phoneNumber;
+
+  /// Gets bio from metadata
+  String? get bio => metadata?['bio'] as String?;
+
   /// Checks if profile is complete (has required fields)
   bool get isProfileComplete {
     return fullName?.isNotEmpty == true && 
