@@ -3,7 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 /// Supabase configuration for Zaza Dance app
 class SupabaseConfig {
   static const String supabaseUrl = 'https://yyvoavzgapsyycjwirmg.supabase.co';
-  static const String supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5dm9hdnpnYXBzeXljandpcm1nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ0NzYyMjUsImV4cCI6MjA1MDA1MjIyNX0.UY8TJYxQ6fS5vQ7bQHXJ5Q2bVZQ3qVzCONS4XvCxCsE';
+  static const String supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5dm9hdnpnYXBzeXljandpcm1nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUyOTgyMzgsImV4cCI6MjA3MDg3NDIzOH0.IU_dW_8K-yuV1grWIWJdetU7jK-b-QDPFYp_m5iFP90';
   
   /// Initialize Supabase client
   static Future<void> initialize() async {
