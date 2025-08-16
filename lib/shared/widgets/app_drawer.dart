@@ -196,16 +196,17 @@ class AppDrawer extends ConsumerWidget {
           ),
         ],
 
-        if (canAccessAdmin) ...[
-          const NeonDivider(),
-          _buildMenuItem(
-            context,
-            icon: Icons.admin_panel_settings,
-            title: 'ניהול מערכת',
-            onTap: () => _navigateToPage(context, const AdminPage()),
-            glowColor: AppColors.warning,
-          ),
-        ],
+        // Admin functionality temporarily disabled - keeping backend structure intact
+        // if (canAccessAdmin) ...[
+        //   const NeonDivider(),
+        //   _buildMenuItem(
+        //     context,
+        //     icon: Icons.admin_panel_settings,
+        //     title: 'ניהול מערכת',
+        //     onTap: () => _navigateToPage(context, const AdminPage()),
+        //     glowColor: AppColors.warning,
+        //   ),
+        // ],
 
         if (!isAuthenticated) ...[
           const NeonDivider(),
