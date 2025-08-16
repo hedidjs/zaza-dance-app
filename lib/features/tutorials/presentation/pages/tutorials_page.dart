@@ -141,8 +141,9 @@ class _TutorialsPageState extends ConsumerState<TutorialsPage>
             ],
           ),
         ),
-      ),
-      body: AnimatedGradientBackground(
+        ),
+        drawer: const AppDrawer(),
+        body: AnimatedGradientBackground(
         child: SafeArea(
           child: tutorialsAsync.when(
             data: (tutorials) => TabBarView(
