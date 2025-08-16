@@ -16,28 +16,29 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: NeonHebrewText.title(
-          'זזה דאנס',
-          glowColor: AppColors.neonPink,
-        ),
-        actions: [
-          IconButton(
-            icon: GlowIcon(
-              Icons.menu,
-              color: AppColors.primaryText,
-              glowColor: AppColors.neonTurquoise,
-            ),
-            onPressed: () {
-              // TODO: Open menu
-            },
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: NeonHebrewText.title(
+            'זזה דאנס',
+            glowColor: AppColors.neonPink,
           ),
-        ],
-      ),
+          leading: Builder(
+            builder: (context) => IconButton(
+              icon: GlowIcon(
+                Icons.menu,
+                color: AppColors.primaryText,
+                glowColor: AppColors.neonTurquoise,
+              ),
+              onPressed: () => Scaffold.of(context).openDrawer(),
+            ),
+          ),
+        ),
+        drawer: const AppDrawer(),
       body: AnimatedGradientBackground(
         child: SafeArea(
           child: SingleChildScrollView(
