@@ -392,37 +392,50 @@ class _LandingPageState extends State<LandingPage>
     );
   }
 
-  Widget _buildNeonText(String text, {required double fontSize, required Color color}) {
+  Widget _buildEnhancedNeonText(String text, {
+    required double fontSize, 
+    required Color color, 
+    double glowIntensity = 0.5
+  }) {
     return Container(
-      decoration: BoxDecoration(
-        boxShadow: [
-          BoxShadow(
-            color: color.withOpacity(0.8),
-            blurRadius: 20,
-            spreadRadius: 5,
-          ),
-          BoxShadow(
-            color: color.withOpacity(0.6),
-            blurRadius: 40,
-            spreadRadius: 10,
-          ),
-        ],
-      ),
       child: Text(
         text,
         style: GoogleFonts.assistant(
           fontSize: fontSize,
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w700,
           color: color,
           shadows: [
+            // Main subtle glow
             Shadow(
-              color: color,
-              blurRadius: 10,
+              color: color.withOpacity(0.3 * glowIntensity),
+              blurRadius: 8,
+              offset: const Offset(0, 0),
+            ),
+            // Secondary soft glow
+            Shadow(
+              color: color.withOpacity(0.2 * glowIntensity),
+              blurRadius: 16,
+              offset: const Offset(0, 0),
+            ),
+            // Minimal outer glow
+            Shadow(
+              color: color.withOpacity(0.1 * glowIntensity),
+              blurRadius: 24,
+              offset: const Offset(0, 0),
             ),
           ],
         ),
         textAlign: TextAlign.center,
       ),
+    );
+  }
+
+  Widget _buildNeonText(String text, {required double fontSize, required Color color}) {
+    return _buildEnhancedNeonText(
+      text, 
+      fontSize: fontSize, 
+      color: color, 
+      glowIntensity: 0.4
     );
   }
 
