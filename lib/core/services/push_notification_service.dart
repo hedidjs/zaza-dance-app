@@ -106,8 +106,61 @@ class PushNotificationService {
       print('Navigating to: $type with ID: $targetId');
     }
 
-    // TODO: Implement navigation logic based on notification type
-    // This would typically use a navigator service or global navigator key
+    if (_context == null || !_context!.mounted) {
+      if (kDebugMode) {
+        print('Context not available for navigation');
+      }
+      return;
+    }
+
+    try {
+      switch (type) {
+        case 'tutorial':
+          // נווט לעמוד הטוטוריאלים
+          _context!.go('/tutorials');
+          break;
+        case 'update':
+          // נווט לעמוד העדכונים
+          _context!.go('/updates');
+          break;
+        case 'event':
+          // נווט לעמוד העדכונים (שם מוצגים גם האירועים)
+          _context!.go('/updates');
+          break;
+        case 'gallery':
+          // נווט לגלריה
+          _context!.go('/gallery');
+          break;
+        case 'profile':
+          // נווט לפרופיל
+          _context!.go('/profile');
+          break;
+        case 'settings':
+          // נווט להגדרות
+          _context!.go('/settings');
+          break;
+        default:
+          // במקרה של סוג לא ידוע, נווט לעמוד הבית
+          _context!.go('/home');
+          break;
+      }
+
+      if (kDebugMode) {
+        print('Successfully navigated to $type');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error navigating from notification: $e');
+      }
+      // במקרה של שגיאה, נווט לעמוד הבית
+      try {
+        _context!.go('/home');
+      } catch (navError) {
+        if (kDebugMode) {
+          print('Failed to navigate to home: $navError');
+        }
+      }
+    }
   }
 
   /// Show notification for new tutorial
