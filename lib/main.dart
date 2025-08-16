@@ -750,27 +750,73 @@ class _LandingPageState extends State<LandingPage>
   }
 
   Widget _buildContactSection() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        children: [
-          _buildNeonText(
-            'בואו להצטרף',
-            fontSize: 36,
-            color: const Color(0xFFFF00FF),
+    return SlideTransition(
+      position: _slideAnimation,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.all(30),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.white.withOpacity(0.05),
+              Colors.white.withOpacity(0.02),
+            ],
           ),
-          const SizedBox(height: 30),
-          Text(
-            'מוכנים להרגיש את הקצב? בואו להיות חלק מהקהילה שלנו!',
-            style: GoogleFonts.assistant(
-              fontSize: 18,
-              color: Colors.white70,
+          border: Border.all(
+            color: const Color(0xFFE91E63).withOpacity(0.2),
+            width: 1,
+          ),
+        ),
+        child: Column(
+          children: [
+            _buildNeonText(
+              'בואו להצטרף',
+              fontSize: 32,
+              color: const Color(0xFFE91E63),
             ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 40),
-          _buildContactButtons(),
-        ],
+            const SizedBox(height: 15),
+            Container(
+              width: 60,
+              height: 3,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(2),
+                gradient: const LinearGradient(
+                  colors: [
+                    Color(0xFFE91E63),
+                    Color(0xFF26C6DA),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 30),
+            Text(
+              'מוכנים להרגיש את הקצב?',
+              style: GoogleFonts.assistant(
+                fontSize: 20,
+                color: Colors.white.withOpacity(0.9),
+                fontWeight: FontWeight.w500,
+                height: 1.4,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'בואו להיות חלק מהקהילה שלנו!',
+              style: GoogleFonts.assistant(
+                fontSize: 16,
+                color: Colors.white.withOpacity(0.7),
+                fontWeight: FontWeight.w300,
+                height: 1.3,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 40),
+            _buildEnhancedContactButtons(),
+          ],
+        ),
       ),
     );
   }
