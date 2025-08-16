@@ -80,7 +80,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage>
           tabs: categories.map((category) => Tab(text: category)).toList(),
         ),
       ),
-      body: AnimatedGradientBackground(
+        body: AnimatedGradientBackground(
         child: SafeArea(
           child: galleryAsync.when(
             data: (items) => TabBarView(
