@@ -80,20 +80,18 @@ class HomePage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        NeonText(
-          text: 'ברוכים הבאים לבית הדיגיטלי',
-          fontSize: 28,
+        NeonHebrewText.hero(
+          'ברוכים הבאים לבית הדיגיטלי',
           glowColor: AppColors.neonPink,
-          fontWeight: FontWeight.bold,
+          animate: true,
         ).animate().fadeIn(duration: 800.ms).slideX(begin: 1),
         
         const SizedBox(height: 10),
         
-        NeonText(
-          text: 'של קהילת ההיפ הופ',
-          fontSize: 28,
+        NeonHebrewText.hero(
+          'של קהילת ההיפ הופ',
           glowColor: AppColors.neonTurquoise,
-          fontWeight: FontWeight.bold,
+          animate: true,
         ).animate().fadeIn(duration: 800.ms, delay: 200.ms).slideX(begin: -1),
         
         const SizedBox(height: 20),
