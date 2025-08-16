@@ -34,8 +34,8 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
   void _loadUserData() {
     final user = ref.read(currentUserProvider).valueOrNull;
     if (user != null) {
-      _nameController.text = user.fullName ?? '';
-      _phoneController.text = user.phoneNumber ?? '';
+      _nameController.text = user.displayName;
+      _phoneController.text = user.phone ?? '';
       _addressController.text = user.address ?? '';
       _bioController.text = user.bio ?? '';
     }
