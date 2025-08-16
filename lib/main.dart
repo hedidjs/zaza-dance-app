@@ -26,6 +26,9 @@ Future<void> main() async {
   // Initialize Supabase Service
   await SupabaseService().initialize();
   
+  // Initialize Performance Service
+  await PerformanceService().initialize();
+  
   // Set system UI overlay style
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
