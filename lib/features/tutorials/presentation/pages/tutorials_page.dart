@@ -96,16 +96,28 @@ class _TutorialsPageState extends ConsumerState<TutorialsPage>
   Widget build(BuildContext context) {
     final tutorialsAsync = ref.watch(tutorialsProvider);
     
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: NeonText(
-          text: 'מדריכי ריקוד',
-          fontSize: 24,
-          glowColor: AppColors.neonPink,
-        ),
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: NeonText(
+            text: 'מדריכי ריקוד',
+            fontSize: 24,
+            glowColor: AppColors.neonPink,
+          ),
+          leading: Builder(
+            builder: (context) => IconButton(
+              icon: GlowIcon(
+                Icons.menu,
+                color: AppColors.primaryText,
+                glowColor: AppColors.neonTurquoise,
+              ),
+              onPressed: () => Scaffold.of(context).openDrawer(),
+            ),
+          ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(120),
           child: Column(
