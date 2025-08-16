@@ -439,47 +439,68 @@ class _LandingPageState extends State<LandingPage>
     );
   }
 
-  Widget _buildCtaButton() {
+  Widget _buildEnhancedCtaButton() {
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(30),
-        gradient: const LinearGradient(
-          colors: [Color(0xFFFF00FF), Color(0xFF40E0D0)],
+        borderRadius: BorderRadius.circular(25),
+        gradient: LinearGradient(
+          colors: [
+            const Color(0xFFE91E63).withOpacity(0.8), // Softer pink
+            const Color(0xFF26C6DA).withOpacity(0.8), // Softer cyan
+          ],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
         ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFFFF00FF).withOpacity(0.4),
-            blurRadius: 20,
-            spreadRadius: 5,
+            color: const Color(0xFFE91E63).withOpacity(0.2),
+            blurRadius: 15,
+            spreadRadius: 1,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: ElevatedButton(
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => const LoginPage(),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(25),
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => const LoginPage(),
+              ),
+            );
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 45, vertical: 18),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'גלה את הקסם',
+                  style: GoogleFonts.assistant(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                const Icon(
+                  Icons.arrow_back_ios,
+                  color: Colors.white,
+                  size: 16,
+                ),
+              ],
             ),
-          );
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.transparent,
-          shadowColor: Colors.transparent,
-          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30),
-          ),
-        ),
-        child: Text(
-          'גלה את הקסם',
-          style: GoogleFonts.assistant(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildCtaButton() {
+    return _buildEnhancedCtaButton();
   }
 
   Widget _buildAboutSection() {
