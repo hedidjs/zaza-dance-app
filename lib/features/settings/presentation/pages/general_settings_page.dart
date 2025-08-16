@@ -294,12 +294,6 @@ class _GeneralSettingsPageState extends ConsumerState<GeneralSettingsPage> {
                         min: 0.8,
                         max: 1.4,
                         divisions: 3,
-                        labels: const {
-                          0.8: 'קטן',
-                          1.0: 'רגיל',
-                          1.2: 'גדול',
-                          1.4: 'ענק',
-                        },
                         onChanged: (value) {
                           setState(() {
                             _buttonSize = value;
