@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../core/services/cache_service.dart';
+import '../../core/services/performance_service.dart';
 
 /// Optimized image widget with enhanced performance and user experience
 class OptimizedImage extends StatelessWidget {
