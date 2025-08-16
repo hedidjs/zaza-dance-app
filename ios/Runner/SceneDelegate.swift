@@ -36,29 +36,17 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
   func sceneDidBecomeActive(_ scene: UIScene) {
     // Called when the scene has moved from an inactive state to an active state.
-    if let flutterViewController = window?.rootViewController as? FlutterViewController {
-      flutterViewController.engine.lifecycleChannel.sendMessage("AppLifecycleState.resumed")
-    }
   }
 
   func sceneWillResignActive(_ scene: UIScene) {
     // Called when the scene will move from an active state to an inactive state.
-    if let flutterViewController = window?.rootViewController as? FlutterViewController {
-      flutterViewController.engine.lifecycleChannel.sendMessage("AppLifecycleState.inactive")
-    }
   }
 
   func sceneWillEnterForeground(_ scene: UIScene) {
     // Called as the scene transitions from the background to the foreground.
-    if let flutterViewController = window?.rootViewController as? FlutterViewController {
-      flutterViewController.engine.lifecycleChannel.sendMessage("AppLifecycleState.resumed")
-    }
   }
 
   func sceneDidEnterBackground(_ scene: UIScene) {
     // Called as the scene transitions from the foreground to the background.
-    if let flutterViewController = window?.rootViewController as? FlutterViewController {
-      flutterViewController.engine.lifecycleChannel.sendMessage("AppLifecycleState.paused")
-    }
   }
 }
