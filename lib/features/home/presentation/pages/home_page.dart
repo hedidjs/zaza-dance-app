@@ -40,7 +40,7 @@ class HomePage extends StatelessWidget {
           ),
         ),
         drawer: const AppDrawer(),
-      body: AnimatedGradientBackground(
+        body: AnimatedGradientBackground(
         child: SafeArea(
           child: SingleChildScrollView(
             child: Padding(
