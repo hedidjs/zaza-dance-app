@@ -254,10 +254,12 @@ class _EnhancedVideoPlayerState extends State<EnhancedVideoPlayer>
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(12),
-          child: AspectRatio(
-            aspectRatio: _isFullScreen ? null : widget.aspectRatio,
-            child: _buildVideoContent(),
-          ),
+          child: _isFullScreen 
+              ? _buildVideoContent()
+              : AspectRatio(
+                  aspectRatio: widget.aspectRatio,
+                  child: _buildVideoContent(),
+                ),
         ),
       ),
     );
