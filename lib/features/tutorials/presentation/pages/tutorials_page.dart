@@ -689,6 +689,7 @@ class TutorialPlayerPage extends ConsumerStatefulWidget {
 class _TutorialPlayerPageState extends ConsumerState<TutorialPlayerPage> {
   bool _isVideoCompleted = false;
   Duration _watchedDuration = Duration.zero;
+  bool _isBookmarked = false;
 
   @override
   Widget build(BuildContext context) {
