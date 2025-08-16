@@ -574,18 +574,35 @@ class _LandingPageState extends State<LandingPage>
   }
 
   Widget _buildFeaturesSection() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        children: [
-          _buildNeonText(
-            'מה תמצאו כאן',
-            fontSize: 36,
-            color: const Color(0xFFFF00FF),
-          ),
-          const SizedBox(height: 40),
-          _buildFeatureGrid(),
-        ],
+    return SlideTransition(
+      position: _slideAnimation,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Column(
+          children: [
+            _buildNeonText(
+              'מה תמצאו כאן',
+              fontSize: 32,
+              color: const Color(0xFFE91E63),
+            ),
+            const SizedBox(height: 15),
+            Container(
+              width: 60,
+              height: 3,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(2),
+                gradient: const LinearGradient(
+                  colors: [
+                    Color(0xFF26C6DA),
+                    Color(0xFFE91E63),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 50),
+            _buildEnhancedFeatureGrid(),
+          ],
+        ),
       ),
     );
   }
