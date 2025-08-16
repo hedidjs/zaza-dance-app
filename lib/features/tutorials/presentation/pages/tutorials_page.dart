@@ -183,6 +183,10 @@ class _TutorialsPageState extends ConsumerState<TutorialsPage>
             ),
           ),
         ),
+        drawer: const AppDrawer(),
+        bottomNavigationBar: const AppBottomNavigation(
+          currentPage: NavigationPage.tutorials,
+        ),
       ),
     );
   }
