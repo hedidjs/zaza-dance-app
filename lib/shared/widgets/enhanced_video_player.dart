@@ -525,15 +525,13 @@ class _EnhancedVideoPlayerState extends State<EnhancedVideoPlayer>
               const Spacer(),
               // כפתורי בקרה נוספים
               IconButton(
-                onPressed: () {
-                  // TODO: הגדרות איכות
-                },
+                onPressed: _showQualitySelection,
                 icon: Icon(
                   Icons.settings,
                   color: AppColors.secondaryText,
                   size: 20,
                 ),
-                tooltip: 'הגדרות',
+                tooltip: 'איכות וידאו: $_selectedQuality',
               ),
             ],
           ),
