@@ -44,4 +44,10 @@ class AppColors {
     darkSurface,
     darkCard,
   ];
+
+  // Authentication specific colors
+  static const Color authCardBackground = Color(0xFF1E1E1E);
+  static const Color inputBorder = Color(0xFF404040);
+  static const Color inputFocusedBorder = neonTurquoise;
+  static const Color inputErrorBorder = error;
 }
