@@ -1,13 +1,42 @@
 {
-    "name": "zaza_dance",
-    "short_name": "zaza_dance",
-    "start_url": ".",
+    "name": "זזה דאנס - בית דיגיטלי לקהילת ההיפ הופ",
+    "short_name": "זזה דאנס",
+    "start_url": "/",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#0a0a0a",
+    "theme_color": "#FF00FF",
+    "description": "אפליקציית זזה דאנס - בית דיגיטלי לקהילת חוג ההיפ הופ. מדריכי ריקוד, גלריה ועדכונים חמים",
     "orientation": "portrait-primary",
-    "prefer_related_applications": false,
+    "lang": "he",
+    "dir": "rtl",
+    "prefer_related_applications": true,
+    "related_applications": [
+        {
+            "platform": "play",
+            "url": "https://play.google.com/store/apps/details?id=com.zazadance.zazaDance",
+            "id": "com.zazadance.zazaDance"
+        },
+        {
+            "platform": "itunes",
+            "url": "https://apps.apple.com/app/zaza-dance/id123456789",
+            "id": "123456789"
+        }
+    ],
+    "categories": ["education", "entertainment", "lifestyle"],
+    "screenshots": [
+        {
+            "src": "icons/Icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "form_factor": "wide"
+        }
+    ],
+    "protocol_handlers": [
+        {
+            "protocol": "web+zazadance",
+            "url": "/auth/callback?%s"
+        }
+    ],
     "icons": [
         {
             "src": "icons/Icon-192.png",
