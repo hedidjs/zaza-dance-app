@@ -657,54 +657,96 @@ class _LandingPageState extends State<LandingPage>
     return _buildEnhancedFeatureGrid();
   }
 
-  Widget _buildFeatureCard(String title, IconData icon) {
+  Widget _buildEnhancedFeatureCard(String title, IconData icon, String description, int index) {
+    final colors = [
+      const Color(0xFFE91E63), // Pink
+      const Color(0xFF26C6DA), // Cyan
+      const Color(0xFF9C27B0), // Purple
+      const Color(0xFF00BCD4), // Light cyan
+    ];
+    final cardColor = colors[index % colors.length];
+
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(
-          color: const Color(0xFF40E0D0).withOpacity(0.3),
-          width: 1,
-        ),
+        borderRadius: BorderRadius.circular(18),
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            const Color(0xFF2A2A2A).withOpacity(0.8),
-            const Color(0xFF1A1A1A).withOpacity(0.8),
+            Colors.white.withOpacity(0.08),
+            Colors.white.withOpacity(0.03),
           ],
+        ),
+        border: Border.all(
+          color: cardColor.withOpacity(0.2),
+          width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF40E0D0).withOpacity(0.2),
-            blurRadius: 10,
-            spreadRadius: 2,
+            color: cardColor.withOpacity(0.1),
+            blurRadius: 8,
+            spreadRadius: 1,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              size: 40,
-              color: const Color(0xFF40E0D0),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(18),
+          onTap: () {
+            // TODO: Navigate to feature page
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color: cardColor.withOpacity(0.1),
+                  ),
+                  child: Icon(
+                    icon,
+                    size: 32,
+                    color: cardColor,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  title,
+                  style: GoogleFonts.assistant(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white.withOpacity(0.9),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  description,
+                  style: GoogleFonts.assistant(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w300,
+                    color: Colors.white.withOpacity(0.6),
+                    height: 1.3,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
-            const SizedBox(height: 15),
-            Text(
-              title,
-              style: GoogleFonts.assistant(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
+          ),
         ),
       ),
     );
+  }
+
+  Widget _buildFeatureCard(String title, IconData icon) {
+    return _buildEnhancedFeatureCard(title, icon, '', 0);
   }
 
   Widget _buildContactSection() {
