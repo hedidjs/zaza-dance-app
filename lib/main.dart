@@ -100,6 +100,10 @@ class _ZazaDanceAppState extends ConsumerState<ZazaDanceApp> {
           path: '/profile',
           builder: (context, state) => const ProfilePage(),
         ),
+        GoRoute(
+          path: '/profile/edit',
+          builder: (context, state) => const EditProfilePage(),
+        ),
       ],
     );
     
