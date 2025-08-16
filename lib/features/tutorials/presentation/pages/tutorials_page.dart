@@ -686,7 +686,7 @@ class TutorialPlayerPage extends ConsumerStatefulWidget {
   ConsumerState<TutorialPlayerPage> createState() => _TutorialPlayerPageState();
 }
 
-class _TutorialPlayerPageState extends State<TutorialPlayerPage> {
+class _TutorialPlayerPageState extends ConsumerState<TutorialPlayerPage> {
   bool _isVideoCompleted = false;
   Duration _watchedDuration = Duration.zero;
 
