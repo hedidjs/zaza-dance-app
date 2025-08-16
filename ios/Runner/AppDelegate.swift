@@ -48,7 +48,7 @@ import UIKit
     super.applicationDidBecomeActive(application)
     // Ensure Flutter engine is running
     if let controller = window?.rootViewController as? FlutterViewController {
-      controller.engine?.lifecycleChannel.sendStatus("AppLifecycleState.resumed")
+      controller.engine?.lifecycleChannel.sendMessage("AppLifecycleState.resumed")
     }
   }
   
@@ -57,7 +57,7 @@ import UIKit
     super.applicationDidEnterBackground(application)
     // Properly pause Flutter engine
     if let controller = window?.rootViewController as? FlutterViewController {
-      controller.engine?.lifecycleChannel.sendStatus("AppLifecycleState.paused")
+      controller.engine?.lifecycleChannel.sendMessage("AppLifecycleState.paused")
     }
   }
   
@@ -66,7 +66,7 @@ import UIKit
     super.applicationWillEnterForeground(application)
     // Resume Flutter engine
     if let controller = window?.rootViewController as? FlutterViewController {
-      controller.engine?.lifecycleChannel.sendStatus("AppLifecycleState.resumed")
+      controller.engine?.lifecycleChannel.sendMessage("AppLifecycleState.resumed")
     }
   }
   
