@@ -607,12 +607,28 @@ class _LandingPageState extends State<LandingPage>
     );
   }
 
-  Widget _buildFeatureGrid() {
+  Widget _buildEnhancedFeatureGrid() {
     final features = [
-      {'title': 'גלריית תמונות ווידאו', 'icon': Icons.photo_library},
-      {'title': 'מדריכי ריקוד', 'icon': Icons.play_circle_outline},
-      {'title': 'עדכונים חמים', 'icon': Icons.notifications_active},
-      {'title': 'קהילה חמה', 'icon': Icons.people},
+      {
+        'title': 'גלריית תמונות ווידאו', 
+        'icon': Icons.photo_library,
+        'description': 'רגעים מיוחדים מהשיעורים והחזרות'
+      },
+      {
+        'title': 'מדריכי ריקוד', 
+        'icon': Icons.play_circle_outline,
+        'description': 'למד צעדים חדשים בקצב שלך'
+      },
+      {
+        'title': 'עדכונים חמים', 
+        'icon': Icons.notifications_active,
+        'description': 'הישאר מעודכן על אירועים ושיעורים'
+      },
+      {
+        'title': 'קהילה חמה', 
+        'icon': Icons.people,
+        'description': 'התחבר לרקדנים אחרים וחלק השראה'
+      },
     ];
 
     return GridView.builder(
@@ -620,19 +636,25 @@ class _LandingPageState extends State<LandingPage>
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        crossAxisSpacing: 20,
-        mainAxisSpacing: 20,
-        childAspectRatio: 1.2,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+        childAspectRatio: 0.9,
       ),
       itemCount: features.length,
       itemBuilder: (context, index) {
         final feature = features[index];
-        return _buildFeatureCard(
+        return _buildEnhancedFeatureCard(
           feature['title'] as String,
           feature['icon'] as IconData,
+          feature['description'] as String,
+          index,
         );
       },
     );
+  }
+
+  Widget _buildFeatureGrid() {
+    return _buildEnhancedFeatureGrid();
   }
 
   Widget _buildFeatureCard(String title, IconData icon) {
