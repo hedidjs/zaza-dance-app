@@ -331,7 +331,7 @@ class NameFormField extends StatelessWidget {
         if (value.trim().length < 2) {
           return 'השם חייב להכיל לפחות 2 תווים';
         }
-        if (!RegExp(r'^[א-ת\s\-\'\"\.]+$').hasMatch(value.trim())) {
+        if (!RegExp(r'^[א-ת\s\-\'\.\,]+$').hasMatch(value.trim())) {
           return 'השם יכול להכיל רק אותיות בעברית, רווחים ומקפים';
         }
         return null;
