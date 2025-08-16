@@ -511,9 +511,11 @@ class _UpdatesPageState extends ConsumerState<UpdatesPage>
                                 color: AppColors.secondaryText,
                                 fontSize: 12,
                               ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      );
+                    },
                   ),
                   const SizedBox(width: 16),
                   Row(
