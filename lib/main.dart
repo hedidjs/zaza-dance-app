@@ -917,7 +917,47 @@ class _LandingPageState extends State<LandingPage>
         child: InkWell(
           borderRadius: BorderRadius.circular(15),
           onTap: () {
-            // TODO: Implement contact functionality
+            // Show dialog with contact information
+            showDialog(
+              context: context,
+              builder: (context) => Directionality(
+                textDirection: TextDirection.rtl,
+                child: AlertDialog(
+                  backgroundColor: const Color(0xFF1A1A2E),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  title: Text(
+                    'צור קשר',
+                    style: GoogleFonts.assistant(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  content: Text(
+                    'ליצירת קשר עם סטודיו זזה דאנס:\n\nטלפון: 050-123-4567\nאימייל: info@zazadance.co.il\nכתובת: רחוב הריקוד 15, תל אביב',
+                    style: GoogleFonts.assistant(
+                      color: Colors.white,
+                      fontSize: 16,
+                      height: 1.5,
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: Text(
+                        'סגור',
+                        style: GoogleFonts.assistant(
+                          color: const Color(0xFF26C6DA),
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
           },
           child: Padding(
             padding: EdgeInsets.symmetric(
