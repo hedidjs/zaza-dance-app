@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/user_model.dart';
 import '../services/auth_service.dart';
+import '../constants/app_constants.dart';
 
 /// Provider for authentication service
 final authServiceProvider = Provider<AuthService>((ref) => AuthService());
