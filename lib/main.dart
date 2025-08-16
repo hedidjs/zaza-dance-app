@@ -821,27 +821,41 @@ class _LandingPageState extends State<LandingPage>
     );
   }
 
-  Widget _buildContactButtons() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  Widget _buildEnhancedContactButtons() {
+    return Column(
       children: [
-        _buildContactButton(
-          'WhatsApp',
-          Icons.message,
-          const Color(0xFF25D366),
+        Row(
+          children: [
+            Expanded(
+              child: _buildEnhancedContactButton(
+                'WhatsApp',
+                Icons.message,
+                const Color(0xFF25D366),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildEnhancedContactButton(
+                'Instagram',
+                Icons.camera_alt,
+                const Color(0xFFE4405F),
+              ),
+            ),
+          ],
         ),
-        _buildContactButton(
-          'Instagram',
-          Icons.camera_alt,
-          const Color(0xFFE4405F),
-        ),
-        _buildContactButton(
-          'טלפון',
+        const SizedBox(height: 12),
+        _buildEnhancedContactButton(
+          'צור קשר טלפוני',
           Icons.phone,
-          const Color(0xFF40E0D0),
+          const Color(0xFF26C6DA),
+          isWide: true,
         ),
       ],
     );
+  }
+
+  Widget _buildContactButtons() {
+    return _buildEnhancedContactButtons();
   }
 
   Widget _buildContactButton(String label, IconData icon, Color color) {
