@@ -11,10 +11,8 @@ import 'features/home/presentation/pages/home_page.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  await Supabase.initialize(
-    url: AppConstants.supabaseUrl,
-    anonKey: AppConstants.supabaseAnonKey,
-  );
+  // Initialize Supabase
+  await SupabaseConfig.initialize();
   
   runApp(const ProviderScope(child: ZazaDanceApp()));
 }
