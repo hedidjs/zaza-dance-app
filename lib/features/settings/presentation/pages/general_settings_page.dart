@@ -198,7 +198,7 @@ class _GeneralSettingsPageState extends ConsumerState<GeneralSettingsPage> {
                         glowColor: AppColors.neonTurquoise,
                       ),
                       _buildSwitchTile(
-                        icon: Icons.play_circle_auto,
+                        icon: Icons.play_circle_outline,
                         title: 'הפעלה אוטומטית',
                         subtitle: 'הפעלת וידאו אוטומטית במדריכים',
                         value: _autoplayVideos,
