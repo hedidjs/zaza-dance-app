@@ -139,6 +139,9 @@ class _ZazaDanceAppState extends ConsumerState<ZazaDanceApp> {
 
   @override
   Widget build(BuildContext context) {
+    // העברת ה-context לשירות ההתראות לצורך ניווט
+    _pushNotificationService.setContext(context);
+    
     return MaterialApp.router(
       title: 'זזה דאנס - Zaza Dance',
       theme: _buildTheme(),
