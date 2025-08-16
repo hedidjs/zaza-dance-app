@@ -77,7 +77,7 @@ class CurrentUserNotifier extends StateNotifier<AsyncValue<UserModel?>> {
         fullName: fullName,
         phoneNumber: phoneNumber,
         address: address,
-        role: role,
+        role: role ?? AppConstants.roleStudent,
       );
 
       if (result.isSuccess) {
