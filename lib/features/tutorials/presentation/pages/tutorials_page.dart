@@ -12,6 +12,7 @@ import '../../../../shared/widgets/neon_text.dart';
 import '../../../../shared/widgets/app_drawer.dart';
 import '../../../../shared/widgets/app_bottom_navigation.dart';
 import '../../../../shared/widgets/enhanced_video_player.dart';
+import '../../../../shared/widgets/enhanced_neon_effects.dart';
 import '../../../../shared/models/tutorial_model.dart';
 
 class TutorialsPage extends ConsumerStatefulWidget {
