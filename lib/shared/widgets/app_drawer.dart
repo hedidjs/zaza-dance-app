@@ -41,7 +41,7 @@ class AppDrawer extends ConsumerWidget {
             children: [
               _buildHeader(context, currentUser, isAuthenticated),
               Expanded(
-                child: _buildMenuItems(context, ref, isAuthenticated, canAccessAdmin),
+                child: _buildMenuItems(context, ref, isAuthenticated),
               ),
               if (isAuthenticated) _buildFooter(context, ref),
             ],
