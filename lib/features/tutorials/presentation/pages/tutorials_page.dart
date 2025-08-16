@@ -855,6 +855,10 @@ class _TutorialPlayerPageState extends State<TutorialPlayerPage> {
         chipColor = AppColors.error;
         difficultyText = 'מתקדמים';
         break;
+      default:
+        chipColor = AppColors.secondary;
+        difficultyText = 'לא ידוע';
+        break;
     }
 
     return Container(
