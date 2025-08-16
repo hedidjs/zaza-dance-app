@@ -38,6 +38,7 @@ class ZazaDanceApp extends ConsumerStatefulWidget {
 class _ZazaDanceAppState extends ConsumerState<ZazaDanceApp> {
   late final GoRouter _router;
   final DeepLinkService _deepLinkService = DeepLinkService();
+  final PushNotificationService _pushNotificationService = PushNotificationService();
 
   @override
   void initState() {
