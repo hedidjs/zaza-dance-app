@@ -29,8 +29,6 @@ import UIKit
       GeneratedPluginRegistrant.register(with: controller)
     }
     
-    // Enable background refresh
-    UIApplication.shared.setMinimumBackgroundFetchInterval(UIApplication.backgroundFetchIntervalMinimum)
     
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
