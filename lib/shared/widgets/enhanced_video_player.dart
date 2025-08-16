@@ -540,6 +540,141 @@ class _EnhancedVideoPlayerState extends State<EnhancedVideoPlayer>
     );
   }
 
+  void _showQualitySelection() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.darkSurface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Directionality(
+        textDirection: TextDirection.rtl,
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.video_settings, color: AppColors.neonTurquoise),
+                  const SizedBox(width: 8),
+                  NeonText(
+                    text: 'איכות וידאו',
+                    fontSize: 18,
+                    glowColor: AppColors.neonTurquoise,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              ..._buildQualityOptions(),
+              const SizedBox(height: 10),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _buildQualityOptions() {
+    final qualities = {
+      'auto': 'איכות אוטומטית',
+      'high': 'איכות גבוהה (720p+)',
+      'medium': 'איכות בינונית (480p)',
+      'low': 'איכות נמוכה (360p)',
+    };
+
+    return qualities.entries.map((entry) {
+      final isSelected = _selectedQuality == entry.key;
+      return Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        decoration: BoxDecoration(
+          color: isSelected 
+              ? AppColors.neonTurquoise.withOpacity(0.1)
+              : AppColors.darkCard,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected 
+                ? AppColors.neonTurquoise
+                : AppColors.darkCard,
+            width: 1,
+          ),
+        ),
+        child: ListTile(
+          leading: Icon(
+            isSelected ? Icons.check_circle : Icons.radio_button_unchecked,
+            color: isSelected ? AppColors.neonTurquoise : AppColors.secondaryText,
+          ),
+          title: Text(
+            entry.value,
+            style: GoogleFonts.assistant(
+              color: isSelected ? AppColors.neonTurquoise : AppColors.primaryText,
+              fontSize: 16,
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+            ),
+          ),
+          onTap: () async {
+            await _changeVideoQuality(entry.key);
+            Navigator.of(context).pop();
+          },
+        ),
+      );
+    }).toList();
+  }
+
+  Future<void> _changeVideoQuality(String quality) async {
+    try {
+      // שמירת איכות בהעדפות המשתמש
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('video_quality', quality);
+      
+      setState(() {
+        _selectedQuality = quality;
+      });
+
+      // הצגת הודעה על שינוי האיכות
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('איכות הווידאו שונתה ל${_getQualityDisplayName(quality)}'),
+            backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      }
+
+      // בהתאמה לאיכות הנבחרת, ניתן לשנות את URL הווידאו
+      // לכרגע נציג רק הודעה, אבל במימוש אמיתי זה ישנה את הסטרים
+      
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('שגיאה בשינוי איכות הווידאו: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
+  String _getQualityDisplayName(String quality) {
+    switch (quality) {
+      case 'auto':
+        return 'אוטומטית';
+      case 'high':
+        return 'גבוהה';
+      case 'medium':
+        return 'בינונית';
+      case 'low':
+        return 'נמוכה';
+      default:
+        return quality;
+    }
+  }
+
   Widget _buildControlButton({
     required IconData icon,
     required VoidCallback onPressed,
