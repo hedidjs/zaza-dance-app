@@ -24,20 +24,95 @@ void main() async {
   runApp(const ProviderScope(child: ZazaDanceApp()));
 }
 
-class ZazaDanceApp extends ConsumerWidget {
+class ZazaDanceApp extends ConsumerStatefulWidget {
   const ZazaDanceApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return MaterialApp(
+  ConsumerState<ZazaDanceApp> createState() => _ZazaDanceAppState();
+}
+
+class _ZazaDanceAppState extends ConsumerState<ZazaDanceApp> {
+  late final GoRouter _router;
+  final DeepLinkService _deepLinkService = DeepLinkService();
+
+  @override
+  void initState() {
+    super.initState();
+    _setupRouter();
+  }
+
+  void _setupRouter() {
+    _router = GoRouter(
+      initialLocation: '/',
+      redirect: (context, state) {
+        final user = ref.read(currentUserProvider).valueOrNull;
+        final isLoggedIn = user != null;
+        final isAuthRoute = state.fullPath?.startsWith('/auth') ?? false;
+        
+        // אם המשתמש לא מחובר ולא בדף אותנטיקציה, הפנה להתחברות
+        if (!isLoggedIn && !isAuthRoute && state.fullPath != '/') {
+          return '/auth/login';
+        }
+        
+        return null;
+      },
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (context, state) => const AuthWrapper(),
+        ),
+        GoRoute(
+          path: '/auth/login',
+          builder: (context, state) => const LoginPage(),
+        ),
+        GoRoute(
+          path: '/auth/register',
+          builder: (context, state) => const RegisterPage(),
+        ),
+        GoRoute(
+          path: '/auth/callback',
+          builder: (context, state) => const AuthCallbackPage(),
+        ),
+        GoRoute(
+          path: '/home',
+          builder: (context, state) => const HomePage(),
+        ),
+        GoRoute(
+          path: '/tutorials',
+          builder: (context, state) => const TutorialsPage(),
+        ),
+        GoRoute(
+          path: '/gallery',
+          builder: (context, state) => const GalleryPage(),
+        ),
+        GoRoute(
+          path: '/updates',
+          builder: (context, state) => const UpdatesPage(),
+        ),
+        GoRoute(
+          path: '/settings',
+          builder: (context, state) => const SettingsPage(),
+        ),
+      ],
+    );
+    
+    // אתחול Deep Link Service
+    _deepLinkService.initialize(_router);
+  }
+
+  @override
+  void dispose() {
+    _deepLinkService.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp.router(
       title: 'זזה דאנס - Zaza Dance',
       theme: _buildTheme(),
-      home: const AuthWrapper(),
+      routerConfig: _router,
       debugShowCheckedModeBanner: false,
-      routes: {
-        '/login': (context) => const LoginPage(),
-        '/home': (context) => const HomePage(),
-      },
     );
   }
 
