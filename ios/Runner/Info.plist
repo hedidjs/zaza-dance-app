@@ -46,12 +46,6 @@
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	
-	<!-- Required for background app refresh -->
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>background-fetch</string>
-		<string>background-processing</string>
-	</array>
 	
 	<!-- Scene Configuration for iOS 13+ -->
 	<key>UISceneDelegate</key>
