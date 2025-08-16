@@ -831,9 +831,27 @@ class _GeneralSettingsPageState extends ConsumerState<GeneralSettingsPage> {
     );
   }
 
-  void _saveSettings() {
-    // TODO: שמירת הגדרות
-    ScaffoldMessenger.of(context).showSnackBar(
+  void _saveSettings() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      
+      // שמירת הגדרות מראה
+      await prefs.setString('theme', _selectedTheme);
+      await prefs.setString('language', _selectedLanguage);
+      await prefs.setBool('animations_enabled', _animationsEnabled);
+      await prefs.setBool('neon_effects_enabled', _neonEffectsEnabled);
+      
+      // שמירת הגדרות מדיה
+      await prefs.setString('video_quality', _videoQuality);
+      await prefs.setBool('autoplay_videos', _autoplayVideos);
+      await prefs.setBool('data_saver_mode', _dataSaverMode);
+      await prefs.setBool('download_wifi_only', _downloadOnWiFiOnly);
+      
+      // שמירת הגדרות נגישות
+      await prefs.setBool('high_contrast_mode', _highContrastMode);
+      await prefs.setBool('reduced_motion', _reducedMotion);
+      
+      ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('הגדרות נשמרו בהצלחה'),
         backgroundColor: AppColors.success,
