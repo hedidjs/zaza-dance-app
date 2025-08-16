@@ -1041,13 +1041,28 @@ class _TutorialPlayerPageState extends State<TutorialPlayerPage> {
     );
   }
 
-  void _shareVideo() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('שיתוף המדריך בקרוב'),
-        backgroundColor: AppColors.neonTurquoise,
-      ),
-    );
+  void _shareVideo() async {
+    try {
+      final shareText = 'מדריך ריקוד מדהים מזזה דאנס! 💃🕺\n\n'
+          '${widget.tutorial.titleHe}\n\n'
+          '${widget.tutorial.descriptionHe ?? ''}\n\n'
+          'מדריך: ${widget.tutorial.instructorName ?? 'זזה דאנס'}\n'
+          'רמת קושי: ${widget.tutorial.difficultyLevel?.displayName ?? 'כל הרמות'}\n\n'
+          'בואו ללמוד ריקוד עם זזה דאנס! 🎵\n'
+          'https://zazadance.com';
+      
+      await Share.share(
+        shareText,
+        subject: 'זזה דאנס - ${widget.tutorial.titleHe}',
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('שגיאה בשיתוף: $e'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    }
   }
 
   void _toggleBookmark() {
