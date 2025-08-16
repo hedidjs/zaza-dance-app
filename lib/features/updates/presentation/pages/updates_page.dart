@@ -175,10 +175,10 @@ class _UpdatesPageState extends ConsumerState<UpdatesPage>
           color: AppColors.primaryText,
           glowColor: AppColors.neonPink,
         ),
-        drawer: const AppDrawer(),
-        bottomNavigationBar: const AppBottomNavigation(
-          currentPage: NavigationPage.updates,
-        ),
+      ),
+      drawer: const AppDrawer(),
+      bottomNavigationBar: const AppBottomNavigation(
+        currentPage: NavigationPage.updates,
       ),
     );
   }
