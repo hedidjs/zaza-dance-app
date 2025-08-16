@@ -282,31 +282,51 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
     });
 
     try {
-      // TODO: Implement actual save logic with ProfileService
-      await Future.delayed(const Duration(seconds: 1));
-      
+      // שימוש ב-AuthProvider לעדכון הפרופיל
+      final result = await ref.read(currentUserProvider.notifier).updateProfile(
+        fullName: _nameController.text.trim(),
+        phoneNumber: _phoneController.text.trim().isEmpty ? null : _phoneController.text.trim(),
+        address: _addressController.text.trim().isEmpty ? null : _addressController.text.trim(),
+      );
+
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'הפרופיל נשמר בהצלחה',
-              style: GoogleFonts.assistant(color: AppColors.primaryText),
+        if (result.isSuccess) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'הפרופיל נשמר בהצלחה',
+                style: GoogleFonts.assistant(color: AppColors.primaryText),
+              ),
+              backgroundColor: AppColors.success,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
-            backgroundColor: AppColors.success,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
+          );
+          context.pop();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'שגיאה בשמירת הפרופיל: ${result.message}',
+                style: GoogleFonts.assistant(color: AppColors.primaryText),
+              ),
+              backgroundColor: AppColors.error,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
-          ),
-        );
-        context.pop();
+          );
+        }
       }
     } catch (error) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'שגיאה בשמירת הפרופיל',
+              'שגיאה לא צפויה בשמירת הפרופיל: $error',
               style: GoogleFonts.assistant(color: AppColors.primaryText),
             ),
             backgroundColor: AppColors.error,
