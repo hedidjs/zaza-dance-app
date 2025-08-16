@@ -830,9 +830,9 @@ class _TutorialPlayerPageState extends State<TutorialPlayerPage> {
           const SizedBox(height: 8),
           _buildInfoRow(Icons.timer, 'משך', '${widget.tutorial.duration} דקות'),
           const SizedBox(height: 8),
-          _buildInfoRow(Icons.visibility, 'צפיות', '${widget.tutorial.viewCount}'),
+          _buildInfoRow(Icons.visibility, 'צפיות', '${widget.tutorial.viewsCount}'),
           const SizedBox(height: 8),
-          _buildInfoRow(Icons.thumb_up, 'אהבו', '${widget.tutorial.likeCount}'),
+          _buildInfoRow(Icons.thumb_up, 'אהבו', '${widget.tutorial.likesCount}'),
         ],
       ),
     );

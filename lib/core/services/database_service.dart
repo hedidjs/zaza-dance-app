@@ -20,20 +20,20 @@ class DatabaseService {
     String orderBy = 'created_at',
     bool ascending = false,
   }) async {
-    var query = _client
+    var queryBuilder = _client
         .from(SupabaseConfig.usersTable)
         .select()
         .eq('is_active', true);
 
     if (role != null && role != 'all') {
-      query = query.eq('role', role);
+      queryBuilder = queryBuilder.eq('role', role);
     }
 
     if (searchQuery != null && searchQuery.isNotEmpty) {
-      query = query.or('display_name.ilike.%$searchQuery%,email.ilike.%$searchQuery%');
+      queryBuilder = queryBuilder.or('display_name.ilike.%$searchQuery%,email.ilike.%$searchQuery%');
     }
 
-    final response = await query.order(orderBy, ascending: ascending);
+    final response = await queryBuilder.order(orderBy, ascending: ascending);
     return (response as List)
         .map((json) => UserModel.fromJson(json))
         .toList();
@@ -130,7 +130,7 @@ class DatabaseService {
     bool ascending = false,
     int? limit,
   }) async {
-    var query = _client
+    var queryBuilder = _client
         .from(SupabaseConfig.tutorialsTable)
         .select('''
           *,
@@ -139,28 +139,28 @@ class DatabaseService {
         .eq('is_published', true);
 
     if (difficulty != null) {
-      query = query.eq('difficulty_level', difficulty.name);
+      queryBuilder = queryBuilder.eq('difficulty_level', difficulty.name);
     }
 
     if (category != null && category.isNotEmpty) {
-      query = query.eq('category', category);
+      queryBuilder = queryBuilder.eq('category', category);
     }
 
     if (isFeatured != null) {
-      query = query.eq('is_featured', isFeatured);
+      queryBuilder = queryBuilder.eq('is_featured', isFeatured);
     }
 
     if (searchQuery != null && searchQuery.isNotEmpty) {
-      query = query.or('title_he.ilike.%$searchQuery%,description_he.ilike.%$searchQuery%');
+      queryBuilder = queryBuilder.or('title_he.ilike.%$searchQuery%,description_he.ilike.%$searchQuery%');
     }
 
-    query = query.order(orderBy, ascending: ascending);
+    var orderedQuery = queryBuilder.order(orderBy, ascending: ascending);
 
     if (limit != null) {
-      query = query.limit(limit);
+      orderedQuery = orderedQuery.limit(limit);
     }
 
-    final response = await query;
+    final response = await orderedQuery;
     return (response as List)
         .map((json) => TutorialModel.fromJson(json))
         .toList();
@@ -291,7 +291,7 @@ class DatabaseService {
     bool ascending = false,
     int? limit,
   }) async {
-    var query = _client
+    var queryBuilder = _client
         .from(SupabaseConfig.galleryItemsTable)
         .select('''
           *,
@@ -300,28 +300,28 @@ class DatabaseService {
         .eq('is_published', true);
 
     if (category != null && category.isNotEmpty) {
-      query = query.eq('category', category);
+      queryBuilder = queryBuilder.eq('category', category);
     }
 
     if (mediaType != null && mediaType.isNotEmpty) {
-      query = query.eq('media_type', mediaType);
+      queryBuilder = queryBuilder.eq('media_type', mediaType);
     }
 
     if (isFeatured != null) {
-      query = query.eq('is_featured', isFeatured);
+      queryBuilder = queryBuilder.eq('is_featured', isFeatured);
     }
 
     if (searchQuery != null && searchQuery.isNotEmpty) {
-      query = query.or('title_he.ilike.%$searchQuery%,description_he.ilike.%$searchQuery%');
+      queryBuilder = queryBuilder.or('title_he.ilike.%$searchQuery%,description_he.ilike.%$searchQuery%');
     }
 
-    query = query.order(orderBy, ascending: ascending);
+    var orderedQuery = queryBuilder.order(orderBy, ascending: ascending);
 
     if (limit != null) {
-      query = query.limit(limit);
+      orderedQuery = orderedQuery.limit(limit);
     }
 
-    final response = await query;
+    final response = await orderedQuery;
     return (response as List)
         .map((json) => GalleryModel.fromJson(json))
         .toList();
@@ -398,7 +398,7 @@ class DatabaseService {
     bool ascending = false,
     int? limit,
   }) async {
-    var query = _client
+    var queryBuilder = _client
         .from(SupabaseConfig.updatesTable)
         .select('''
           *,
@@ -407,32 +407,33 @@ class DatabaseService {
         .lte('publish_at', DateTime.now().toIso8601String());
 
     if (isActive != null) {
-      query = query.eq('is_active', isActive);
+      queryBuilder = queryBuilder.eq('is_active', isActive);
     } else {
-      query = query.eq('is_active', true);
+      queryBuilder = queryBuilder.eq('is_active', true);
     }
 
     if (updateType != null && updateType.isNotEmpty) {
-      query = query.eq('update_type', updateType);
+      queryBuilder = queryBuilder.eq('update_type', updateType);
     }
 
     if (isPinned != null) {
-      query = query.eq('is_pinned', isPinned);
+      queryBuilder = queryBuilder.eq('is_pinned', isPinned);
     }
 
     if (searchQuery != null && searchQuery.isNotEmpty) {
-      query = query.or('title_he.ilike.%$searchQuery%,content_he.ilike.%$searchQuery%');
+      queryBuilder = queryBuilder.or('title_he.ilike.%$searchQuery%,content_he.ilike.%$searchQuery%');
     }
 
     // Order by pinned first, then by specified order
-    query = query.order('is_pinned', ascending: false);
-    query = query.order(orderBy, ascending: ascending);
+    var orderedQuery = queryBuilder
+        .order('is_pinned', ascending: false)
+        .order(orderBy, ascending: ascending);
 
     if (limit != null) {
-      query = query.limit(limit);
+      orderedQuery = orderedQuery.limit(limit);
     }
 
-    final response = await query;
+    final response = await orderedQuery;
     return (response as List)
         .map((json) => UpdateModel.fromJson(json))
         .toList();
@@ -566,33 +567,33 @@ class DatabaseService {
     DateTime? endDate,
     int? limit,
   }) async {
-    var query = _client
+    var queryBuilder = _client
         .from(SupabaseConfig.analyticsTable)
         .select();
 
     if (eventType != null) {
-      query = query.eq('event_type', eventType);
+      queryBuilder = queryBuilder.eq('event_type', eventType);
     }
 
     if (contentType != null) {
-      query = query.eq('content_type', contentType);
+      queryBuilder = queryBuilder.eq('content_type', contentType);
     }
 
     if (startDate != null) {
-      query = query.gte('created_at', startDate.toIso8601String());
+      queryBuilder = queryBuilder.gte('created_at', startDate.toIso8601String());
     }
 
     if (endDate != null) {
-      query = query.lte('created_at', endDate.toIso8601String());
+      queryBuilder = queryBuilder.lte('created_at', endDate.toIso8601String());
     }
 
-    query = query.order('created_at', ascending: false);
+    var orderedQuery = queryBuilder.order('created_at', ascending: false);
 
     if (limit != null) {
-      query = query.limit(limit);
+      orderedQuery = orderedQuery.limit(limit);
     }
 
-    final response = await query;
+    final response = await orderedQuery;
     return List<Map<String, dynamic>>.from(response);
   }
 
@@ -643,26 +644,26 @@ class DatabaseService {
     String? notificationType,
     int? limit,
   }) async {
-    var query = _client
+    var queryBuilder = _client
         .from(SupabaseConfig.notificationsTable)
         .select()
         .eq('user_id', userId);
 
     if (isRead != null) {
-      query = query.eq('is_read', isRead);
+      queryBuilder = queryBuilder.eq('is_read', isRead);
     }
 
     if (notificationType != null) {
-      query = query.eq('notification_type', notificationType);
+      queryBuilder = queryBuilder.eq('notification_type', notificationType);
     }
 
-    query = query.order('sent_at', ascending: false);
+    var orderedQuery = queryBuilder.order('sent_at', ascending: false);
 
     if (limit != null) {
-      query = query.limit(limit);
+      orderedQuery = orderedQuery.limit(limit);
     }
 
-    final response = await query;
+    final response = await orderedQuery;
     return List<Map<String, dynamic>>.from(response);
   }
 
