@@ -30,6 +30,9 @@ Future<void> main() async {
   // Initialize Performance Service
   await PerformanceService().initialize();
   
+  // Initialize Push Notification Service
+  await PushNotificationService().initialize();
+  
   // Set system UI overlay style
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
