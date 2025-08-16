@@ -23,18 +23,7 @@ class AuthService {
       final user = currentUser;
       if (user == null) return null;
 
-      final response = await _supabase
-          .from('profiles')
-          .select()
-          .eq('id', user.id)
-          .single();
-
-      return UserModel.fromJson({
-        'id': user.id,
-        'email': user.email ?? '',
-        'created_at': user.createdAt,
-        ...response,
-      });
+      return await DatabaseService.getUserById(user.id);
     } catch (e) {
       if (kDebugMode) {
         print('AuthService: Error getting user profile: $e');
