@@ -9,6 +9,7 @@ import '../../features/gallery/presentation/pages/gallery_page.dart';
 import '../../features/tutorials/presentation/pages/tutorials_page.dart';
 import '../../features/updates/presentation/pages/updates_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
+import '../../features/profile/presentation/pages/profile_page.dart';
 import 'enhanced_neon_effects.dart';
 import 'neon_text.dart';
 
