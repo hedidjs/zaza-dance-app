@@ -10,6 +10,7 @@ import 'core/services/cache_service.dart';
 import 'core/services/supabase_service.dart';
 import 'core/services/performance_service.dart';
 import 'core/services/push_notification_service.dart';
+import 'core/services/offline_download_service.dart';
 import 'features/home/presentation/pages/home_page.dart';
 
 Future<void> main() async {
