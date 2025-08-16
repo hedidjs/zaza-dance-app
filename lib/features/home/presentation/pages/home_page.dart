@@ -41,35 +41,36 @@ class HomePage extends StatelessWidget {
         ),
         drawer: const AppDrawer(),
         body: AnimatedGradientBackground(
-        child: SafeArea(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 40),
-                  
-                  // Welcome section
-                  _buildWelcomeSection(),
-                  
-                  const SizedBox(height: 40),
-                  
-                  // Quick actions
-                  _buildQuickActions(context),
-                  
-                  const SizedBox(height: 40),
-                  
-                  // Featured content
-                  _buildFeaturedContent(),
-                  
-                  const SizedBox(height: 40),
-                  
-                  // Latest updates
-                  _buildLatestUpdates(),
-                  
-                  const SizedBox(height: 20),
-                ],
+          child: SafeArea(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 40),
+                    
+                    // Welcome section
+                    _buildWelcomeSection(),
+                    
+                    const SizedBox(height: 40),
+                    
+                    // Quick actions
+                    _buildQuickActions(context),
+                    
+                    const SizedBox(height: 40),
+                    
+                    // Featured content
+                    _buildFeaturedContent(),
+                    
+                    const SizedBox(height: 40),
+                    
+                    // Latest updates
+                    _buildLatestUpdates(),
+                    
+                    const SizedBox(height: 20),
+                  ],
+                ),
               ),
             ),
           ),
