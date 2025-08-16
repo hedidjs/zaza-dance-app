@@ -503,9 +503,26 @@ class _NotificationSettingsPageState extends ConsumerState<NotificationSettingsP
     }
   }
 
-  void _saveSettings() {
-    // TODO: שמירת הגדרות במסד הנתונים
-    ScaffoldMessenger.of(context).showSnackBar(
+  void _saveSettings() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      
+      // שמירת הגדרות התראות
+      await prefs.setBool('notifications_enabled', _notificationsEnabled);
+      await prefs.setBool('push_notifications', _pushNotifications);
+      await prefs.setBool('email_notifications', _emailNotifications);
+      await prefs.setBool('sms_notifications', _smsNotifications);
+      await prefs.setBool('class_reminders', _classReminders);
+      await prefs.setBool('new_tutorials', _newTutorials);
+      await prefs.setBool('studio_updates', _studioUpdates);
+      await prefs.setBool('achievements', _achievements);
+      await prefs.setBool('marketing_updates', _marketingUpdates);
+      
+      // שמירת הגדרות זמן
+      await prefs.setString('quiet_start', '${_quietHoursStart.hour}:${_quietHoursStart.minute}');
+      await prefs.setString('quiet_end', '${_quietHoursEnd.hour}:${_quietHoursEnd.minute}');
+      
+      ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('הגדרות נשמרו בהצלחה'),
         backgroundColor: AppColors.success,
