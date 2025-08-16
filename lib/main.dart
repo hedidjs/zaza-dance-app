@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'core/config/supabase_config.dart';
 import 'core/providers/auth_provider.dart';
 import 'core/services/deep_link_service.dart';
+import 'core/services/push_notification_service.dart';
 import 'features/auth/presentation/pages/login_page.dart';
 import 'features/auth/presentation/pages/register_page.dart';
 import 'features/auth/presentation/pages/auth_callback_page.dart';
