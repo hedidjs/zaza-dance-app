@@ -44,6 +44,12 @@ class _ZazaDanceAppState extends ConsumerState<ZazaDanceApp> {
   void initState() {
     super.initState();
     _setupRouter();
+    _initializeServices();
+  }
+
+  void _initializeServices() async {
+    // אתחול שירות ההתראות
+    await _pushNotificationService.initialize();
   }
 
   void _setupRouter() {
