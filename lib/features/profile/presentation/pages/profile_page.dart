@@ -931,6 +931,19 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
     }
   }
 
+  void _navigateToEditProfile(BuildContext context) async {
+    final result = await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const EditProfilePage(),
+      ),
+    );
+    
+    // If profile was updated, show success message
+    if (result == true && mounted) {
+      _showMessage('הפרופיל עודכן בהצלחה');
+    }
+  }
+
   void _showEditProfileDialog(dynamic userData) {
     showDialog(
       context: context,
