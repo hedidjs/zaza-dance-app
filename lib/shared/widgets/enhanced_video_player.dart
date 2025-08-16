@@ -54,6 +54,7 @@ class _EnhancedVideoPlayerState extends State<EnhancedVideoPlayer>
   
   Duration _position = Duration.zero;
   Duration _duration = Duration.zero;
+  String _selectedQuality = 'auto';
   
   Timer? _hideControlsTimer;
 
