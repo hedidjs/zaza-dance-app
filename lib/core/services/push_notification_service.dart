@@ -15,6 +15,7 @@ class PushNotificationService {
       FlutterLocalNotificationsPlugin();
 
   bool _isInitialized = false;
+  BuildContext? _context;
 
   /// Initialize the notification service
   Future<void> initialize() async {
