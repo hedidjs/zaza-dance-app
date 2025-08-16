@@ -294,7 +294,7 @@ class OptimizedImageGrid extends StatelessWidget {
       child: GridView.builder(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: crossAxisCount,
-          aspectRatio: aspectRatio,
+          childAspectRatio: aspectRatio,
           mainAxisSpacing: mainAxisSpacing,
           crossAxisSpacing: crossAxisSpacing,
         ),
