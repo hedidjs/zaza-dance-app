@@ -148,43 +148,51 @@ class AppTheme {
     return TextTheme(
       displayLarge: GoogleFonts.assistant(
         fontSize: 57,
-        fontWeight: FontWeight.w400,
+        fontWeight: FontWeight.w700,
         color: AppColors.primaryText,
+        shadows: _createNeonGlow(AppColors.neonPink),
       ),
       displayMedium: GoogleFonts.assistant(
         fontSize: 45,
-        fontWeight: FontWeight.w400,
+        fontWeight: FontWeight.w600,
         color: AppColors.primaryText,
+        shadows: _createNeonGlow(AppColors.neonPink),
       ),
       displaySmall: GoogleFonts.assistant(
         fontSize: 36,
-        fontWeight: FontWeight.w400,
+        fontWeight: FontWeight.w600,
         color: AppColors.primaryText,
+        shadows: _createNeonGlow(AppColors.neonTurquoise),
       ),
       headlineLarge: GoogleFonts.assistant(
         fontSize: 32,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w700,
         color: AppColors.primaryText,
+        shadows: _createNeonGlow(AppColors.neonPink),
       ),
       headlineMedium: GoogleFonts.assistant(
         fontSize: 28,
         fontWeight: FontWeight.w600,
         color: AppColors.primaryText,
+        shadows: _createNeonGlow(AppColors.neonTurquoise),
       ),
       headlineSmall: GoogleFonts.assistant(
         fontSize: 24,
         fontWeight: FontWeight.w600,
         color: AppColors.primaryText,
+        shadows: _createSubtleGlow(AppColors.neonPink),
       ),
       titleLarge: GoogleFonts.assistant(
         fontSize: 22,
-        fontWeight: FontWeight.w500,
+        fontWeight: FontWeight.w600,
         color: AppColors.primaryText,
+        shadows: _createSubtleGlow(AppColors.neonTurquoise),
       ),
       titleMedium: GoogleFonts.assistant(
         fontSize: 16,
         fontWeight: FontWeight.w500,
         color: AppColors.primaryText,
+        shadows: _createSubtleGlow(AppColors.neonPink),
       ),
       titleSmall: GoogleFonts.assistant(
         fontSize: 14,
@@ -208,8 +216,9 @@ class AppTheme {
       ),
       labelLarge: GoogleFonts.assistant(
         fontSize: 14,
-        fontWeight: FontWeight.w500,
+        fontWeight: FontWeight.w600,
         color: AppColors.primaryText,
+        shadows: _createSubtleGlow(AppColors.neonTurquoise),
       ),
       labelMedium: GoogleFonts.assistant(
         fontSize: 12,
@@ -222,5 +231,42 @@ class AppTheme {
         color: AppColors.secondaryText,
       ),
     );
+  }
+
+  /// Creates a strong neon glow effect for headlines and display text
+  static List<Shadow> _createNeonGlow(Color glowColor) {
+    return [
+      Shadow(
+        offset: const Offset(0, 0),
+        blurRadius: 10,
+        color: glowColor.withValues(alpha: 0.8),
+      ),
+      Shadow(
+        offset: const Offset(0, 0),
+        blurRadius: 20,
+        color: glowColor.withValues(alpha: 0.6),
+      ),
+      Shadow(
+        offset: const Offset(0, 0),
+        blurRadius: 30,
+        color: glowColor.withValues(alpha: 0.4),
+      ),
+    ];
+  }
+
+  /// Creates a subtle glow effect for titles and labels
+  static List<Shadow> _createSubtleGlow(Color glowColor) {
+    return [
+      Shadow(
+        offset: const Offset(0, 0),
+        blurRadius: 5,
+        color: glowColor.withValues(alpha: 0.6),
+      ),
+      Shadow(
+        offset: const Offset(0, 0),
+        blurRadius: 10,
+        color: glowColor.withValues(alpha: 0.3),
+      ),
+    ];
   }
 }
