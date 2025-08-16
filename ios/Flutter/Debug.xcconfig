@@ -2,7 +2,7 @@
 #include "Generated.xcconfig"
 
 // iOS Deployment Target
-IPHONEOS_DEPLOYMENT_TARGET = 12.0
+IPHONEOS_DEPLOYMENT_TARGET = 13.0
 
 // App Configuration
 PRODUCT_BUNDLE_IDENTIFIER = com.zazadance.zazaDance
