@@ -47,10 +47,23 @@ class _ZazaDanceAppState extends ConsumerState<ZazaDanceApp> {
   void _setupRouter() {
     _router = GoRouter(
       initialLocation: '/',
+      refreshListenable: ref.read(currentUserProvider.notifier),
       redirect: (context, state) {
-        final user = ref.read(currentUserProvider).valueOrNull;
+        final userAsync = ref.read(currentUserProvider);
+        final isLoading = userAsync.isLoading;
+        final user = userAsync.valueOrNull;
         final isLoggedIn = user != null;
         final isAuthRoute = state.fullPath?.startsWith('/auth') ?? false;
+        
+        // אם עדיין טוען, אל תכוון מחדש
+        if (isLoading) {
+          return null;
+        }
+        
+        // אם המשתמש מחובר ובדף אותנטיקציה, הפנה לבית
+        if (isLoggedIn && isAuthRoute) {
+          return '/home';
+        }
         
         // אם המשתמש לא מחובר ולא בדף אותנטיקציה, הפנה להתחברות
         if (!isLoggedIn && !isAuthRoute && state.fullPath != '/') {
