@@ -144,7 +144,7 @@ class AppBottomNavigation extends StatelessWidget {
         break;
     }
 
-    Navigator.of(context).pushReplacement(
+    Navigator.of(context).push(
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) => page,
         transitionDuration: const Duration(milliseconds: 300),
