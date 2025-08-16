@@ -46,32 +46,57 @@
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	
-	<!-- Deep Link URL Schemes -->
-	<key>CFBundleURLTypes</key>
+	<!-- Required for background app refresh -->
+	<key>UIBackgroundModes</key>
 	<array>
-		<dict>
-			<key>CFBundleURLName</key>
-			<string>com.zazadance.zazaDance</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>com.zazadance.zazaDance</string>
-			</array>
-		</dict>
-		<dict>
-			<key>CFBundleURLName</key>
-			<string>zazadance.com</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>https</string>
-			</array>
-		</dict>
+		<string>background-fetch</string>
+		<string>background-processing</string>
 	</array>
 	
-	<!-- Associated Domains for Universal Links -->
-	<key>com.apple.developer.associated-domains</key>
-	<array>
-		<string>applinks:zazadance.com</string>
-		<string>applinks:www.zazadance.com</string>
-	</array>
+	<!-- Scene Configuration for iOS 13+ -->
+	<key>UISceneDelegate</key>
+	<true/>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+		<key>UISceneConfigurations</key>
+		<dict>
+			<key>UIWindowSceneSessionRoleApplication</key>
+			<array>
+				<dict>
+					<key>UISceneConfigurationName</key>
+					<string>Default Configuration</string>
+					<key>UISceneDelegateClassName</key>
+					<string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
+				</dict>
+			</array>
+		</dict>
+	</dict>
+	
+	<!-- App Transport Security -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<false/>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>yyvoavzgapsyycjwirmg.supabase.co</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<false/>
+				<key>NSExceptionMinimumTLSVersion</key>
+				<string>TLSv1.2</string>
+			</dict>
+		</dict>
+	</dict>
+	
+	<!-- Required permissions -->
+	<key>NSCameraUsageDescription</key>
+	<string>אפליקציית זזה דאנס צריכה גישה למצלמה כדי לצלם תמונות פרופיל</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>אפליקציית זזה דאנס צריכה גישה לגלריה כדי לבחור תמונות פרופיל</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>אפליקציית זזה דאנס צריכה גישה למיקרופון עבור סרטוני ריקוד</string>
 </dict>
 </plist>
