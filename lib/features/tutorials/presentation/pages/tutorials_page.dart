@@ -671,7 +671,8 @@ class _TutorialsPageState extends ConsumerState<TutorialsPage>
 }
 
 // Tutorial Player Page (placeholder for now)
-class TutorialPlayerPage extends StatelessWidget {
+/// עמוד נגן המדריכים עם נגן וידאו משופר
+class TutorialPlayerPage extends StatefulWidget {
   final TutorialModel tutorial;
 
   const TutorialPlayerPage({
@@ -680,87 +681,431 @@ class TutorialPlayerPage extends StatelessWidget {
   });
 
   @override
+  State<TutorialPlayerPage> createState() => _TutorialPlayerPageState();
+}
+
+class _TutorialPlayerPageState extends State<TutorialPlayerPage> {
+  bool _isVideoCompleted = false;
+  Duration _watchedDuration = Duration.zero;
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        title: Text(
-          tutorial.titleHe,
-          style: TextStyle(color: AppColors.primaryText),
-        ),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColors.primaryText),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.play_circle_filled,
-              size: 100,
-              color: AppColors.neonPink,
-            ),
-            const SizedBox(height: 20),
-            NeonText(
-              text: 'נגן וידאו',
-              fontSize: 24,
-              glowColor: AppColors.neonTurquoise,
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'יחובר לנגן וידאו אמיתי בעתיד',
-              style: TextStyle(
-                color: AppColors.secondaryText,
-                fontSize: 16,
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        backgroundColor: AppColors.darkBackground,
+        body: CustomScrollView(
+          slivers: [
+            // AppBar עם רקע שקוף
+            SliverAppBar(
+              expandedHeight: 60,
+              floating: true,
+              pinned: true,
+              backgroundColor: AppColors.darkBackground.withOpacity(0.9),
+              leading: IconButton(
+                icon: Icon(Icons.arrow_back, color: AppColors.primaryText),
+                onPressed: () => Navigator.pop(context),
               ),
+              title: Text(
+                widget.tutorial.titleHe,
+                style: TextStyle(
+                  color: AppColors.primaryText,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              actions: [
+                IconButton(
+                  icon: Icon(Icons.share, color: AppColors.neonTurquoise),
+                  onPressed: _shareVideo,
+                ),
+                IconButton(
+                  icon: Icon(Icons.bookmark_border, color: AppColors.neonPink),
+                  onPressed: _toggleBookmark,
+                ),
+              ],
             ),
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+            
+            // תוכן העמוד
+            SliverToBoxAdapter(
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  NeonText(
-                    text: tutorial.titleHe,
-                    fontSize: 20,
-                    glowColor: AppColors.neonPink,
-                  ),
-                  const SizedBox(height: 10),
-                  if (tutorial.descriptionHe != null)
-                    Text(
-                      tutorial.descriptionHe!,
-                      style: TextStyle(
-                        color: AppColors.primaryText,
-                        fontSize: 14,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
+                  // נגן הוידאו
+                  _buildVideoPlayer(),
+                  
                   const SizedBox(height: 20),
-                  Text(
-                    'מדריך: ${tutorial.instructorName ?? 'לא ידוע'}',
-                    style: TextStyle(
-                      color: AppColors.secondaryText,
-                      fontSize: 16,
-                    ),
-                  ),
-                  Text(
-                    'משך: ${tutorial.formattedDuration}',
-                    style: TextStyle(
-                      color: AppColors.secondaryText,
-                      fontSize: 16,
-                    ),
-                  ),
-                  Text(
-                    'רמה: ${(tutorial.difficultyLevel ?? DifficultyLevel.beginner).displayName}',
-                    style: TextStyle(
-                      color: AppColors.secondaryText,
-                      fontSize: 16,
-                    ),
-                  ),
+                  
+                  // פרטי המדריך
+                  _buildTutorialInfo(),
+                  
+                  const SizedBox(height: 20),
+                  
+                  // סטטיסטיקות התקדמות
+                  _buildProgressStats(),
+                  
+                  const SizedBox(height: 20),
+                  
+                  // תיאור המדריך
+                  _buildDescription(),
+                  
+                  const SizedBox(height: 20),
+                  
+                  // פעולות נוספות
+                  _buildActionButtons(),
+                  
+                  const SizedBox(height: 100), // מקום לניווט תחתון
                 ],
               ),
+            ),
+          ],
+        ),
+        bottomNavigationBar: const AppBottomNavigation(
+          currentPage: NavigationPage.tutorials,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildVideoPlayer() {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      child: EnhancedVideoPlayer(
+        videoUrl: widget.tutorial.videoUrl,
+        title: widget.tutorial.titleHe,
+        subtitle: 'מדריך: ${widget.tutorial.instructorName ?? "לא ידוע"}',
+        autoPlay: false,
+        showControls: true,
+        allowFullScreen: true,
+        onVideoEnded: () {
+          setState(() {
+            _isVideoCompleted = true;
+          });
+          _showCompletionDialog();
+        },
+        onProgressChanged: (position) {
+          setState(() {
+            _watchedDuration = position;
+          });
+        },
+      ),
+    );
+  }
+
+  Widget _buildTutorialInfo() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: AppColors.cardGradient,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.neonTurquoise.withOpacity(0.3),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: NeonText(
+                  text: widget.tutorial.titleHe,
+                  fontSize: 20,
+                  glowColor: AppColors.neonPink,
+                ),
+              ),
+              _buildDifficultyChip(),
+            ],
+          ),
+          const SizedBox(height: 12),
+          
+          // פרטי המדריך
+          _buildInfoRow(Icons.person, 'מדריך', widget.tutorial.instructorName ?? 'לא ידוע'),
+          const SizedBox(height: 8),
+          _buildInfoRow(Icons.timer, 'משך', '${widget.tutorial.duration} דקות'),
+          const SizedBox(height: 8),
+          _buildInfoRow(Icons.visibility, 'צפיות', '${widget.tutorial.viewCount}'),
+          const SizedBox(height: 8),
+          _buildInfoRow(Icons.thumb_up, 'אהבו', '${widget.tutorial.likeCount}'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDifficultyChip() {
+    Color chipColor;
+    String difficultyText;
+    
+    switch (widget.tutorial.difficulty) {
+      case DifficultyLevel.beginner:
+        chipColor = AppColors.success;
+        difficultyText = 'מתחילים';
+        break;
+      case DifficultyLevel.intermediate:
+        chipColor = AppColors.warning;
+        difficultyText = 'בינוניים';
+        break;
+      case DifficultyLevel.advanced:
+        chipColor = AppColors.error;
+        difficultyText = 'מתקדמים';
+        break;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: chipColor.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: chipColor, width: 1),
+      ),
+      child: Text(
+        difficultyText,
+        style: TextStyle(
+          color: chipColor,
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String label, String value) {
+    return Row(
+      children: [
+        Icon(icon, color: AppColors.neonTurquoise, size: 16),
+        const SizedBox(width: 8),
+        Text(
+          '$label: ',
+          style: TextStyle(
+            color: AppColors.secondaryText,
+            fontSize: 14,
+          ),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            color: AppColors.primaryText,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildProgressStats() {
+    if (_watchedDuration == Duration.zero) return const SizedBox.shrink();
+    
+    final totalDuration = Duration(minutes: widget.tutorial.duration);
+    final progressPercent = totalDuration.inSeconds > 0
+        ? (_watchedDuration.inSeconds / totalDuration.inSeconds * 100)
+        : 0.0;
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppColors.neonPink.withOpacity(0.1),
+            AppColors.neonTurquoise.withOpacity(0.1),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.neonPink.withOpacity(0.3),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          NeonText(
+            text: 'התקדמות הצפייה',
+            fontSize: 16,
+            glowColor: AppColors.neonPink,
+          ),
+          const SizedBox(height: 12),
+          
+          Row(
+            children: [
+              Expanded(
+                child: LinearProgressIndicator(
+                  value: progressPercent / 100,
+                  backgroundColor: AppColors.darkSurface,
+                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.neonPink),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                '${progressPercent.toStringAsFixed(0)}%',
+                style: TextStyle(
+                  color: AppColors.primaryText,
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          
+          const SizedBox(height: 8),
+          
+          if (_isVideoCompleted)
+            Row(
+              children: [
+                Icon(Icons.check_circle, color: AppColors.success, size: 16),
+                const SizedBox(width: 8),
+                Text(
+                  'המדריך הושלם!',
+                  style: TextStyle(
+                    color: AppColors.success,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDescription() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.darkSurface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.darkBorder,
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          NeonText(
+            text: 'תיאור המדריך',
+            fontSize: 16,
+            glowColor: AppColors.neonTurquoise,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            widget.tutorial.description,
+            style: TextStyle(
+              color: AppColors.primaryText,
+              fontSize: 14,
+              height: 1.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionButtons() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: [
+          Expanded(
+            child: NeonButton(
+              text: 'חזור לרשימה',
+              onPressed: () => Navigator.pop(context),
+              glowColor: AppColors.neonTurquoise,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: NeonButton(
+              text: 'מדריך הבא',
+              onPressed: _goToNextTutorial,
+              glowColor: AppColors.neonPink,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _shareVideo() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('שיתוף המדריך בקרוב'),
+        backgroundColor: AppColors.neonTurquoise,
+      ),
+    );
+  }
+
+  void _toggleBookmark() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('נשמר לסימניות'),
+        backgroundColor: AppColors.neonPink,
+      ),
+    );
+  }
+
+  void _goToNextTutorial() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('מדריך הבא בקרוב'),
+        backgroundColor: AppColors.neonPink,
+      ),
+    );
+  }
+
+  void _showCompletionDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => Directionality(
+        textDirection: TextDirection.rtl,
+        child: AlertDialog(
+          backgroundColor: AppColors.darkSurface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+            side: BorderSide(
+              color: AppColors.success.withOpacity(0.3),
+              width: 1,
+            ),
+          ),
+          title: Row(
+            children: [
+              Icon(Icons.celebration, color: AppColors.success),
+              const SizedBox(width: 8),
+              NeonText(
+                text: 'כל הכבוד!',
+                fontSize: 20,
+                glowColor: AppColors.success,
+              ),
+            ],
+          ),
+          content: Text(
+            'סיימת לצפות במדריך!\nמוכן למדריך הבא?',
+            style: TextStyle(
+              color: AppColors.primaryText,
+              fontSize: 16,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('אחר כך', style: TextStyle(color: AppColors.secondaryText)),
+            ),
+            NeonButton(
+              text: 'מדריך הבא',
+              onPressed: () {
+                Navigator.of(context).pop();
+                _goToNextTutorial();
+              },
+              glowColor: AppColors.success,
             ),
           ],
         ),
