@@ -155,6 +155,9 @@ class SupabaseService {
     int offset = 0,
   }) async {
     try {
+      if (kDebugMode) {
+        print('SupabaseService: Fetching tutorials from Supabase...');
+      }
       var query = _client
           .from('tutorials')
           .select('*, categories(*)')
@@ -176,6 +179,10 @@ class SupabaseService {
           .order('sort_order')
           .order('created_at', ascending: false)
           .range(offset, offset + limit - 1);
+
+      if (kDebugMode) {
+        print('SupabaseService: Retrieved ${(response as List).length} tutorials');
+      }
 
       return (response as List)
           .map((data) => TutorialModel.fromJson(data))
