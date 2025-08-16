@@ -202,11 +202,7 @@ class AppDrawer extends ConsumerWidget {
             context,
             icon: Icons.admin_panel_settings,
             title: 'ניהול מערכת',
-            onTap: () {
-              Navigator.of(context).pop();
-              // TODO: Navigate to admin page
-              _showComingSoonDialog(context, 'מערכת הניהול בפיתוח');
-            },
+            onTap: () => _navigateToPage(context, const AdminPage()),
             glowColor: AppColors.warning,
           ),
         ],
