@@ -19,8 +19,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     window = UIWindow(windowScene: windowScene)
     
     // Create Flutter view controller with the engine
-    let flutterViewController = FlutterViewController(engine: flutterEngine, nibName: nil, bundle: nil)
-    flutterViewController.modalPresentationStyle = .fullScreen
+    let flutterViewController = FlutterViewController(engine: flutterEngine!, nibName: nil, bundle: nil)
+    flutterViewController.modalPresentationStyle = UIModalPresentationStyle.fullScreen
     
     // Set as root view controller
     window?.rootViewController = flutterViewController
