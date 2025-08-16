@@ -84,7 +84,7 @@ class HomePage extends StatelessWidget {
           'ברוכים הבאים לבית הדיגיטלי',
           glowColor: AppColors.neonPink,
           animate: true,
-        ).animate().fadeIn(duration: 800.ms).slideX(begin: 1),
+        ),
         
         const SizedBox(height: 10),
         
@@ -92,7 +92,7 @@ class HomePage extends StatelessWidget {
           'של קהילת ההיפ הופ',
           glowColor: AppColors.neonTurquoise,
           animate: true,
-        ).animate().fadeIn(duration: 800.ms, delay: 200.ms).slideX(begin: -1),
+        ),
         
         const SizedBox(height: 20),
         
