@@ -54,6 +54,57 @@ class ZazaDanceApp extends ConsumerWidget {
   }
 }
 
+class AuthWrapper extends ConsumerWidget {
+  const AuthWrapper({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentUser = ref.watch(currentUserProvider);
+    
+    return currentUser.when(
+      data: (user) {
+        if (user != null) {
+          return const HomePage();
+        } else {
+          return const LandingPage();
+        }
+      },
+      loading: () => const LoadingPage(),
+      error: (error, stack) => const LoginPage(),
+    );
+  }
+}
+
+class LoadingPage extends StatelessWidget {
+  const LoadingPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF0A0A0A),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const CircularProgressIndicator(
+              color: Color(0xFFFF00FF),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'זזה דאנס',
+              style: GoogleFonts.assistant(
+                fontSize: 24,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class LandingPage extends StatefulWidget {
   const LandingPage({super.key});
 
