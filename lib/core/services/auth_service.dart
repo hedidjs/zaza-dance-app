@@ -230,11 +230,8 @@ class AuthService {
         print('AuthService: Deleting account for user: ${user.id}');
       }
 
-      // Delete user profile first
-      await _supabase
-          .from('profiles')
-          .delete()
-          .eq('id', user.id);
+      // Mark user as inactive instead of deleting
+      await DatabaseService.deleteUser(user.id);
 
       // Note: Supabase doesn't have a direct delete user method in client SDK
       // This would typically be handled by a server-side function
