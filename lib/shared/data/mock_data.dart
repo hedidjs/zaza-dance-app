@@ -1,4 +1,3 @@
-import '../models/gallery_model.dart';
 import '../models/tutorial_model.dart';
 import '../models/update_model.dart';
 
