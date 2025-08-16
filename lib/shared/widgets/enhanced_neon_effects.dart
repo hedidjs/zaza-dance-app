@@ -294,7 +294,7 @@ class NeonDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget divider = Container(
+    Widget divider = SizedBox(
       height: height,
       child: Center(
         child: Container(
