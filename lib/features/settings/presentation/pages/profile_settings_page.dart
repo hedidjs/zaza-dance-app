@@ -657,13 +657,41 @@ class _ProfileSettingsPageState extends ConsumerState<ProfileSettingsPage> {
     });
 
     try {
-      // TODO: שמירת הפרופיל במסד הנתונים
-      await Future.delayed(const Duration(seconds: 2)); // סימולציה
+      final authService = ref.read(authServiceProvider);
       
-      setState(() {
-        _hasChanges = false;
-        _isLoading = false;
-      });
+      String? imageUrl;
+      if (_selectedImage != null) {
+        // העלאת תמונה ל-Supabase Storage
+        final fileName = 'profile_${DateTime.now().millisecondsSinceEpoch}.jpg';
+        final bytes = await _selectedImage!.readAsBytes();
+        
+        await Supabase.instance.client.storage
+            .from('profiles')
+            .uploadBinary(fileName, bytes);
+            
+        imageUrl = Supabase.instance.client.storage
+            .from('profiles')
+            .getPublicUrl(fileName);
+      }
+      
+      final result = await authService.updateProfile(
+        fullName: _displayNameController.text.trim(),
+        phoneNumber: _phoneController.text.trim(),
+        address: _addressController.text.trim(),
+        profileImageUrl: imageUrl,
+      );
+      
+      if (result.isSuccess) {
+        setState(() {
+          _hasChanges = false;
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _isLoading = false;
+        });
+        throw Exception(result.message);
+      }
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
