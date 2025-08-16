@@ -788,12 +788,45 @@ class _GeneralSettingsPageState extends ConsumerState<GeneralSettingsPage> {
             ),
             NeonButton(
               text: 'נקה',
-              onPressed: () {
+              onPressed: () async {
                 Navigator.of(context).pop();
-                // TODO: ניקוי מטמון
-                setState(() {
-                  _cacheSize = 'מחושב מחדש...';
-                });
+                try {
+                  setState(() {
+                    _cacheSize = 'מנקה...';
+                  });
+                  
+                  // ניקוי SharedPreferences זמני (לא הגדרות)
+                  final prefs = await SharedPreferences.getInstance();
+                  final keys = prefs.getKeys().where((key) => 
+                    key.startsWith('cache_') || 
+                    key.startsWith('temp_')
+                  ).toList();
+                  
+                  for (final key in keys) {
+                    await prefs.remove(key);
+                  }
+                  
+                  setState(() {
+                    _cacheSize = '0 MB';
+                  });
+                  
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('מטמון נוקה בהצלחה'),
+                      backgroundColor: AppColors.success,
+                    ),
+                  );
+                } catch (e) {
+                  setState(() {
+                    _cacheSize = 'שגיאה';
+                  });
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('שגיאה בניקוי מטמון: $e'),
+                      backgroundColor: AppColors.error,
+                    ),
+                  );
+                }
                 Future.delayed(const Duration(seconds: 2), () {
                   setState(() {
                     _cacheSize = '12 MB';
