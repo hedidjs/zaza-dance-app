@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="he" dir="rtl">
 <head>
   <!--
     If you are serving your web app in a path other than the root, change the
@@ -17,22 +17,174 @@
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="description" content="אפליקציית זזה דאנס - בית דיגיטלי לקהילת חוג ההיפ הופ. מדריכי ריקוד, גלריה ועדכונים חמים">
+  <meta name="keywords" content="ריקוד, היפ הופ, זזה דאנס, מדריכים, ברייקדאנס, פופינג, כוריאוגרפיה">
+  <meta name="author" content="Zaza Dance Studio">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://zazadance.com/">
+  <meta property="og:title" content="זזה דאנס - בית דיגיטלי לקהילת ההיפ הופ">
+  <meta property="og:description" content="מדריכי ריקוד, גלריה ועדכונים חמים מעולם ההיפ הופ">
+  <meta property="og:image" content="https://zazadance.com/icons/Icon-512.png">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://zazadance.com/">
+  <meta property="twitter:title" content="זזה דאנס - בית דיגיטלי לקהילת ההיפ הופ">
+  <meta property="twitter:description" content="מדריכי ריקוד, גלריה ועדכונים חמים מעולם ההיפ הופ">
+  <meta property="twitter:image" content="https://zazadance.com/icons/Icon-512.png">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="zaza_dance">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="זזה דאנס">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>zaza_dance</title>
+  <!-- Theme Color -->
+  <meta name="theme-color" content="#FF00FF">
+  <meta name="msapplication-navbutton-color" content="#FF00FF">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#FF00FF">
+
+  <title>זזה דאנס - בית דיגיטלי לקהילת ההיפ הופ</title>
   <link rel="manifest" href="manifest.json">
+  
+  <!-- Google Fonts for Hebrew -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <style>
+    body {
+      margin: 0;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+      font-family: 'Heebo', sans-serif;
+      direction: rtl;
+      overflow: hidden;
+    }
+    
+    .loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+      z-index: 9999;
+    }
+    
+    .logo {
+      font-size: 2.5rem;
+      color: #FF00FF;
+      text-shadow: 0 0 20px #FF00FF, 0 0 40px #FF00FF;
+      animation: pulse 2s infinite;
+      margin-bottom: 2rem;
+      font-weight: 700;
+    }
+    
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid rgba(64, 224, 208, 0.3);
+      border-top: 3px solid #40E0D0;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    .loading-text {
+      color: #40E0D0;
+      margin-top: 1rem;
+      font-size: 1.1rem;
+      text-shadow: 0 0 10px #40E0D0;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* Deep Link Handler */
+    .deep-link-handler {
+      display: none;
+    }
+  </style>
+  
+  <script>
+    // Deep Link Handler for Auth Callbacks
+    function handleAuthCallback() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+      const token = urlParams.get('token');
+      const type = urlParams.get('type');
+      
+      if (code || token) {
+        // Try to redirect to mobile app first
+        const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        if (isMobile && type === 'email_confirmation') {
+          // Try to open the mobile app
+          const deepLink = `com.zazadance.zazaDance://auth/callback?code=${code || token}`;
+          window.location.href = deepLink;
+          
+          // Fallback to showing success message if app doesn't open
+          setTimeout(() => {
+            document.getElementById('auth-success').style.display = 'block';
+          }, 2000);
+        }
+      }
+    }
+    
+    // Handle auth callback on page load
+    window.addEventListener('load', handleAuthCallback);
+  </script>
 </head>
 <body>
+  <!-- Loading Screen -->
+  <div class="loading" id="loading">
+    <div class="logo">זזה דאנס</div>
+    <div class="spinner"></div>
+    <div class="loading-text">טוען...</div>
+  </div>
+  
+  <!-- Auth Success Message (hidden by default) -->
+  <div id="auth-success" class="deep-link-handler" style="display: none;">
+    <div style="text-align: center; padding: 2rem; color: #40E0D0;">
+      <h2>האימייל אושר בהצלחה!</h2>
+      <p>אם האפליקציה לא נפתחה אוטומטית, אנא פתחו אותה ידנית.</p>
+      <button onclick="window.location.href='com.zazadance.zazaDance://'" 
+              style="background: #FF00FF; color: white; border: none; padding: 1rem 2rem; border-radius: 25px; font-size: 1rem; cursor: pointer;">
+        פתח את האפליקציה
+      </button>
+    </div>
+  </div>
+  
   <script src="flutter_bootstrap.js" async></script>
+  
+  <script>
+    // Hide loading screen when Flutter is ready
+    window.addEventListener('flutter-initialized', function() {
+      document.getElementById('loading').style.display = 'none';
+    });
+    
+    // Fallback to hide loading screen after 5 seconds
+    setTimeout(function() {
+      document.getElementById('loading').style.display = 'none';
+    }, 5000);
+  </script>
 </body>
 </html>
