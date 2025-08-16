@@ -504,27 +504,71 @@ class _LandingPageState extends State<LandingPage>
   }
 
   Widget _buildAboutSection() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        children: [
-          _buildNeonText(
-            'על הסטודיו',
-            fontSize: 36,
-            color: const Color(0xFF40E0D0),
+    return SlideTransition(
+      position: _slideAnimation,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.all(30),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.white.withOpacity(0.05),
+              Colors.white.withOpacity(0.02),
+            ],
           ),
-          const SizedBox(height: 30),
-          Text(
-            'זזה דאנס הוא מקום בו הקצב מתחיל, הריתמוס מדבר והאנרגיה של ההיפ הופ חיה.\n'
-            'כאן כל תלמיד מוצא את הביטוי הייחודי שלו ובונה ביטחון דרך התנועה.',
-            style: GoogleFonts.assistant(
-              fontSize: 18,
-              color: Colors.white70,
-              height: 1.6,
+          border: Border.all(
+            color: const Color(0xFF26C6DA).withOpacity(0.2),
+            width: 1,
+          ),
+        ),
+        child: Column(
+          children: [
+            _buildNeonText(
+              'על הסטודיו',
+              fontSize: 32,
+              color: const Color(0xFF26C6DA),
             ),
-            textAlign: TextAlign.center,
-          ),
-        ],
+            const SizedBox(height: 25),
+            Container(
+              width: 60,
+              height: 3,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(2),
+                gradient: const LinearGradient(
+                  colors: [
+                    Color(0xFFE91E63),
+                    Color(0xFF26C6DA),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 30),
+            Text(
+              'זזה דאנס הוא מקום בו הקצב מתחיל, הריתמוס מדבר והאנרגיה של ההיפ הופ חיה.',
+              style: GoogleFonts.assistant(
+                fontSize: 20,
+                color: Colors.white.withOpacity(0.9),
+                height: 1.7,
+                fontWeight: FontWeight.w400,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'כאן כל תלמיד מוצא את הביטוי הייחודי שלו ובונה ביטחון דרך התנועה.',
+              style: GoogleFonts.assistant(
+                fontSize: 16,
+                color: Colors.white.withOpacity(0.7),
+                height: 1.6,
+                fontWeight: FontWeight.w300,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }
