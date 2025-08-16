@@ -718,7 +718,12 @@ class _LandingPageState extends State<LandingPage>
         child: InkWell(
           borderRadius: BorderRadius.circular(18),
           onTap: () {
-            // TODO: Navigate to feature page
+            // Navigate to login page to access the features
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => const LoginPage(),
+              ),
+            );
           },
           child: Padding(
             padding: const EdgeInsets.all(20),
