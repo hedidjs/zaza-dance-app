@@ -670,7 +670,6 @@ class _TutorialsPageState extends ConsumerState<TutorialsPage>
   }
 }
 
-// Tutorial Player Page (placeholder for now)
 /// עמוד נגן המדריכים עם נגן וידאו משופר
 class TutorialPlayerPage extends StatefulWidget {
   final TutorialModel tutorial;
