@@ -1132,15 +1132,14 @@ class _TutorialPlayerPageState extends ConsumerState<TutorialPlayerPage> {
 
   void _goToNextTutorial() async {
     try {
-      final tutorialsAsync = ref.read(tutorialsProvider);
-      final tutorials = await tutorialsAsync;
+      final tutorialsAsync = await ref.read(tutorialsProvider.future);
       
       // מציאת המדריך הנוכחי ברשימה
-      final currentIndex = tutorials.indexWhere((tutorial) => tutorial.id == widget.tutorial.id);
+      final currentIndex = tutorialsAsync.indexWhere((tutorial) => tutorial.id == widget.tutorial.id);
       
-      if (currentIndex != -1 && currentIndex < tutorials.length - 1) {
+      if (currentIndex != -1 && currentIndex < tutorialsAsync.length - 1) {
         // יש מדריך הבא
-        final nextTutorial = tutorials[currentIndex + 1];
+        final nextTutorial = tutorialsAsync[currentIndex + 1];
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (context) => TutorialPlayerPage(tutorial: nextTutorial),
