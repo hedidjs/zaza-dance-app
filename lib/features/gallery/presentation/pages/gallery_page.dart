@@ -71,15 +71,16 @@ class _GalleryPageState extends ConsumerState<GalleryPage>
               onPressed: () => Scaffold.of(context).openDrawer(),
             ),
           ),
-        bottom: TabBar(
-          controller: _tabController,
-          indicatorColor: AppColors.neonTurquoise,
-          labelColor: AppColors.primaryText,
-          unselectedLabelColor: AppColors.secondaryText,
-          isScrollable: true,
-          tabs: categories.map((category) => Tab(text: category)).toList(),
+          bottom: TabBar(
+            controller: _tabController,
+            indicatorColor: AppColors.neonTurquoise,
+            labelColor: AppColors.primaryText,
+            unselectedLabelColor: AppColors.secondaryText,
+            isScrollable: true,
+            tabs: categories.map((category) => Tab(text: category)).toList(),
+          ),
         ),
-      ),
+        drawer: const AppDrawer(),
         body: AnimatedGradientBackground(
         child: SafeArea(
           child: galleryAsync.when(
