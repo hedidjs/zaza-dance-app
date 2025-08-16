@@ -34,8 +34,6 @@ class DatabaseService {
     }
 
     final response = await query.order(orderBy, ascending: ascending);
-
-    final response = await query;
     return (response as List)
         .map((json) => UserModel.fromJson(json))
         .toList();
