@@ -764,7 +764,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
           width: double.infinity,
           child: NeonButton(
             text: 'עריכת פרופיל',
-            onPressed: () => _showEditProfileDialog(userData),
+            onPressed: () => _navigateToEditProfile(context),
             glowColor: AppColors.neonTurquoise,
             fontSize: 16,
             padding: const EdgeInsets.symmetric(vertical: 14),

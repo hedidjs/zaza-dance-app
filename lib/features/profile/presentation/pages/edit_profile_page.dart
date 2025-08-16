@@ -6,9 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:path/path.dart' as path;
-import 'package:path_provider/path_provider.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/providers/auth_provider.dart';
@@ -16,6 +13,9 @@ import '../../../../shared/widgets/enhanced_neon_effects.dart';
 import '../../../../shared/widgets/neon_text.dart';
 import '../providers/edit_profile_provider.dart';
 import '../../providers/profile_provider.dart';
+import '../widgets/profile_image_picker.dart';
+import '../widgets/profile_form_field.dart';
+import '../widgets/auto_save_indicator.dart';
 
 class EditProfilePage extends ConsumerStatefulWidget {
   const EditProfilePage({super.key});
@@ -214,6 +214,8 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage>
                 child: Column(
                   children: [
                     _buildProfileImageSection(user, editState),
+                    const SizedBox(height: 8),
+                    const AutoSaveStatus(),
                     const SizedBox(height: 24),
                     _buildPersonalInfoCard(),
                     const SizedBox(height: 20),
@@ -318,15 +320,21 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage>
               isSubtle: true,
             ),
             const SizedBox(height: 20),
-            _buildImagePicker(user, editState),
-            const SizedBox(height: 16),
-            Text(
-              'קובץ תמונה עד 5MB • JPG, PNG',
-              style: GoogleFonts.assistant(
-                color: AppColors.secondaryText,
-                fontSize: 12,
-              ),
-              textAlign: TextAlign.center,
+            ProfileImagePicker(
+              currentImageUrl: user.profileImageUrl,
+              isLoading: editState.isImageUploading,
+              onImageSelected: (image) {
+                setState(() {
+                  _selectedImage = image;
+                  _hasUnsavedChanges = true;
+                });
+              },
+              onImageRemoved: () {
+                setState(() {
+                  _selectedImage = null;
+                  _hasUnsavedChanges = true;
+                });
+              },
             ),
           ],
         ),
@@ -553,25 +561,24 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage>
               ],
             ),
             const SizedBox(height: 20),
-            _buildTextField(
+            NameFormField(
               controller: _nameController,
-              label: 'שם מלא',
-              icon: Icons.person_outline,
-              required: true,
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'אנא הזינו שם מלא';
-                }
-                if (value.trim().length < 2) {
-                  return 'השם חייב להכיל לפחות 2 תווים';
-                }
-                return null;
-              },
+              onChanged: (_) => _onFieldChanged(),
             ),
             const SizedBox(height: 16),
-            _buildEmailField(),
+            EmailDisplayField(email: user?.email ?? ''),
             const SizedBox(height: 16),
-            _buildDateField(),
+            DatePickerField(
+              label: 'תאריך לידה',
+              icon: Icons.cake_outlined,
+              selectedDate: _selectedBirthDate,
+              onDateSelected: (date) {
+                setState(() {
+                  _selectedBirthDate = date;
+                  _hasUnsavedChanges = true;
+                });
+              },
+            ),
           ],
         ),
       ),
@@ -616,26 +623,14 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage>
               ],
             ),
             const SizedBox(height: 20),
-            _buildTextField(
+            PhoneFormField(
               controller: _phoneController,
-              label: 'טלפון',
-              icon: Icons.phone_outlined,
-              keyboardType: TextInputType.phone,
-              validator: (value) {
-                if (value != null && value.isNotEmpty) {
-                  if (!RegExp(r'^[0-9\-\+\s\(\)]+$').hasMatch(value)) {
-                    return 'מספר טלפון לא תקין';
-                  }
-                }
-                return null;
-              },
+              onChanged: (_) => _onFieldChanged(),
             ),
             const SizedBox(height: 16),
-            _buildTextField(
+            AddressFormField(
               controller: _addressController,
-              label: 'כתובת',
-              icon: Icons.location_on_outlined,
-              maxLines: 2,
+              onChanged: (_) => _onFieldChanged(),
             ),
           ],
         ),
@@ -681,18 +676,9 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage>
               ],
             ),
             const SizedBox(height: 20),
-            _buildTextField(
+            BioFormField(
               controller: _bioController,
-              label: 'ספרו על עצמכם...',
-              icon: Icons.text_fields,
-              maxLines: 4,
-              maxLength: 500,
-              validator: (value) {
-                if (value != null && value.length > 500) {
-                  return 'הביוגרפיה לא יכולה להיות ארוכה מ-500 תווים';
-                }
-                return null;
-              },
+              onChanged: (_) => _onFieldChanged(),
             ),
           ],
         ),
