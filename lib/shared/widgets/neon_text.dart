@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_glow/flutter_glow.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+/// Refined neon text widget with subtle glow effects
+/// Maintains hip-hop aesthetic while being more readable and user-friendly
 class NeonText extends StatelessWidget {
   final String text;
   final double fontSize;
@@ -14,6 +16,7 @@ class NeonText extends StatelessWidget {
   final TextOverflow overflow;
   final double? letterSpacing;
   final double? height;
+  final bool isSubtle; // New parameter for subtle mode
 
   const NeonText({
     super.key,
@@ -28,6 +31,7 @@ class NeonText extends StatelessWidget {
     this.overflow = TextOverflow.ellipsis,
     this.letterSpacing,
     this.height,
+    this.isSubtle = true, // Default to subtle mode
   });
 
   @override
@@ -41,14 +45,18 @@ class NeonText extends StatelessWidget {
       height: height ?? _getOptimalLineHeight(),
     );
 
+    // Use subtle glow for better readability
+    final effectiveGlowRadius = isSubtle ? glowRadius * 0.4 : glowRadius;
+    final glowOpacity = isSubtle ? 0.4 : 0.8;
+
     return GlowText(
       text,
       style: textStyle,
       textAlign: textAlign,
       maxLines: maxLines,
       overflow: overflow,
-      glowColor: glowColor,
-      blurRadius: glowRadius,
+      glowColor: glowColor.withOpacity(glowOpacity),
+      blurRadius: effectiveGlowRadius,
       offset: const Offset(0, 0),
       textDirection: TextDirection.rtl, // Always RTL for Hebrew
     );

@@ -3,8 +3,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../core/constants/app_colors.dart';
 
-/// Enhanced neon effects for the hip-hop aesthetic
-/// Provides advanced visual effects for the dance studio app
+/// Refined neon effects with subtle glow for modern hip-hop aesthetic
+/// Provides elegant visual effects that enhance rather than distract
 class NeonGlowContainer extends StatefulWidget {
   final Widget child;
   final Color glowColor;
@@ -13,6 +13,7 @@ class NeonGlowContainer extends StatefulWidget {
   final Duration pulseDuration;
   final BorderRadius? borderRadius;
   final double opacity;
+  final bool isSubtle; // New parameter for subtle mode
 
   const NeonGlowContainer({
     super.key,
@@ -20,9 +21,10 @@ class NeonGlowContainer extends StatefulWidget {
     this.glowColor = AppColors.neonPink,
     this.glowRadius = 20.0,
     this.animate = false,
-    this.pulseDuration = const Duration(seconds: 2),
+    this.pulseDuration = const Duration(seconds: 3), // Slower pulse
     this.borderRadius,
-    this.opacity = 0.6,
+    this.opacity = 0.3, // More subtle default opacity
+    this.isSubtle = true, // Default to subtle mode
   });
 
   @override
@@ -42,8 +44,9 @@ class _NeonGlowContainerState extends State<NeonGlowContainer>
         duration: widget.pulseDuration,
         vsync: this,
       );
+      // More subtle pulse animation range
       _pulseAnimation = Tween<double>(
-        begin: 0.3,
+        begin: 0.6,
         end: 1.0,
       ).animate(CurvedAnimation(
         parent: _pulseController,
@@ -63,19 +66,25 @@ class _NeonGlowContainerState extends State<NeonGlowContainer>
 
   @override
   Widget build(BuildContext context) {
+    // Calculate subtle glow effect
+    final effectiveOpacity = widget.isSubtle ? widget.opacity * 0.5 : widget.opacity;
+    final effectiveRadius = widget.isSubtle ? widget.glowRadius * 0.6 : widget.glowRadius;
+    
     Widget child = Container(
       decoration: BoxDecoration(
         borderRadius: widget.borderRadius ?? BorderRadius.circular(12),
         boxShadow: [
+          // Primary subtle glow
           BoxShadow(
-            color: widget.glowColor.withOpacity(widget.opacity),
-            blurRadius: widget.glowRadius,
-            spreadRadius: widget.glowRadius / 4,
+            color: widget.glowColor.withOpacity(effectiveOpacity),
+            blurRadius: effectiveRadius,
+            spreadRadius: effectiveRadius / 6, // More subtle spread
           ),
-          BoxShadow(
-            color: widget.glowColor.withOpacity(widget.opacity * 0.5),
-            blurRadius: widget.glowRadius * 2,
-            spreadRadius: widget.glowRadius / 2,
+          // Secondary very subtle outer glow
+          if (!widget.isSubtle) BoxShadow(
+            color: widget.glowColor.withOpacity(effectiveOpacity * 0.3),
+            blurRadius: effectiveRadius * 1.5,
+            spreadRadius: effectiveRadius / 4,
           ),
         ],
       ),
@@ -86,10 +95,14 @@ class _NeonGlowContainerState extends State<NeonGlowContainer>
       return AnimatedBuilder(
         animation: _pulseAnimation,
         builder: (context, _) {
+          // More subtle animation
+          final scaleValue = widget.isSubtle ? 0.02 : 0.05;
+          final opacityRange = widget.isSubtle ? 0.15 : 0.3;
+          
           return Transform.scale(
-            scale: 1.0 + (_pulseAnimation.value * 0.05),
+            scale: 1.0 + (_pulseAnimation.value * scaleValue),
             child: Opacity(
-              opacity: 0.7 + (_pulseAnimation.value * 0.3),
+              opacity: 0.85 + (_pulseAnimation.value * opacityRange),
               child: child,
             ),
           );
@@ -334,7 +347,7 @@ class NeonDivider extends StatelessWidget {
   }
 }
 
-/// Neon button with enhanced effects
+/// Refined neon button with subtle effects
 class NeonButton extends StatefulWidget {
   final String text;
   final VoidCallback? onPressed;
@@ -343,6 +356,7 @@ class NeonButton extends StatefulWidget {
   final double fontSize;
   final EdgeInsets padding;
   final BorderRadius? borderRadius;
+  final bool isSubtle; // New parameter for subtle mode
 
   const NeonButton({
     super.key,
@@ -353,6 +367,7 @@ class NeonButton extends StatefulWidget {
     this.fontSize = 16.0,
     this.padding = const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
     this.borderRadius,
+    this.isSubtle = true, // Default to subtle mode
   });
 
   @override
@@ -406,9 +421,9 @@ class _NeonButtonState extends State<NeonButton>
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTapDown: _onTapDown,
-      onTapUp: _onTapUp,
-      onTapCancel: _onTapCancel,
+      onTapDown: widget.onPressed != null ? _onTapDown : null,
+      onTapUp: widget.onPressed != null ? _onTapUp : null,
+      onTapCancel: widget.onPressed != null ? _onTapCancel : null,
       child: AnimatedBuilder(
         animation: _scaleAnimation,
         builder: (context, child) {
@@ -416,24 +431,30 @@ class _NeonButtonState extends State<NeonButton>
             scale: _scaleAnimation.value,
             child: NeonGlowContainer(
               glowColor: widget.glowColor,
-              glowRadius: _isPressed ? 15.0 : 25.0,
+              glowRadius: widget.isSubtle ? 8.0 : (_isPressed ? 15.0 : 25.0),
               borderRadius: widget.borderRadius ?? BorderRadius.circular(25),
-              opacity: _isPressed ? 0.8 : 0.6,
+              opacity: widget.isSubtle ? 0.2 : (_isPressed ? 0.8 : 0.6),
+              isSubtle: widget.isSubtle,
               child: Container(
                 padding: widget.padding,
                 decoration: BoxDecoration(
                   borderRadius: widget.borderRadius ?? BorderRadius.circular(25),
                   gradient: LinearGradient(
-                    colors: [
-                      widget.glowColor.withOpacity(0.8),
-                      widget.glowColor.withOpacity(0.6),
-                    ],
+                    colors: widget.isSubtle 
+                      ? [
+                          widget.glowColor.withOpacity(0.3),
+                          widget.glowColor.withOpacity(0.2),
+                        ]
+                      : [
+                          widget.glowColor.withOpacity(0.8),
+                          widget.glowColor.withOpacity(0.6),
+                        ],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                   ),
                   border: Border.all(
-                    color: widget.glowColor,
-                    width: 1,
+                    color: widget.glowColor.withOpacity(widget.isSubtle ? 0.4 : 1.0),
+                    width: widget.isSubtle ? 0.5 : 1,
                   ),
                 ),
                 child: Text(
@@ -442,12 +463,19 @@ class _NeonButtonState extends State<NeonButton>
                     color: widget.textColor,
                     fontSize: widget.fontSize,
                     fontWeight: FontWeight.bold,
-                    shadows: [
-                      Shadow(
-                        color: widget.glowColor.withOpacity(0.8),
-                        blurRadius: 4,
-                      ),
-                    ],
+                    shadows: widget.isSubtle 
+                      ? [
+                          Shadow(
+                            color: widget.glowColor.withOpacity(0.3),
+                            blurRadius: 2,
+                          ),
+                        ]
+                      : [
+                          Shadow(
+                            color: widget.glowColor.withOpacity(0.8),
+                            blurRadius: 4,
+                          ),
+                        ],
                   ),
                   textAlign: TextAlign.center,
                 ),

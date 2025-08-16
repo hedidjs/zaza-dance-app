@@ -15,6 +15,7 @@ import 'features/tutorials/presentation/pages/tutorials_page.dart';
 import 'features/gallery/presentation/pages/gallery_page.dart';
 import 'features/updates/presentation/pages/updates_page.dart';
 import 'features/settings/presentation/pages/settings_page.dart';
+import 'features/profile/presentation/pages/profile_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
