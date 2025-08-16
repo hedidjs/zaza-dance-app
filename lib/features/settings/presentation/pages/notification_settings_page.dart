@@ -508,15 +508,15 @@ class _NotificationSettingsPageState extends ConsumerState<NotificationSettingsP
       final prefs = await SharedPreferences.getInstance();
       
       // שמירת הגדרות התראות
-      await prefs.setBool('notifications_enabled', _notificationsEnabled);
-      await prefs.setBool('push_notifications', _pushNotifications);
-      await prefs.setBool('email_notifications', _emailNotifications);
-      await prefs.setBool('sms_notifications', _smsNotifications);
-      await prefs.setBool('class_reminders', _classReminders);
-      await prefs.setBool('new_tutorials', _newTutorials);
-      await prefs.setBool('studio_updates', _studioUpdates);
-      await prefs.setBool('achievements', _achievements);
-      await prefs.setBool('marketing_updates', _marketingUpdates);
+      await prefs.setBool('push_notifications_enabled', _pushNotificationsEnabled);
+      await prefs.setBool('new_tutorials_notifications', _newTutorialsNotifications);
+      await prefs.setBool('gallery_updates_notifications', _galleryUpdatesNotifications);
+      await prefs.setBool('studio_news_notifications', _studioNewsNotifications);
+      await prefs.setBool('class_reminders_notifications', _classRemindersNotifications);
+      await prefs.setBool('event_notifications', _eventNotifications);
+      await prefs.setBool('message_notifications', _messageNotifications);
+      await prefs.setBool('quiet_hours_enabled', _quietHoursEnabled);
+      await prefs.setString('reminder_frequency', _reminderFrequency);
       
       // שמירת הגדרות זמן
       await prefs.setString('quiet_start', '${_quietHoursStart.hour}:${_quietHoursStart.minute}');

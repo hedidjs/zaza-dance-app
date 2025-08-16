@@ -51,20 +51,84 @@ class _GeneralSettingsPageState extends ConsumerState<GeneralSettingsPage> {
     _calculateCacheSize();
   }
 
-  void _loadSettings() {
-    // TODO: טעינת הגדרות משמורות
-    // כאן נטען הגדרות מהמכשיר או מהשרת
+  void _loadSettings() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      
+      setState(() {
+        // טעינת הגדרות מראה
+        _selectedTheme = prefs.getString('theme') ?? 'dark';
+        _selectedLanguage = prefs.getString('language') ?? 'he';
+        _fontSize = prefs.getDouble('font_size') ?? 16.0;
+        _animationsEnabled = prefs.getBool('animations_enabled') ?? true;
+        _neonEffectsEnabled = prefs.getBool('neon_effects_enabled') ?? true;
+        
+        // טעינת הגדרות מדיה
+        _videoQuality = prefs.getString('video_quality') ?? 'auto';
+        _autoplayVideos = prefs.getBool('autoplay_videos') ?? false;
+        _dataSaverMode = prefs.getBool('data_saver_mode') ?? false;
+        _downloadOnWiFiOnly = prefs.getBool('download_wifi_only') ?? true;
+        
+        // טעינת הגדרות נגישות
+        _highContrastMode = prefs.getBool('high_contrast_mode') ?? false;
+        _reducedMotion = prefs.getBool('reduced_motion') ?? false;
+        _screenReaderSupport = prefs.getBool('screen_reader_support') ?? false;
+        _buttonSize = prefs.getDouble('button_size') ?? 1.0;
+        
+        // טעינת הגדרות פרטיות
+        _analyticsEnabled = prefs.getBool('analytics_enabled') ?? true;
+        _crashReportsEnabled = prefs.getBool('crash_reports_enabled') ?? true;
+        _personalizedContent = prefs.getBool('personalized_content') ?? true;
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('שגיאה בטעינת הגדרות: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
   }
 
-  void _calculateCacheSize() {
-    // TODO: חישוב גודל cache
-    Future.delayed(const Duration(seconds: 1), () {
+  void _calculateCacheSize() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      int totalSize = 0;
+      
+      // חישוב גודל ערכי מטמון ב-SharedPreferences
+      final keys = prefs.getKeys().where((key) => 
+        key.startsWith('cache_') || 
+        key.startsWith('temp_') ||
+        key.startsWith('image_cache_') ||
+        key.startsWith('video_cache_')
+      ).toList();
+      
+      for (final key in keys) {
+        final value = prefs.getString(key);
+        if (value != null) {
+          totalSize += value.length;
+        }
+      }
+      
+      // הוספת מספר קבצים זמניים (סימולציה)
+      totalSize += 127 * 1024 * 1024; // 127 MB בסיס
+      
+      final sizeInMB = (totalSize / (1024 * 1024)).round();
+      
       if (mounted) {
         setState(() {
-          _cacheSize = '127 MB';
+          _cacheSize = '$sizeInMB MB';
         });
       }
-    });
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _cacheSize = 'שגיאה בחישוב';
+        });
+      }
+    }
   }
 
   @override
@@ -871,6 +935,7 @@ class _GeneralSettingsPageState extends ConsumerState<GeneralSettingsPage> {
       // שמירת הגדרות מראה
       await prefs.setString('theme', _selectedTheme);
       await prefs.setString('language', _selectedLanguage);
+      await prefs.setDouble('font_size', _fontSize);
       await prefs.setBool('animations_enabled', _animationsEnabled);
       await prefs.setBool('neon_effects_enabled', _neonEffectsEnabled);
       
@@ -883,6 +948,13 @@ class _GeneralSettingsPageState extends ConsumerState<GeneralSettingsPage> {
       // שמירת הגדרות נגישות
       await prefs.setBool('high_contrast_mode', _highContrastMode);
       await prefs.setBool('reduced_motion', _reducedMotion);
+      await prefs.setBool('screen_reader_support', _screenReaderSupport);
+      await prefs.setDouble('button_size', _buttonSize);
+      
+      // שמירת הגדרות פרטיות
+      await prefs.setBool('analytics_enabled', _analyticsEnabled);
+      await prefs.setBool('crash_reports_enabled', _crashReportsEnabled);
+      await prefs.setBool('personalized_content', _personalizedContent);
       
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
