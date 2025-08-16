@@ -56,11 +56,18 @@ class SupabaseService {
   /// Get all active categories
   Future<List<CategoryModel>> getCategories() async {
     try {
+      if (kDebugMode) {
+        print('SupabaseService: Fetching categories from Supabase...');
+      }
       final response = await _client
           .from('categories')
           .select('*')
           .eq('is_active', true)
           .order('sort_order');
+      
+      if (kDebugMode) {
+        print('SupabaseService: Retrieved ${(response as List).length} categories');
+      }
       
       return (response as List)
           .map((data) => CategoryModel.fromJson(data))
