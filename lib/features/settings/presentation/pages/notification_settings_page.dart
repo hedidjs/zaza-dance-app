@@ -35,6 +35,62 @@ class _NotificationSettingsPageState extends ConsumerState<NotificationSettingsP
   String _reminderFrequency = 'daily'; // daily, weekly, never
 
   @override
+  void initState() {
+    super.initState();
+    _loadSettings();
+  }
+
+  void _loadSettings() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      
+      setState(() {
+        _pushNotificationsEnabled = prefs.getBool('push_notifications_enabled') ?? true;
+        _newTutorialsNotifications = prefs.getBool('new_tutorials_notifications') ?? true;
+        _galleryUpdatesNotifications = prefs.getBool('gallery_updates_notifications') ?? true;
+        _studioNewsNotifications = prefs.getBool('studio_news_notifications') ?? true;
+        _classRemindersNotifications = prefs.getBool('class_reminders_notifications') ?? true;
+        _eventNotifications = prefs.getBool('event_notifications') ?? true;
+        _messageNotifications = prefs.getBool('message_notifications') ?? true;
+        _quietHoursEnabled = prefs.getBool('quiet_hours_enabled') ?? false;
+        _reminderFrequency = prefs.getString('reminder_frequency') ?? 'daily';
+        
+        // טעינת הגדרות זמן
+        final quietStart = prefs.getString('quiet_start');
+        if (quietStart != null) {
+          final parts = quietStart.split(':');
+          if (parts.length == 2) {
+            _quietHoursStart = TimeOfDay(
+              hour: int.tryParse(parts[0]) ?? 22,
+              minute: int.tryParse(parts[1]) ?? 0,
+            );
+          }
+        }
+        
+        final quietEnd = prefs.getString('quiet_end');
+        if (quietEnd != null) {
+          final parts = quietEnd.split(':');
+          if (parts.length == 2) {
+            _quietHoursEnd = TimeOfDay(
+              hour: int.tryParse(parts[0]) ?? 8,
+              minute: int.tryParse(parts[1]) ?? 0,
+            );
+          }
+        }
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('שגיאה בטעינת הגדרות: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: TextDirection.rtl,
