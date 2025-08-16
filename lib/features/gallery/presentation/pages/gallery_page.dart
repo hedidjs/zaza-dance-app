@@ -598,8 +598,26 @@ class _GalleryPageState extends ConsumerState<GalleryPage>
                     children: [
                       Expanded(
                         child: ElevatedButton.icon(
-                          onPressed: () {
-                            // TODO: הוספת לוגיקת שיתוף
+                          onPressed: () async {
+                            try {
+                              final shareText = 'בדקו את הצילום הזה מהסטודיו של זזה דאנס! 💃\n\n'
+                                  '${item.titleHe}\n\n'
+                                  '${item.descriptionHe ?? ''}\n\n'
+                                  'בואו להצטרף למשפחת זזה דאנס! 🎵\n'
+                                  'https://zazadance.com';
+                              
+                              await Share.share(
+                                shareText,
+                                subject: 'זזה דאנס - ${item.titleHe}',
+                              );
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('שגיאה בשיתוף: $e'),
+                                  backgroundColor: AppColors.error,
+                                ),
+                              );
+                            }
                           },
                           icon: Icon(Icons.share),
                           label: Text('שתף'),
