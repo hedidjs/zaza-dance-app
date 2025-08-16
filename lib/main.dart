@@ -95,6 +95,10 @@ class _ZazaDanceAppState extends ConsumerState<ZazaDanceApp> {
           path: '/settings',
           builder: (context, state) => const SettingsPage(),
         ),
+        GoRoute(
+          path: '/profile',
+          builder: (context, state) => const ProfilePage(),
+        ),
       ],
     );
     
