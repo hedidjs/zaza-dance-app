@@ -121,7 +121,7 @@ class _UpdatesPageState extends ConsumerState<UpdatesPage>
           tabs: categories.map((category) => Tab(text: category)).toList(),
         ),
       ),
-      body: AnimatedGradientBackground(
+        body: AnimatedGradientBackground(
         child: SafeArea(
           child: updatesAsync.when(
             data: (updates) => TabBarView(
