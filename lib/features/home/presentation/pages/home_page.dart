@@ -188,7 +188,11 @@ class HomePage extends StatelessWidget {
                 subtitle: 'הגדרות אישיות',
                 color: AppColors.neonBlue,
                 onTap: () {
-                  // TODO: Navigate to profile
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const ProfilePage(),
+                    ),
+                  );
                 },
               ),
             ),
