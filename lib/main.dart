@@ -34,6 +34,9 @@ Future<void> main() async {
   // Initialize Push Notification Service
   await PushNotificationService().initialize();
   
+  // Initialize Offline Download Service
+  await OfflineDownloadService().initialize();
+  
   // Set system UI overlay style
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
