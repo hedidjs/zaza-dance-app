@@ -19,16 +19,20 @@ void main() async {
   runApp(const ProviderScope(child: ZazaDanceApp()));
 }
 
-class ZazaDanceApp extends StatelessWidget {
+class ZazaDanceApp extends ConsumerWidget {
   const ZazaDanceApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
       title: 'זזה דאנס - Zaza Dance',
       theme: _buildTheme(),
-      home: const LandingPage(),
+      home: const AuthWrapper(),
       debugShowCheckedModeBanner: false,
+      routes: {
+        '/login': (context) => const LoginPage(),
+        '/home': (context) => const HomePage(),
+      },
     );
   }
 
