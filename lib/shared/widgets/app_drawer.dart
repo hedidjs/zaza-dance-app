@@ -182,11 +182,7 @@ class AppDrawer extends ConsumerWidget {
             context,
             icon: Icons.person,
             title: 'פרופיל אישי',
-            onTap: () {
-              Navigator.of(context).pop();
-              // TODO: Navigate to profile page
-              _showComingSoonDialog(context, 'עמוד הפרופיל בפיתוח');
-            },
+            onTap: () => _navigateToPage(context, const ProfilePage()),
             glowColor: AppColors.neonGreen,
           ),
           _buildMenuItem(
