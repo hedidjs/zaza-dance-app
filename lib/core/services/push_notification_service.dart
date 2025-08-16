@@ -199,6 +199,42 @@ class PushNotificationService {
     );
   }
 
+  /// Show notification for gallery updates
+  Future<void> showGalleryUpdateNotification({
+    required String galleryTitle,
+    required String galleryId,
+  }) async {
+    if (!_isInitialized) await initialize();
+
+    const notificationDetails = NotificationDetails(
+      android: AndroidNotificationDetails(
+        'gallery',
+        'עדכוני גלריה',
+        channelDescription: 'התראות על תמונות וסרטונים חדשים',
+        importance: Importance.high,
+        priority: Priority.high,
+        icon: '@mipmap/ic_launcher',
+        color: Color(0xFF9C27B0), // Neon purple
+      ),
+      iOS: DarwinNotificationDetails(
+        categoryIdentifier: 'gallery',
+      ),
+    );
+
+    final payload = jsonEncode({
+      'type': 'gallery',
+      'targetId': galleryId,
+    });
+
+    await _flutterLocalNotificationsPlugin.show(
+      DateTime.now().millisecondsSinceEpoch % 100000,
+      '📸 תמונות חדשות בגלריה!',
+      galleryTitle,
+      notificationDetails,
+      payload: payload,
+    );
+  }
+
   /// Show notification for studio updates
   Future<void> showStudioUpdateNotification({
     required String updateTitle,
