@@ -22,8 +22,8 @@ class AppDrawer extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentUser = ref.watch(currentUserProvider);
     final isAuthenticated = ref.watch(isAuthenticatedProvider);
-    final isAdmin = ref.watch(isAdminProvider);
-    final canAccessAdmin = ref.watch(canAccessAdminProvider);
+    // final isAdmin = ref.watch(isAdminProvider); // Temporarily disabled
+    // final canAccessAdmin = ref.watch(canAccessAdminProvider); // Temporarily disabled
 
     return Directionality(
       textDirection: TextDirection.rtl,
