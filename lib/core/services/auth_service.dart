@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/user_model.dart';
 import '../constants/app_constants.dart';
+import 'database_service.dart';
 
 /// Authentication service handling user login, registration, and profile management
 class AuthService {
