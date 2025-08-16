@@ -33,7 +33,7 @@ class DatabaseService {
       query = query.or('display_name.ilike.%$searchQuery%,email.ilike.%$searchQuery%');
     }
 
-    query = query.order(orderBy, ascending: ascending);
+    final response = await query.order(orderBy, ascending: ascending);
 
     final response = await query;
     return (response as List)
