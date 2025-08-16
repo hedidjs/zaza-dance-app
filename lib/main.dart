@@ -9,6 +9,7 @@ import 'core/theme/app_theme.dart';
 import 'core/services/cache_service.dart';
 import 'core/services/supabase_service.dart';
 import 'core/services/performance_service.dart';
+import 'core/services/push_notification_service.dart';
 import 'features/home/presentation/pages/home_page.dart';
 
 Future<void> main() async {
