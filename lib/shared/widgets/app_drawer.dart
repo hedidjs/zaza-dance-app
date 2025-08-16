@@ -145,7 +145,7 @@ class AppDrawer extends ConsumerWidget {
     );
   }
 
-  Widget _buildMenuItems(BuildContext context, WidgetRef ref, bool isAuthenticated, bool canAccessAdmin) {
+  Widget _buildMenuItems(BuildContext context, WidgetRef ref, bool isAuthenticated) {
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: 10),
       children: [
