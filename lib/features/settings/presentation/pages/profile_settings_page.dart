@@ -791,13 +791,21 @@ class _ProfileSettingsPageState extends ConsumerState<ProfileSettingsPage> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('הודעה נשלחה לאימייל לשינוי סיסמה'),
-                    backgroundColor: AppColors.info,
-                    behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      backgroundColor: AppColors.info,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
-                  ),
-                );
+                  );
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('שגיאה בשליחת אימייל: $e'),
+                      backgroundColor: AppColors.error,
+                    ),
+                  );
+                }
               },
               glowColor: AppColors.accent1,
             ),
