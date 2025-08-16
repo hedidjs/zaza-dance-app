@@ -190,11 +190,7 @@ class AppDrawer extends ConsumerWidget {
             context,
             icon: Icons.settings,
             title: 'הגדרות',
-            onTap: () {
-              Navigator.of(context).pop();
-              // TODO: Navigate to settings page
-              _showComingSoonDialog(context, 'עמוד ההגדרות בפיתוח');
-            },
+            onTap: () => _navigateToPage(context, const SettingsPage()),
             glowColor: AppColors.accent1,
           ),
         ],
