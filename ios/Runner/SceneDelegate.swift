@@ -4,15 +4,22 @@ import UIKit
 @available(iOS 13.0, *)
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   var window: UIWindow?
+  var flutterEngine: FlutterEngine?
 
   func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
     guard let windowScene = scene as? UIWindowScene else { return }
     
+    // Get or create Flutter engine
+    if flutterEngine == nil {
+      flutterEngine = FlutterEngine(name: "scene_engine")
+      flutterEngine?.run()
+    }
+    
     // Create window
     window = UIWindow(windowScene: windowScene)
     
-    // Create Flutter view controller
-    let flutterViewController = FlutterViewController(engine: nil, nibName: nil, bundle: nil)
+    // Create Flutter view controller with the engine
+    let flutterViewController = FlutterViewController(engine: flutterEngine, nibName: nil, bundle: nil)
     flutterViewController.modalPresentationStyle = .fullScreen
     
     // Set as root view controller
