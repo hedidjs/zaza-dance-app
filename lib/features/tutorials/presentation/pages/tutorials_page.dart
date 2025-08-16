@@ -674,7 +674,7 @@ class _TutorialsPageState extends ConsumerState<TutorialsPage>
 }
 
 /// עמוד נגן המדריכים עם נגן וידאו משופר
-class TutorialPlayerPage extends StatefulWidget {
+class TutorialPlayerPage extends ConsumerStatefulWidget {
   final TutorialModel tutorial;
 
   const TutorialPlayerPage({
@@ -683,7 +683,7 @@ class TutorialPlayerPage extends StatefulWidget {
   });
 
   @override
-  State<TutorialPlayerPage> createState() => _TutorialPlayerPageState();
+  ConsumerState<TutorialPlayerPage> createState() => _TutorialPlayerPageState();
 }
 
 class _TutorialPlayerPageState extends State<TutorialPlayerPage> {
