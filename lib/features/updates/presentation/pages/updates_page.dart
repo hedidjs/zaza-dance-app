@@ -490,22 +490,27 @@ class _UpdatesPageState extends ConsumerState<UpdatesPage>
               const Spacer(),
               Row(
                 children: [
-                  GestureDetector(
-                    onTap: () => _toggleLike(update),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.favorite,
-                          color: AppColors.neonPink,
-                          size: 16,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          update.likesCount.toString(),
-                          style: TextStyle(
-                            color: AppColors.secondaryText,
-                            fontSize: 12,
-                          ),
+                  Consumer(
+                    builder: (context, ref, child) {
+                      final interactions = ref.watch(interactionProvider);
+                      final isLiked = interactions[update.id] ?? false;
+                      
+                      return GestureDetector(
+                        onTap: () => _toggleLike(update),
+                        child: Row(
+                          children: [
+                            Icon(
+                              isLiked ? Icons.favorite : Icons.favorite_border,
+                              color: AppColors.neonPink,
+                              size: 16,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              update.likesCount.toString(),
+                              style: TextStyle(
+                                color: AppColors.secondaryText,
+                                fontSize: 12,
+                              ),
                         ),
                       ],
                     ),
