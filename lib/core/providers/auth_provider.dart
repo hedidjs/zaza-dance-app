@@ -82,7 +82,8 @@ class CurrentUserNotifier extends StateNotifier<AsyncValue<UserModel?>> {
       );
 
       if (result.isSuccess) {
-        // User will be loaded automatically via auth state listener
+        // Force immediate user load after successful registration
+        await _loadCurrentUser();
       } else {
         state = const AsyncValue.data(null);
       }
