@@ -692,6 +692,26 @@ class _TutorialPlayerPageState extends ConsumerState<TutorialPlayerPage> {
   bool _isBookmarked = false;
 
   @override
+  void initState() {
+    super.initState();
+    _checkBookmarkStatus();
+  }
+
+  Future<void> _checkBookmarkStatus() async {
+    final supabaseService = ref.read(supabaseServiceProvider);
+    final isBookmarked = await supabaseService.hasUserInteracted(
+      contentType: 'tutorial',
+      contentId: widget.tutorial.id,
+      interactionType: 'bookmark',
+    );
+    if (mounted) {
+      setState(() {
+        _isBookmarked = isBookmarked;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: TextDirection.rtl,
