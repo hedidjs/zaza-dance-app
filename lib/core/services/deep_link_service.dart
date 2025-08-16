@@ -116,7 +116,7 @@ class DeepLinkService {
         // טיפול ב-direct tokens
         debugPrint('Processing tokens directly');
         
-        await Supabase.instance.client.auth.setSession(accessToken, refreshToken);
+        await Supabase.instance.client.auth.setSession(refreshToken);
         _router?.go('/');
         
       } else if (type == 'email_confirmation') {
