@@ -39,7 +39,7 @@ class PerformanceService {
   /// Optimize memory usage for better performance
   Future<void> _optimizeMemoryUsage() async {
     // Set target for memory usage
-    const int targetMemoryMB = Platform.isAndroid ? 200 : 300;
+    final int targetMemoryMB = Platform.isAndroid ? 200 : 300;
     
     // Configure garbage collection
     if (kDebugMode) {
