@@ -47,7 +47,6 @@ class _ZazaDanceAppState extends ConsumerState<ZazaDanceApp> {
   void _setupRouter() {
     _router = GoRouter(
       initialLocation: '/',
-      refreshListenable: ref.read(currentUserProvider.notifier),
       redirect: (context, state) {
         final userAsync = ref.read(currentUserProvider);
         final isLoading = userAsync.isLoading;
