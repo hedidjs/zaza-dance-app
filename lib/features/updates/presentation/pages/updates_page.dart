@@ -78,16 +78,28 @@ class _UpdatesPageState extends ConsumerState<UpdatesPage>
   Widget build(BuildContext context) {
     final updatesAsync = ref.watch(updatesProvider);
     
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: NeonText(
-          text: 'עדכונים חמים',
-          fontSize: 24,
-          glowColor: AppColors.neonTurquoise,
-        ),
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: NeonText(
+            text: 'עדכונים חמים',
+            fontSize: 24,
+            glowColor: AppColors.neonTurquoise,
+          ),
+          leading: Builder(
+            builder: (context) => IconButton(
+              icon: GlowIcon(
+                Icons.menu,
+                color: AppColors.primaryText,
+                glowColor: AppColors.neonTurquoise,
+              ),
+              onPressed: () => Scaffold.of(context).openDrawer(),
+            ),
+          ),
         actions: [
           IconButton(
             icon: GlowIcon(
