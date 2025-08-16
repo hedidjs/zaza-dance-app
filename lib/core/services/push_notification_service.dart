@@ -17,6 +17,11 @@ class PushNotificationService {
   bool _isInitialized = false;
   BuildContext? _context;
 
+  /// Set the global context for navigation
+  void setContext(BuildContext context) {
+    _context = context;
+  }
+
   /// Initialize the notification service
   Future<void> initialize() async {
     if (_isInitialized) return;
