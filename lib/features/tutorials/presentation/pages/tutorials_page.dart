@@ -1089,13 +1089,45 @@ class _TutorialPlayerPageState extends ConsumerState<TutorialPlayerPage> {
     }
   }
 
-  void _toggleBookmark() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('נשמר לסימניות'),
-        backgroundColor: AppColors.neonPink,
-      ),
-    );
+  void _toggleBookmark() async {
+    try {
+      final supabaseService = ref.read(supabaseServiceProvider);
+      bool success;
+      
+      if (_isBookmarked) {
+        success = await supabaseService.removeInteraction(
+          contentType: 'tutorial',
+          contentId: widget.tutorial.id,
+          interactionType: 'bookmark',
+        );
+      } else {
+        success = await supabaseService.trackInteraction(
+          contentType: 'tutorial',
+          contentId: widget.tutorial.id,
+          interactionType: 'bookmark',
+        );
+      }
+      
+      if (success && mounted) {
+        setState(() {
+          _isBookmarked = !_isBookmarked;
+        });
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(_isBookmarked ? 'נוסף לסימניות' : 'הוסר מהסימניות'),
+            backgroundColor: AppColors.neonPink,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('שגיאה בעדכון סימניות: $e'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    }
   }
 
   void _goToNextTutorial() {
