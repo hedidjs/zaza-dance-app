@@ -2,8 +2,9 @@ class AppConstants {
   // App info
   static const String appName = 'זזה דאנס';
   static const String appDescription = 'בית דיגיטלי לקהילת חוג ההיפ הופ';
+  static const String appVersion = '2.0.0';
   
-  // Database
+  // Supabase Configuration
   static const String supabaseUrl = 'https://yyvoavzgapsyycjwirmg.supabase.co';
   static const String supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5dm9hdnpnYXBzeXljandpcm1nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUyOTgyMzgsImV4cCI6MjA3MDg3NDIzOH0.IU_dW_8K-yuV1grWIWJdetU7jK-b-QDPFYp_m5iFP90';
   
@@ -20,4 +21,15 @@ class AppConstants {
   static const int maxTutorialVideoSize = 100 * 1024 * 1024; // 100MB
   static const int maxThumbnailSize = 2 * 1024 * 1024; // 2MB
   static const int maxUpdateImageSize = 10 * 1024 * 1024; // 10MB
+  
+  // User roles
+  static const String roleStudent = 'student';
+  static const String roleParent = 'parent';
+  static const String roleInstructor = 'instructor';
+  static const String roleAdmin = 'admin';
+  
+  // Default values
+  static const String defaultProfileImageUrl = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&h=200&fit=crop&crop=face';
+  static const int defaultCacheExpiry = 7; // days
+  static const int maxOfflineDownloads = 50;
 }
