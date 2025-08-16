@@ -20,9 +20,8 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: NeonText(
-          text: 'זזה דאנס',
-          fontSize: 24,
+        title: NeonHebrewText.title(
+          'זזה דאנס',
           glowColor: AppColors.neonPink,
         ),
         actions: [
