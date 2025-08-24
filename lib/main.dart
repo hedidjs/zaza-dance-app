@@ -12,7 +12,6 @@ import 'core/theme/app_theme.dart';
 import 'core/providers/auth_provider.dart';
 import 'core/services/deep_link_service.dart';
 import 'core/services/push_notification_service.dart';
-import 'core/services/performance_optimization_service.dart';
 import 'core/services/cache_service.dart';
 import 'features/auth/presentation/pages/login_page.dart';
 import 'features/auth/presentation/pages/register_page.dart';
@@ -25,11 +24,7 @@ import 'features/settings/presentation/pages/settings_page.dart';
 import 'features/settings/presentation/pages/general_settings_page.dart';
 import 'features/settings/presentation/pages/notification_settings_page.dart';
 import 'features/settings/presentation/pages/profile_settings_page.dart';
-import 'features/admin/presentation/pages/user_management_page.dart';
-import 'features/admin/presentation/pages/new_admin_dashboard_page.dart';
 import 'features/admin/presentation/pages/analytics_page.dart';
-import 'features/admin/presentation/pages/users_create_page.dart';
-import 'features/admin/presentation/pages/users_list_page.dart';
 import 'features/profile/presentation/pages/profile_page.dart';
 import 'features/profile/presentation/pages/edit_profile_page.dart';
 
@@ -38,9 +33,6 @@ void main() async {
   
   // Initialize Supabase
   await SupabaseConfig.initialize();
-  
-  // Initialize performance optimizations
-  await PerformanceOptimizationService().initialize();
   
   // Initialize cache service
   await CacheService().initialize();
@@ -168,28 +160,10 @@ class _ZazaDanceAppState extends ConsumerState<ZazaDanceApp> {
           builder: (context, state) => const ProfileSettingsPage(),
         ),
         
-        // Main Admin Dashboard (new)
-        GoRoute(
-          path: '/admin/dashboard',
-          builder: (context, state) => const NewAdminDashboardPage(),
-        ),
-        GoRoute(
-          path: '/admin/users',
-          builder: (context, state) => const UserManagementPage(),
-        ),
+        // Admin Routes
         GoRoute(
           path: '/admin/analytics',
           builder: (context, state) => const AnalyticsPage(),
-        ),
-        
-        // User Management Routes
-        GoRoute(
-          path: '/admin/users/create',
-          builder: (context, state) => const UsersCreatePage(),
-        ),
-        GoRoute(
-          path: '/admin/users/list',
-          builder: (context, state) => const UsersListPage(),
         ),
       ],
     );
