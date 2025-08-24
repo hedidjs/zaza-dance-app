@@ -355,12 +355,6 @@ class _LandingPageState extends State<LandingPage>
               child: Column(
                 children: [
                   _buildHeroSection(),
-                  const SizedBox(height: 80),
-                  _buildAboutSection(),
-                  const SizedBox(height: 80),
-                  _buildFeaturesSection(),
-                  const SizedBox(height: 80),
-                  _buildContactSection(),
                   const SizedBox(height: 60),
                 ],
               ),
@@ -402,15 +396,30 @@ class _LandingPageState extends State<LandingPage>
               position: _slideAnimation,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 30),
-                child: Text(
-                  'ברוכים הבאים לסטודיו Zaza Dance בהנהלת שרון צרפתי',
-                  style: GoogleFonts.assistant(
-                    fontSize: 24,
-                    color: Colors.white.withValues(alpha: 0.95),
-                    fontWeight: FontWeight.w500,
-                    height: 1.4,
-                  ),
-                  textAlign: TextAlign.center,
+                child: Column(
+                  children: [
+                    Text(
+                      'ברוכים הבאים לסטודיו Zaza Dance',
+                      style: GoogleFonts.assistant(
+                        fontSize: 24,
+                        color: Colors.white.withValues(alpha: 0.95),
+                        fontWeight: FontWeight.w500,
+                        height: 1.4,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'בהנהלת שרון צרפתי',
+                      style: GoogleFonts.assistant(
+                        fontSize: 20,
+                        color: Colors.white.withValues(alpha: 0.85),
+                        fontWeight: FontWeight.w400,
+                        height: 1.3,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
               ),
             ),
