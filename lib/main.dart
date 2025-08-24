@@ -1,13 +1,19 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:go_router/go_router.dart';
 
+import 'shared/widgets/zaza_logo.dart';
+
 import 'core/config/supabase_config.dart';
+import 'core/theme/app_theme.dart';
 import 'core/providers/auth_provider.dart';
 import 'core/services/deep_link_service.dart';
 import 'core/services/push_notification_service.dart';
+import 'core/services/performance_optimization_service.dart';
+import 'core/services/cache_service.dart';
 import 'features/auth/presentation/pages/login_page.dart';
 import 'features/auth/presentation/pages/register_page.dart';
 import 'features/auth/presentation/pages/auth_callback_page.dart';
@@ -16,6 +22,14 @@ import 'features/tutorials/presentation/pages/tutorials_page.dart';
 import 'features/gallery/presentation/pages/gallery_page.dart';
 import 'features/updates/presentation/pages/updates_page.dart';
 import 'features/settings/presentation/pages/settings_page.dart';
+import 'features/settings/presentation/pages/general_settings_page.dart';
+import 'features/settings/presentation/pages/notification_settings_page.dart';
+import 'features/settings/presentation/pages/profile_settings_page.dart';
+import 'features/admin/presentation/pages/user_management_page.dart';
+import 'features/admin/presentation/pages/new_admin_dashboard_page.dart';
+import 'features/admin/presentation/pages/analytics_page.dart';
+import 'features/admin/presentation/pages/users_create_page.dart';
+import 'features/admin/presentation/pages/users_list_page.dart';
 import 'features/profile/presentation/pages/profile_page.dart';
 import 'features/profile/presentation/pages/edit_profile_page.dart';
 
@@ -25,7 +39,48 @@ void main() async {
   // Initialize Supabase
   await SupabaseConfig.initialize();
   
+  // Initialize performance optimizations
+  await PerformanceOptimizationService().initialize();
+  
+  // Initialize cache service
+  await CacheService().initialize();
+  
+  // Auto-login admin user for development
+  await _autoLoginAdminForDev();
+  
   runApp(const ProviderScope(child: ZazaDanceApp()));
+}
+
+/// התחברות אוטומטית למשתמש אדמין למצב פיתוח
+Future<void> _autoLoginAdminForDev() async {
+  try {
+    final supabase = SupabaseConfig.client;
+    
+    // בדיקה אם כבר מחובר
+    if (supabase.auth.currentUser != null) {
+      print('User already logged in: ${supabase.auth.currentUser!.email}');
+      return;
+    }
+    
+    // במצב רשת, לא ננסה להתחבר אוטומטית בגלל בעיות CORS
+    if (kIsWeb) {
+      print('Web mode: Skipping auto-login due to CORS restrictions');
+      return;
+    }
+    
+    // התחברות עם המשתמש האדמין למצב פיתוח (רק במובייל)
+    final response = await supabase.auth.signInWithPassword(
+      email: 'dev@zazadance.com',
+      password: 'dev123456',
+    );
+    
+    if (response.user != null) {
+      print('✅ Auto-logged in as admin: ${response.user!.email}');
+    }
+  } catch (e) {
+    print('❌ Auto-login failed: $e');
+    // לא נעצור את האפליקציה, פשוט נמשיך בלי התחברות
+  }
 }
 
 class ZazaDanceApp extends ConsumerStatefulWidget {
@@ -55,30 +110,6 @@ class _ZazaDanceAppState extends ConsumerState<ZazaDanceApp> {
   void _setupRouter() {
     _router = GoRouter(
       initialLocation: '/',
-      redirect: (context, state) {
-        final userAsync = ref.read(currentUserProvider);
-        final isLoading = userAsync.isLoading;
-        final user = userAsync.valueOrNull;
-        final isLoggedIn = user != null;
-        final isAuthRoute = state.fullPath?.startsWith('/auth') ?? false;
-        
-        // אם עדיין טוען, אל תכוון מחדש
-        if (isLoading) {
-          return null;
-        }
-        
-        // אם המשתמש מחובר ובדף אותנטיקציה, הפנה לבית
-        if (isLoggedIn && isAuthRoute) {
-          return '/home';
-        }
-        
-        // אם המשתמש לא מחובר ולא בדף אותנטיקציה, הפנה להתחברות
-        if (!isLoggedIn && !isAuthRoute && state.fullPath != '/') {
-          return '/auth/login';
-        }
-        
-        return null;
-      },
       routes: [
         GoRoute(
           path: '/',
@@ -124,6 +155,42 @@ class _ZazaDanceAppState extends ConsumerState<ZazaDanceApp> {
           path: '/profile/edit',
           builder: (context, state) => const EditProfilePage(),
         ),
+        GoRoute(
+          path: '/settings/general',
+          builder: (context, state) => const GeneralSettingsPage(),
+        ),
+        GoRoute(
+          path: '/settings/notifications',
+          builder: (context, state) => const NotificationSettingsPage(),
+        ),
+        GoRoute(
+          path: '/settings/profile',
+          builder: (context, state) => const ProfileSettingsPage(),
+        ),
+        
+        // Main Admin Dashboard (new)
+        GoRoute(
+          path: '/admin/dashboard',
+          builder: (context, state) => const NewAdminDashboardPage(),
+        ),
+        GoRoute(
+          path: '/admin/users',
+          builder: (context, state) => const UserManagementPage(),
+        ),
+        GoRoute(
+          path: '/admin/analytics',
+          builder: (context, state) => const AnalyticsPage(),
+        ),
+        
+        // User Management Routes
+        GoRoute(
+          path: '/admin/users/create',
+          builder: (context, state) => const UsersCreatePage(),
+        ),
+        GoRoute(
+          path: '/admin/users/list',
+          builder: (context, state) => const UsersListPage(),
+        ),
       ],
     );
     
@@ -144,28 +211,29 @@ class _ZazaDanceAppState extends ConsumerState<ZazaDanceApp> {
     
     return MaterialApp.router(
       title: 'זזה דאנס - Zaza Dance',
-      theme: _buildTheme(),
+      theme: AppTheme.darkTheme,
       routerConfig: _router,
       debugShowCheckedModeBanner: false,
+      // RTL Support for Hebrew
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('he', 'IL'), // Hebrew
+        Locale('en', 'US'), // English
+      ],
+      locale: const Locale('he', 'IL'),
+      builder: (context, child) {
+        return Directionality(
+          textDirection: TextDirection.rtl,
+          child: child!,
+        );
+      },
     );
   }
 
-  ThemeData _buildTheme() {
-    return ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.dark,
-      colorScheme: const ColorScheme.dark(
-        primary: Color(0xFFFF00FF), // Fuchsia
-        secondary: Color(0xFF40E0D0), // Turquoise
-        background: Color(0xFF0A0A0A),
-        surface: Color(0xFF1A1A1A),
-      ),
-      textTheme: GoogleFonts.assistantTextTheme().apply(
-        bodyColor: Colors.white,
-        displayColor: Colors.white,
-      ),
-    );
-  }
 }
 
 class AuthWrapper extends ConsumerWidget {
@@ -204,14 +272,7 @@ class LoadingPage extends StatelessWidget {
               color: Color(0xFFFF00FF),
             ),
             const SizedBox(height: 20),
-            Text(
-              'זזה דאנס',
-              style: GoogleFonts.assistant(
-                fontSize: 24,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            const ZazaLogo.splash(),
           ],
         ),
       ),
@@ -345,59 +406,37 @@ class _LandingPageState extends State<LandingPage>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Main logo with subtle glow
+            // Main logo - larger and clearer
             AnimatedBuilder(
               animation: _pulseAnimation,
               builder: (context, child) {
-                return _buildEnhancedNeonText(
-                  'זזה דאנס',
-                  fontSize: 64,
-                  color: const Color(0xFFE91E63), // Softer pink instead of pure fuchsia
-                  glowIntensity: _pulseAnimation.value,
+                return Transform.scale(
+                  scale: 1.0 + (_pulseAnimation.value * 0.05),
+                  child: const ZazaLogo(
+                    width: 300,
+                    height: 120,
+                    withGlow: false,
+                  ),
                 );
               },
             ),
-            const SizedBox(height: 16),
             
-            // English subtitle with different color
-            _buildEnhancedNeonText(
-              'ZAZA DANCE',
-              fontSize: 28,
-              color: const Color(0xFF26C6DA), // Softer cyan instead of pure turquoise
-              glowIntensity: 0.4,
-            ),
+            const SizedBox(height: 40),
             
-            const SizedBox(height: 50),
-            
-            // Tagline with elegant typography
+            // Welcome message
             SlideTransition(
               position: _slideAnimation,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 30),
-                child: Column(
-                  children: [
-                    Text(
-                      'בית דיגיטלי לקהילת ההיפ הופ',
-                      style: GoogleFonts.assistant(
-                        fontSize: 22,
-                        color: Colors.white.withOpacity(0.9),
-                        fontWeight: FontWeight.w400,
-                        height: 1.4,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'כאן הקצב מתחיל והחלומות מתגשמים',
-                      style: GoogleFonts.assistant(
-                        fontSize: 16,
-                        color: Colors.white.withOpacity(0.7),
-                        fontWeight: FontWeight.w300,
-                        height: 1.3,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
+                child: Text(
+                  'ברוכים הבאים לסטודיו Zaza Dance בהנהלת שרון צרפתי',
+                  style: GoogleFonts.assistant(
+                    fontSize: 24,
+                    color: Colors.white.withValues(alpha: 0.95),
+                    fontWeight: FontWeight.w500,
+                    height: 1.4,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
               ),
             ),
@@ -420,8 +459,7 @@ class _LandingPageState extends State<LandingPage>
     required Color color, 
     double glowIntensity = 0.5
   }) {
-    return Container(
-      child: Text(
+    return Text(
         text,
         style: GoogleFonts.assistant(
           fontSize: fontSize,
@@ -430,27 +468,26 @@ class _LandingPageState extends State<LandingPage>
           shadows: [
             // Main subtle glow
             Shadow(
-              color: color.withOpacity(0.3 * glowIntensity),
+              color: color.withValues(alpha: 0.3 * glowIntensity),
               blurRadius: 8,
               offset: const Offset(0, 0),
             ),
             // Secondary soft glow
             Shadow(
-              color: color.withOpacity(0.2 * glowIntensity),
+              color: color.withValues(alpha: 0.2 * glowIntensity),
               blurRadius: 16,
               offset: const Offset(0, 0),
             ),
             // Minimal outer glow
             Shadow(
-              color: color.withOpacity(0.1 * glowIntensity),
+              color: color.withValues(alpha: 0.1 * glowIntensity),
               blurRadius: 24,
               offset: const Offset(0, 0),
             ),
           ],
         ),
         textAlign: TextAlign.center,
-      ),
-    );
+      );
   }
 
   Widget _buildNeonText(String text, {required double fontSize, required Color color}) {
@@ -468,15 +505,15 @@ class _LandingPageState extends State<LandingPage>
         borderRadius: BorderRadius.circular(25),
         gradient: LinearGradient(
           colors: [
-            const Color(0xFFE91E63).withOpacity(0.8), // Softer pink
-            const Color(0xFF26C6DA).withOpacity(0.8), // Softer cyan
+            const Color(0xFFE91E63).withValues(alpha: 0.8), // Softer pink
+            const Color(0xFF26C6DA).withValues(alpha: 0.8), // Softer cyan
           ],
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
         ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFFE91E63).withOpacity(0.2),
+            color: const Color(0xFFE91E63).withValues(alpha: 0.2),
             blurRadius: 15,
             spreadRadius: 1,
             offset: const Offset(0, 4),
@@ -488,11 +525,7 @@ class _LandingPageState extends State<LandingPage>
         child: InkWell(
           borderRadius: BorderRadius.circular(25),
           onTap: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => const LoginPage(),
-              ),
-            );
+            context.go('/auth/login');
           },
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 45, vertical: 18),
@@ -522,9 +555,6 @@ class _LandingPageState extends State<LandingPage>
     );
   }
 
-  Widget _buildCtaButton() {
-    return _buildEnhancedCtaButton();
-  }
 
   Widget _buildAboutSection() {
     return SlideTransition(
@@ -538,12 +568,12 @@ class _LandingPageState extends State<LandingPage>
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Colors.white.withOpacity(0.05),
-              Colors.white.withOpacity(0.02),
+              Colors.white.withValues(alpha: 0.05),
+              Colors.white.withValues(alpha: 0.02),
             ],
           ),
           border: Border.all(
-            color: const Color(0xFF26C6DA).withOpacity(0.2),
+            color: const Color(0xFF26C6DA).withValues(alpha: 0.2),
             width: 1,
           ),
         ),
@@ -573,7 +603,7 @@ class _LandingPageState extends State<LandingPage>
               'זזה דאנס הוא מקום בו הקצב מתחיל, הריתמוס מדבר והאנרגיה של ההיפ הופ חיה.',
               style: GoogleFonts.assistant(
                 fontSize: 20,
-                color: Colors.white.withOpacity(0.9),
+                color: Colors.white.withValues(alpha: 0.9),
                 height: 1.7,
                 fontWeight: FontWeight.w400,
               ),
@@ -584,7 +614,7 @@ class _LandingPageState extends State<LandingPage>
               'כאן כל תלמיד מוצא את הביטוי הייחודי שלו ובונה ביטחון דרך התנועה.',
               style: GoogleFonts.assistant(
                 fontSize: 16,
-                color: Colors.white.withOpacity(0.7),
+                color: Colors.white.withValues(alpha: 0.7),
                 height: 1.6,
                 fontWeight: FontWeight.w300,
               ),
@@ -676,9 +706,6 @@ class _LandingPageState extends State<LandingPage>
     );
   }
 
-  Widget _buildFeatureGrid() {
-    return _buildEnhancedFeatureGrid();
-  }
 
   Widget _buildEnhancedFeatureCard(String title, IconData icon, String description, int index) {
     final colors = [
@@ -696,17 +723,17 @@ class _LandingPageState extends State<LandingPage>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Colors.white.withOpacity(0.08),
-            Colors.white.withOpacity(0.03),
+            Colors.white.withValues(alpha: 0.08),
+            Colors.white.withValues(alpha: 0.03),
           ],
         ),
         border: Border.all(
-          color: cardColor.withOpacity(0.2),
+          color: cardColor.withValues(alpha: 0.2),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: cardColor.withOpacity(0.1),
+            color: cardColor.withValues(alpha: 0.1),
             blurRadius: 8,
             spreadRadius: 1,
             offset: const Offset(0, 2),
@@ -719,11 +746,7 @@ class _LandingPageState extends State<LandingPage>
           borderRadius: BorderRadius.circular(18),
           onTap: () {
             // Navigate to login page to access the features
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => const LoginPage(),
-              ),
-            );
+            context.go('/auth/login');
           },
           child: Padding(
             padding: const EdgeInsets.all(20),
@@ -734,7 +757,7 @@ class _LandingPageState extends State<LandingPage>
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
-                    color: cardColor.withOpacity(0.1),
+                    color: cardColor.withValues(alpha: 0.1),
                   ),
                   child: Icon(
                     icon,
@@ -748,7 +771,7 @@ class _LandingPageState extends State<LandingPage>
                   style: GoogleFonts.assistant(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -758,7 +781,7 @@ class _LandingPageState extends State<LandingPage>
                   style: GoogleFonts.assistant(
                     fontSize: 12,
                     fontWeight: FontWeight.w300,
-                    color: Colors.white.withOpacity(0.6),
+                    color: Colors.white.withValues(alpha: 0.6),
                     height: 1.3,
                   ),
                   textAlign: TextAlign.center,
@@ -773,9 +796,6 @@ class _LandingPageState extends State<LandingPage>
     );
   }
 
-  Widget _buildFeatureCard(String title, IconData icon) {
-    return _buildEnhancedFeatureCard(title, icon, '', 0);
-  }
 
   Widget _buildContactSection() {
     return SlideTransition(
@@ -789,12 +809,12 @@ class _LandingPageState extends State<LandingPage>
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Colors.white.withOpacity(0.05),
-              Colors.white.withOpacity(0.02),
+              Colors.white.withValues(alpha: 0.05),
+              Colors.white.withValues(alpha: 0.02),
             ],
           ),
           border: Border.all(
-            color: const Color(0xFFE91E63).withOpacity(0.2),
+            color: const Color(0xFFE91E63).withValues(alpha: 0.2),
             width: 1,
           ),
         ),
@@ -824,7 +844,7 @@ class _LandingPageState extends State<LandingPage>
               'מוכנים להרגיש את הקצב?',
               style: GoogleFonts.assistant(
                 fontSize: 20,
-                color: Colors.white.withOpacity(0.9),
+                color: Colors.white.withValues(alpha: 0.9),
                 fontWeight: FontWeight.w500,
                 height: 1.4,
               ),
@@ -835,7 +855,7 @@ class _LandingPageState extends State<LandingPage>
               'בואו להיות חלק מהקהילה שלנו!',
               style: GoogleFonts.assistant(
                 fontSize: 16,
-                color: Colors.white.withOpacity(0.7),
+                color: Colors.white.withValues(alpha: 0.7),
                 fontWeight: FontWeight.w300,
                 height: 1.3,
               ),
@@ -882,9 +902,6 @@ class _LandingPageState extends State<LandingPage>
     );
   }
 
-  Widget _buildContactButtons() {
-    return _buildEnhancedContactButtons();
-  }
 
   Widget _buildEnhancedContactButton(String label, IconData icon, Color color, {bool isWide = false}) {
     return Container(
@@ -893,19 +910,19 @@ class _LandingPageState extends State<LandingPage>
         borderRadius: BorderRadius.circular(15),
         gradient: LinearGradient(
           colors: [
-            color.withOpacity(0.15),
-            color.withOpacity(0.05),
+            color.withValues(alpha: 0.15),
+            color.withValues(alpha: 0.05),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         border: Border.all(
-          color: color.withOpacity(0.3),
+          color: color.withValues(alpha: 0.3),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             blurRadius: 8,
             spreadRadius: 1,
             offset: const Offset(0, 2),
@@ -945,7 +962,7 @@ class _LandingPageState extends State<LandingPage>
                   ),
                   actions: [
                     TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
+                      onPressed: () => context.pop(),
                       child: Text(
                         'סגור',
                         style: GoogleFonts.assistant(
@@ -977,7 +994,7 @@ class _LandingPageState extends State<LandingPage>
                 Text(
                   label,
                   style: GoogleFonts.assistant(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                     fontWeight: FontWeight.w600,
                     fontSize: isWide ? 16 : 14,
                   ),
@@ -990,7 +1007,4 @@ class _LandingPageState extends State<LandingPage>
     );
   }
 
-  Widget _buildContactButton(String label, IconData icon, Color color) {
-    return _buildEnhancedContactButton(label, icon, color);
-  }
 }
