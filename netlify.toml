@@ -1,10 +1,28 @@
 [build]
   base = "."
-  command = "flutter build web --base-href /"
+  command = '''
+    # Install Flutter
+    if [ ! -d "/opt/build/cache/flutter" ]; then
+      echo "Installing Flutter..."
+      cd /opt/build/cache
+      git clone https://github.com/flutter/flutter.git -b stable --depth 1
+      export PATH="$PATH:/opt/build/cache/flutter/bin"
+      flutter doctor
+      flutter precache --web
+    else
+      echo "Flutter already cached"
+      export PATH="$PATH:/opt/build/cache/flutter/bin"
+    fi
+    
+    # Build the Flutter web app
+    cd /opt/build/repo
+    flutter build web --base-href /
+  '''
   publish = "build/web"
 
 [build.environment]
   FLUTTER_WEB = "true"
+  PATH = "${PATH}:/opt/build/cache/flutter/bin"
 
 [[redirects]]
   from = "/*"
