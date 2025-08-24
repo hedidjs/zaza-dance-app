@@ -1,11 +1,11 @@
 {
-    "name": "זזה דאנס - בית דיגיטלי לקהילת ההיפ הופ",
-    "short_name": "זזה דאנס",
+    "name": "Zaza Dance",
+    "short_name": "Zaza Dance",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#0a0a0a",
     "theme_color": "#FF00FF",
-    "description": "אפליקציית זזה דאנס - בית דיגיטלי לקהילת חוג ההיפ הופ. מדריכי ריקוד, גלריה ועדכונים חמים",
+    "description": "סטודיו לריקוד מעולם ההיפ הופ",
     "orientation": "portrait-primary",
     "lang": "he",
     "dir": "rtl",
@@ -18,14 +18,14 @@
         },
         {
             "platform": "itunes",
-            "url": "https://apps.apple.com/app/zaza-dance/id123456789",
-            "id": "123456789"
+            "url": "https://apps.apple.com/app/zaza-dance/id-TBD",
+            "id": "TBD"
         }
     ],
     "categories": ["education", "entertainment", "lifestyle"],
     "screenshots": [
         {
-            "src": "icons/Icon-512.png",
+            "src": "https://yyvoavzgapsyycjwirmg.supabase.co/storage/v1/object/public/logo/ZAZA%20ICON.png",
             "sizes": "512x512",
             "type": "image/png",
             "form_factor": "wide"
@@ -39,23 +39,23 @@
     ],
     "icons": [
         {
-            "src": "icons/Icon-192.png",
+            "src": "https://yyvoavzgapsyycjwirmg.supabase.co/storage/v1/object/public/logo/ZAZA%20ICON.png",
             "sizes": "192x192",
             "type": "image/png"
         },
         {
-            "src": "icons/Icon-512.png",
+            "src": "https://yyvoavzgapsyycjwirmg.supabase.co/storage/v1/object/public/logo/ZAZA%20ICON.png",
             "sizes": "512x512",
             "type": "image/png"
         },
         {
-            "src": "icons/Icon-maskable-192.png",
+            "src": "https://yyvoavzgapsyycjwirmg.supabase.co/storage/v1/object/public/logo/ZAZA%20ICON.png",
             "sizes": "192x192",
             "type": "image/png",
             "purpose": "maskable"
         },
         {
-            "src": "icons/Icon-maskable-512.png",
+            "src": "https://yyvoavzgapsyycjwirmg.supabase.co/storage/v1/object/public/logo/ZAZA%20ICON.png",
             "sizes": "512x512",
             "type": "image/png",
             "purpose": "maskable"
