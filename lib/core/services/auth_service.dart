@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../models/user_model.dart';
+import '../../shared/models/user_model.dart';
 import '../constants/app_constants.dart';
 import 'database_service.dart';
 
@@ -26,7 +26,7 @@ class AuthService {
       return await DatabaseService.getUserById(user.id);
     } catch (e) {
       if (kDebugMode) {
-        print('AuthService: Error getting user profile: $e');
+        debugPrint('AuthService: Error getting user profile: $e');
       }
       return null;
     }
@@ -43,7 +43,7 @@ class AuthService {
   }) async {
     try {
       if (kDebugMode) {
-        print('AuthService: Registering user with email: $email');
+        debugPrint('AuthService: Registering user with email: $email');
       }
 
       // Create user with Supabase Auth
@@ -73,7 +73,7 @@ class AuthService {
       );
 
       if (kDebugMode) {
-        print('AuthService: User registered successfully');
+        debugPrint('AuthService: User registered successfully');
       }
 
       return AuthResult.success(
@@ -81,12 +81,12 @@ class AuthService {
       );
     } on AuthException catch (e) {
       if (kDebugMode) {
-        print('AuthService: Auth error during registration: ${e.message}');
+        debugPrint('AuthService: Auth error during registration: ${e.message}');
       }
       return AuthResult.error(e.message);
     } catch (e) {
       if (kDebugMode) {
-        print('AuthService: Unknown error during registration: $e');
+        debugPrint('AuthService: Unknown error during registration: $e');
       }
       return AuthResult.error('Registration failed. Please try again.');
     }
@@ -99,7 +99,7 @@ class AuthService {
   }) async {
     try {
       if (kDebugMode) {
-        print('AuthService: Signing in user with email: $email');
+        debugPrint('AuthService: Signing in user with email: $email');
       }
 
       final AuthResponse response = await _supabase.auth.signInWithPassword(
@@ -107,25 +107,46 @@ class AuthService {
         password: password,
       );
 
+      if (kDebugMode) {
+        debugPrint('AuthService: Auth response received - User: ${response.user?.id}');
+        debugPrint('AuthService: Session: ${response.session?.accessToken != null ? "Valid" : "Invalid"}');
+      }
+
       if (response.user == null) {
-        return AuthResult.error('Failed to sign in');
+        if (kDebugMode) {
+          debugPrint('AuthService: No user returned from sign in');
+        }
+        return AuthResult.error('Failed to sign in - Invalid credentials');
       }
 
       if (kDebugMode) {
-        print('AuthService: User signed in successfully');
+        debugPrint('AuthService: User signed in successfully - ID: ${response.user!.id}');
+        debugPrint('AuthService: User email: ${response.user!.email}');
+        debugPrint('AuthService: Email confirmed: ${response.user!.emailConfirmedAt != null}');
       }
 
-      return AuthResult.success(message: 'Signed in successfully!');
+      return AuthResult.success(message: 'התחברות בוצעה בהצלחה!');
     } on AuthException catch (e) {
       if (kDebugMode) {
-        print('AuthService: Auth error during sign in: ${e.message}');
+        debugPrint('AuthService: Auth error during sign in: ${e.message}');
+        debugPrint('AuthService: Auth error statusCode: ${e.statusCode}');
       }
-      return AuthResult.error(e.message);
+      
+      String errorMessage = e.message;
+      if (e.message.contains('Invalid login credentials')) {
+        errorMessage = 'פרטי ההתחברות שגויים. אנא בדקו את האימייל והסיסמה.';
+      } else if (e.message.contains('Email not confirmed')) {
+        errorMessage = 'אנא אשרו את האימייל שלכם לפני ההתחברות.';
+      } else if (e.message.contains('Too many requests')) {
+        errorMessage = 'יותר מדי ניסיונות התחברות. אנא נסו שוב מאוחר יותר.';
+      }
+      
+      return AuthResult.error(errorMessage);
     } catch (e) {
       if (kDebugMode) {
-        print('AuthService: Unknown error during sign in: $e');
+        debugPrint('AuthService: Unknown error during sign in: $e');
       }
-      return AuthResult.error('Sign in failed. Please try again.');
+      return AuthResult.error('התחברות נכשלה. אנא נסו שוב.');
     }
   }
 
@@ -133,19 +154,19 @@ class AuthService {
   Future<AuthResult> signOut() async {
     try {
       if (kDebugMode) {
-        print('AuthService: Signing out user');
+        debugPrint('AuthService: Signing out user');
       }
 
       await _supabase.auth.signOut();
 
       if (kDebugMode) {
-        print('AuthService: User signed out successfully');
+        debugPrint('AuthService: User signed out successfully');
       }
 
       return AuthResult.success(message: 'Signed out successfully!');
     } catch (e) {
       if (kDebugMode) {
-        print('AuthService: Error during sign out: $e');
+        debugPrint('AuthService: Error during sign out: $e');
       }
       return AuthResult.error('Sign out failed. Please try again.');
     }
@@ -155,13 +176,13 @@ class AuthService {
   Future<AuthResult> resetPassword({required String email}) async {
     try {
       if (kDebugMode) {
-        print('AuthService: Sending password reset email to: $email');
+        debugPrint('AuthService: Sending password reset email to: $email');
       }
 
       await _supabase.auth.resetPasswordForEmail(email);
 
       if (kDebugMode) {
-        print('AuthService: Password reset email sent successfully');
+        debugPrint('AuthService: Password reset email sent successfully');
       }
 
       return AuthResult.success(
@@ -169,12 +190,12 @@ class AuthService {
       );
     } on AuthException catch (e) {
       if (kDebugMode) {
-        print('AuthService: Auth error during password reset: ${e.message}');
+        debugPrint('AuthService: Auth error during password reset: ${e.message}');
       }
       return AuthResult.error(e.message);
     } catch (e) {
       if (kDebugMode) {
-        print('AuthService: Unknown error during password reset: $e');
+        debugPrint('AuthService: Unknown error during password reset: $e');
       }
       return AuthResult.error('Password reset failed. Please try again.');
     }
@@ -185,7 +206,8 @@ class AuthService {
     String? fullName,
     String? phoneNumber,
     String? address,
-    String? profileImageUrl,
+    String? avatarUrl,
+    String? bio,
   }) async {
     try {
       final user = currentUser;
@@ -194,7 +216,7 @@ class AuthService {
       }
 
       if (kDebugMode) {
-        print('AuthService: Updating profile for user: ${user.id}');
+        debugPrint('AuthService: Updating profile for user: ${user.id}');
       }
 
       await DatabaseService.updateUserProfile(
@@ -202,17 +224,18 @@ class AuthService {
         displayName: fullName,
         phone: phoneNumber,
         address: address,
-        profileImageUrl: profileImageUrl,
+        avatarUrl: avatarUrl,
+        bio: bio,
       );
 
       if (kDebugMode) {
-        print('AuthService: Profile updated successfully');
+        debugPrint('AuthService: Profile updated successfully');
       }
 
       return AuthResult.success(message: 'Profile updated successfully!');
     } catch (e) {
       if (kDebugMode) {
-        print('AuthService: Error updating profile: $e');
+        debugPrint('AuthService: Error updating profile: $e');
       }
       return AuthResult.error('Profile update failed. Please try again.');
     }
@@ -227,7 +250,7 @@ class AuthService {
       }
 
       if (kDebugMode) {
-        print('AuthService: Deleting account for user: ${user.id}');
+        debugPrint('AuthService: Deleting account for user: ${user.id}');
       }
 
       // Mark user as inactive instead of deleting
@@ -238,13 +261,13 @@ class AuthService {
       await signOut();
 
       if (kDebugMode) {
-        print('AuthService: Account deleted successfully');
+        debugPrint('AuthService: Account deleted successfully');
       }
 
       return AuthResult.success(message: 'Account deleted successfully!');
     } catch (e) {
       if (kDebugMode) {
-        print('AuthService: Error deleting account: $e');
+        debugPrint('AuthService: Error deleting account: $e');
       }
       return AuthResult.error('Account deletion failed. Please try again.');
     }

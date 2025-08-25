@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/models/settings_model.dart';
+import '../../../../core/providers/settings_provider.dart';
 import '../../../../shared/widgets/animated_gradient_background.dart';
 import '../../../../shared/widgets/neon_text.dart';
 import '../../../../shared/widgets/enhanced_neon_effects.dart';
@@ -17,81 +19,42 @@ class NotificationSettingsPage extends ConsumerStatefulWidget {
 }
 
 class _NotificationSettingsPageState extends ConsumerState<NotificationSettingsPage> {
-  // הגדרות התראות
-  bool _pushNotificationsEnabled = true;
-  bool _newTutorialsNotifications = true;
-  bool _galleryUpdatesNotifications = true;
-  bool _studioNewsNotifications = true;
-  bool _classRemindersNotifications = true;
-  bool _eventNotifications = true;
-  bool _messageNotifications = true;
-  
-  // הגדרות זמן
+  // השתמש בהגדרות זמן מקומיות
   TimeOfDay _quietHoursStart = const TimeOfDay(hour: 22, minute: 0);
   TimeOfDay _quietHoursEnd = const TimeOfDay(hour: 8, minute: 0);
-  bool _quietHoursEnabled = false;
-  
-  // הגדרות תדירות
-  String _reminderFrequency = 'daily'; // daily, weekly, never
 
   @override
   void initState() {
     super.initState();
-    _loadSettings();
-  }
-
-  void _loadSettings() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      
-      setState(() {
-        _pushNotificationsEnabled = prefs.getBool('push_notifications_enabled') ?? true;
-        _newTutorialsNotifications = prefs.getBool('new_tutorials_notifications') ?? true;
-        _galleryUpdatesNotifications = prefs.getBool('gallery_updates_notifications') ?? true;
-        _studioNewsNotifications = prefs.getBool('studio_news_notifications') ?? true;
-        _classRemindersNotifications = prefs.getBool('class_reminders_notifications') ?? true;
-        _eventNotifications = prefs.getBool('event_notifications') ?? true;
-        _messageNotifications = prefs.getBool('message_notifications') ?? true;
-        _quietHoursEnabled = prefs.getBool('quiet_hours_enabled') ?? false;
-        _reminderFrequency = prefs.getString('reminder_frequency') ?? 'daily';
+    // טעינת הגדרות זמן מההגדרות הקיימות
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final settingsAsync = ref.read(notificationSettingsProvider);
+      if (settingsAsync.hasValue) {
+        final settings = settingsAsync.value!;
+        final startParts = settings.quietHoursStart.split(':');
+        final endParts = settings.quietHoursEnd.split(':');
         
-        // טעינת הגדרות זמן
-        final quietStart = prefs.getString('quiet_start');
-        if (quietStart != null) {
-          final parts = quietStart.split(':');
-          if (parts.length == 2) {
-            _quietHoursStart = TimeOfDay(
-              hour: int.tryParse(parts[0]) ?? 22,
-              minute: int.tryParse(parts[1]) ?? 0,
-            );
-          }
+        if (startParts.length == 2) {
+          _quietHoursStart = TimeOfDay(
+            hour: int.tryParse(startParts[0]) ?? 22,
+            minute: int.tryParse(startParts[1]) ?? 0,
+          );
         }
         
-        final quietEnd = prefs.getString('quiet_end');
-        if (quietEnd != null) {
-          final parts = quietEnd.split(':');
-          if (parts.length == 2) {
-            _quietHoursEnd = TimeOfDay(
-              hour: int.tryParse(parts[0]) ?? 8,
-              minute: int.tryParse(parts[1]) ?? 0,
-            );
-          }
+        if (endParts.length == 2) {
+          _quietHoursEnd = TimeOfDay(
+            hour: int.tryParse(endParts[0]) ?? 8,
+            minute: int.tryParse(endParts[1]) ?? 0,
+          );
         }
-      });
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('שגיאה בטעינת הגדרות: $e'),
-            backgroundColor: AppColors.error,
-          ),
-        );
       }
-    }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final settingsAsync = ref.watch(notificationSettingsProvider);
+    
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -109,16 +72,30 @@ class _NotificationSettingsPageState extends ConsumerState<NotificationSettingsP
               Icons.arrow_back,
               color: AppColors.primaryText,
             ),
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => context.pop(),
           ),
         ),
         body: AnimatedGradientBackground(
           child: SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+            child: settingsAsync.when(
+              data: (settings) => _buildSettingsContent(settings),
+              loading: () => const Center(
+                child: CircularProgressIndicator(color: AppColors.neonTurquoise),
+              ),
+              error: (error, stack) => _buildErrorView(error.toString()),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSettingsContent(NotificationSettings settings) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
                   // הגדרות כלליות
                   _buildSection(
                     'הגדרות כלליות',
@@ -128,11 +105,20 @@ class _NotificationSettingsPageState extends ConsumerState<NotificationSettingsP
                         icon: Icons.notifications,
                         title: 'התראות Push',
                         subtitle: 'קבלת התראות באפליקציה',
-                        value: _pushNotificationsEnabled,
-                        onChanged: (value) {
-                          setState(() {
-                            _pushNotificationsEnabled = value;
-                          });
+                        value: settings.pushNotificationsEnabled,
+                        onChanged: (value) async {
+                          try {
+                            await ref.read(notificationSettingsProvider.notifier).updatePushNotifications(value);
+                          } catch (e) {
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('שגיאה בעדכון הגדרות: $e'),
+                                  backgroundColor: AppColors.error,
+                                ),
+                              );
+                            }
+                          }
                         },
                         glowColor: AppColors.neonPink,
                       ),
@@ -150,11 +136,20 @@ class _NotificationSettingsPageState extends ConsumerState<NotificationSettingsP
                         icon: Icons.video_library,
                         title: 'מדריכים חדשים',
                         subtitle: 'התראה על מדריכי ריקוד חדשים',
-                        value: _newTutorialsNotifications,
-                        onChanged: _pushNotificationsEnabled ? (value) {
-                          setState(() {
-                            _newTutorialsNotifications = value;
-                          });
+                        value: settings.newTutorialsNotifications,
+                        onChanged: settings.pushNotificationsEnabled ? (value) async {
+                          try {
+                            await ref.read(notificationSettingsProvider.notifier).updateNewTutorials(value);
+                          } catch (e) {
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('שגיאה בעדכון הגדרות: $e'),
+                                  backgroundColor: AppColors.error,
+                                ),
+                              );
+                            }
+                          }
                         } : null,
                         glowColor: AppColors.neonTurquoise,
                       ),
@@ -162,11 +157,20 @@ class _NotificationSettingsPageState extends ConsumerState<NotificationSettingsP
                         icon: Icons.photo_library,
                         title: 'עדכוני גלריה',
                         subtitle: 'תמונות וסרטונים חדשים בגלריה',
-                        value: _galleryUpdatesNotifications,
-                        onChanged: _pushNotificationsEnabled ? (value) {
-                          setState(() {
-                            _galleryUpdatesNotifications = value;
-                          });
+                        value: settings.galleryUpdatesNotifications,
+                        onChanged: settings.pushNotificationsEnabled ? (value) async {
+                          try {
+                            await ref.read(notificationSettingsProvider.notifier).updateGalleryUpdates(value);
+                          } catch (e) {
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('שגיאה בעדכון הגדרות: $e'),
+                                  backgroundColor: AppColors.error,
+                                ),
+                              );
+                            }
+                          }
                         } : null,
                         glowColor: AppColors.neonBlue,
                       ),
@@ -174,11 +178,20 @@ class _NotificationSettingsPageState extends ConsumerState<NotificationSettingsP
                         icon: Icons.announcement,
                         title: 'חדשות הסטודיו',
                         subtitle: 'עדכונים והודעות מהסטודיו',
-                        value: _studioNewsNotifications,
-                        onChanged: _pushNotificationsEnabled ? (value) {
-                          setState(() {
-                            _studioNewsNotifications = value;
-                          });
+                        value: settings.studioNewsNotifications,
+                        onChanged: settings.pushNotificationsEnabled ? (value) async {
+                          try {
+                            await ref.read(notificationSettingsProvider.notifier).updateStudioNews(value);
+                          } catch (e) {
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('שגיאה בעדכון הגדרות: $e'),
+                                  backgroundColor: AppColors.error,
+                                ),
+                              );
+                            }
+                          }
                         } : null,
                         glowColor: AppColors.neonPurple,
                       ),
@@ -186,11 +199,20 @@ class _NotificationSettingsPageState extends ConsumerState<NotificationSettingsP
                         icon: Icons.schedule,
                         title: 'תזכורות שיעורים',
                         subtitle: 'תזכורת לפני שיעורים',
-                        value: _classRemindersNotifications,
-                        onChanged: _pushNotificationsEnabled ? (value) {
-                          setState(() {
-                            _classRemindersNotifications = value;
-                          });
+                        value: settings.classRemindersNotifications,
+                        onChanged: settings.pushNotificationsEnabled ? (value) async {
+                          try {
+                            await ref.read(notificationSettingsProvider.notifier).updateClassReminders(value);
+                          } catch (e) {
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('שגיאה בעדכון הגדרות: $e'),
+                                  backgroundColor: AppColors.error,
+                                ),
+                              );
+                            }
+                          }
                         } : null,
                         glowColor: AppColors.warning,
                       ),
@@ -198,11 +220,20 @@ class _NotificationSettingsPageState extends ConsumerState<NotificationSettingsP
                         icon: Icons.event,
                         title: 'אירועים מיוחדים',
                         subtitle: 'הופעות, תחרויות וסדנאות',
-                        value: _eventNotifications,
-                        onChanged: _pushNotificationsEnabled ? (value) {
-                          setState(() {
-                            _eventNotifications = value;
-                          });
+                        value: settings.eventNotifications,
+                        onChanged: settings.pushNotificationsEnabled ? (value) async {
+                          try {
+                            await ref.read(notificationSettingsProvider.notifier).updateEventNotifications(value);
+                          } catch (e) {
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('שגיאה בעדכון הגדרות: $e'),
+                                  backgroundColor: AppColors.error,
+                                ),
+                              );
+                            }
+                          }
                         } : null,
                         glowColor: AppColors.accent1,
                       ),
@@ -210,11 +241,20 @@ class _NotificationSettingsPageState extends ConsumerState<NotificationSettingsP
                         icon: Icons.message,
                         title: 'הודעות אישיות',
                         subtitle: 'הודעות ממדריכים ומנהלים',
-                        value: _messageNotifications,
-                        onChanged: _pushNotificationsEnabled ? (value) {
-                          setState(() {
-                            _messageNotifications = value;
-                          });
+                        value: settings.messageNotifications,
+                        onChanged: settings.pushNotificationsEnabled ? (value) async {
+                          try {
+                            await ref.read(notificationSettingsProvider.notifier).updateMessageNotifications(value);
+                          } catch (e) {
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('שגיאה בעדכון הגדרות: $e'),
+                                  backgroundColor: AppColors.error,
+                                ),
+                              );
+                            }
+                          }
                         } : null,
                         glowColor: AppColors.info,
                       ),
@@ -232,15 +272,24 @@ class _NotificationSettingsPageState extends ConsumerState<NotificationSettingsP
                         icon: Icons.bedtime,
                         title: 'הפעלת שעות שקט',
                         subtitle: 'ללא התראות בזמנים מסוימים',
-                        value: _quietHoursEnabled,
-                        onChanged: _pushNotificationsEnabled ? (value) {
-                          setState(() {
-                            _quietHoursEnabled = value;
-                          });
+                        value: settings.quietHoursEnabled,
+                        onChanged: settings.pushNotificationsEnabled ? (value) async {
+                          try {
+                            await ref.read(notificationSettingsProvider.notifier).updateQuietHours(value);
+                          } catch (e) {
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('שגיאה בעדכון הגדרות: $e'),
+                                  backgroundColor: AppColors.error,
+                                ),
+                              );
+                            }
+                          }
                         } : null,
                         glowColor: AppColors.neonGreen,
                       ),
-                      if (_quietHoursEnabled && _pushNotificationsEnabled) ...[ 
+                      if (settings.quietHoursEnabled && settings.pushNotificationsEnabled) ...[ 
                         _buildTimeTile(
                           icon: Icons.nightlight,
                           title: 'תחילת שעות שקט',
@@ -266,7 +315,7 @@ class _NotificationSettingsPageState extends ConsumerState<NotificationSettingsP
                     'תזכורות שיעורים',
                     AppColors.accent2,
                     [
-                      _buildFrequencyTile(),
+                      _buildFrequencyTile(settings),
                     ],
                   ),
                   
@@ -278,9 +327,43 @@ class _NotificationSettingsPageState extends ConsumerState<NotificationSettingsP
                   const SizedBox(height: 100), // מקום לניווט תחתון
                 ],
               ),
-            ),
+            );
+  }
+
+  Widget _buildErrorView(String error) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.error_outline,
+            size: 80,
+            color: AppColors.error,
           ),
-        ),
+          const SizedBox(height: 20),
+          NeonText(
+            text: 'שגיאה בטעינת הגדרות',
+            fontSize: 20,
+            glowColor: AppColors.error,
+          ),
+          const SizedBox(height: 10),
+          Text(
+            error,
+            style: GoogleFonts.assistant(
+              color: AppColors.secondaryText,
+              fontSize: 14,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 20),
+          NeonButton(
+            text: 'נסה שוב',
+            onPressed: () {
+              ref.read(notificationSettingsProvider.notifier).reload();
+            },
+            glowColor: AppColors.neonTurquoise,
+          ),
+        ],
       ),
     );
   }
@@ -304,7 +387,7 @@ class _NotificationSettingsPageState extends ConsumerState<NotificationSettingsP
             ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: glowColor.withOpacity(0.3),
+              color: glowColor.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -329,7 +412,7 @@ class _NotificationSettingsPageState extends ConsumerState<NotificationSettingsP
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: glowColor.withOpacity(0.2),
+              color: glowColor.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
@@ -365,8 +448,8 @@ class _NotificationSettingsPageState extends ConsumerState<NotificationSettingsP
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: glowColor,
-            activeTrackColor: glowColor.withOpacity(0.3),
+            activeThumbColor: glowColor,
+            activeTrackColor: glowColor.withValues(alpha: 0.3),
             inactiveThumbColor: AppColors.secondaryText,
             inactiveTrackColor: AppColors.darkSurface,
           ),
@@ -392,7 +475,7 @@ class _NotificationSettingsPageState extends ConsumerState<NotificationSettingsP
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: glowColor.withOpacity(0.2),
+                color: glowColor.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
@@ -431,7 +514,7 @@ class _NotificationSettingsPageState extends ConsumerState<NotificationSettingsP
     );
   }
 
-  Widget _buildFrequencyTile() {
+  Widget _buildFrequencyTile(NotificationSettings settings) {
     return Container(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -442,7 +525,7 @@ class _NotificationSettingsPageState extends ConsumerState<NotificationSettingsP
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.accent2.withOpacity(0.2),
+                  color: AppColors.accent2.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
@@ -468,11 +551,20 @@ class _NotificationSettingsPageState extends ConsumerState<NotificationSettingsP
           ...['daily', 'weekly', 'never'].map((frequency) {
             return RadioListTile<String>(
               value: frequency,
-              groupValue: _reminderFrequency,
-              onChanged: _pushNotificationsEnabled && _classRemindersNotifications ? (value) {
-                setState(() {
-                  _reminderFrequency = value ?? 'daily';
-                });
+              groupValue: settings.reminderFrequency,
+              onChanged: settings.pushNotificationsEnabled && settings.classRemindersNotifications ? (value) async {
+                try {
+                  await ref.read(notificationSettingsProvider.notifier).updateReminderFrequency(value ?? 'daily');
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('שגיאה בעדכון הגדרות: $e'),
+                        backgroundColor: AppColors.error,
+                      ),
+                    );
+                  }
+                }
               } : null,
               title: Text(
                 _getFrequencyDisplayName(frequency),
@@ -484,7 +576,7 @@ class _NotificationSettingsPageState extends ConsumerState<NotificationSettingsP
               activeColor: AppColors.accent2,
               contentPadding: EdgeInsets.zero,
             );
-          }).toList(),
+          }),
         ],
       ),
     );
@@ -556,45 +648,59 @@ class _NotificationSettingsPageState extends ConsumerState<NotificationSettingsP
           _quietHoursEnd = picked;
         }
       });
+      
+      // עדכון ההגדרות בProvider
+      try {
+        final timeString = '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
+        if (isStartTime) {
+          await ref.read(notificationSettingsProvider.notifier).updateQuietHours(
+            true, 
+            start: timeString
+          );
+        } else {
+          await ref.read(notificationSettingsProvider.notifier).updateQuietHours(
+            true, 
+            end: timeString
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('שגיאה בעדכון שעות שקט: $e'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      }
     }
   }
 
   void _saveSettings() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      
-      // שמירת הגדרות התראות
-      await prefs.setBool('push_notifications_enabled', _pushNotificationsEnabled);
-      await prefs.setBool('new_tutorials_notifications', _newTutorialsNotifications);
-      await prefs.setBool('gallery_updates_notifications', _galleryUpdatesNotifications);
-      await prefs.setBool('studio_news_notifications', _studioNewsNotifications);
-      await prefs.setBool('class_reminders_notifications', _classRemindersNotifications);
-      await prefs.setBool('event_notifications', _eventNotifications);
-      await prefs.setBool('message_notifications', _messageNotifications);
-      await prefs.setBool('quiet_hours_enabled', _quietHoursEnabled);
-      await prefs.setString('reminder_frequency', _reminderFrequency);
-      
-      // שמירת הגדרות זמן
-      await prefs.setString('quiet_start', '${_quietHoursStart.hour}:${_quietHoursStart.minute}');
-      await prefs.setString('quiet_end', '${_quietHoursEnd.hour}:${_quietHoursEnd.minute}');
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('הגדרות נשמרו בהצלחה'),
-          backgroundColor: AppColors.success,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+      // ההגדרות כבר נשמרו אוטומטית דרך הספקים
+      // נציג הודעה למשתמש
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('הגדרות נשמרו בהצלחה'),
+            backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
-        ),
-      );
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('שגיאה בשמירת הגדרות: $e'),
-          backgroundColor: AppColors.error,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('שגיאה בשמירת הגדרות: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
     }
   }
 
@@ -608,7 +714,7 @@ class _NotificationSettingsPageState extends ConsumerState<NotificationSettingsP
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
             side: BorderSide(
-              color: AppColors.warning.withOpacity(0.3),
+              color: AppColors.warning.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -632,7 +738,7 @@ class _NotificationSettingsPageState extends ConsumerState<NotificationSettingsP
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => context.pop(),
               child: Text(
                 'ביטול',
                 style: TextStyle(color: AppColors.secondaryText),
@@ -640,31 +746,37 @@ class _NotificationSettingsPageState extends ConsumerState<NotificationSettingsP
             ),
             NeonButton(
               text: 'איפוס',
-              onPressed: () {
-                Navigator.of(context).pop();
-                setState(() {
-                  _pushNotificationsEnabled = true;
-                  _newTutorialsNotifications = true;
-                  _galleryUpdatesNotifications = true;
-                  _studioNewsNotifications = true;
-                  _classRemindersNotifications = true;
-                  _eventNotifications = true;
-                  _messageNotifications = true;
-                  _quietHoursEnabled = false;
-                  _quietHoursStart = const TimeOfDay(hour: 22, minute: 0);
-                  _quietHoursEnd = const TimeOfDay(hour: 8, minute: 0);
-                  _reminderFrequency = 'daily';
-                });
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('הגדרות אופסו לברירת המחדל'),
-                    backgroundColor: AppColors.info,
-                    behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                );
+              onPressed: () async {
+                context.pop();
+                try {
+                  await ref.read(notificationSettingsProvider.notifier).resetToDefaults();
+                  // איפוס הגדרות זמן מקומיות
+                  setState(() {
+                    _quietHoursStart = const TimeOfDay(hour: 22, minute: 0);
+                    _quietHoursEnd = const TimeOfDay(hour: 8, minute: 0);
+                  });
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('הגדרות אופסו לברירת המחדל'),
+                        backgroundColor: AppColors.info,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('שגיאה באיפוס הגדרות: $e'),
+                        backgroundColor: AppColors.error,
+                      ),
+                    );
+                  }
+                }
               },
               glowColor: AppColors.warning,
             ),

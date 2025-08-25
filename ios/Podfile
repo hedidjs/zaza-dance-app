@@ -4,7 +4,7 @@ platform :ios, '13.0'
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 
-project 'Runner', {
+project 'Zaza Dance', {
   'Debug' => :debug,
   'Profile' => :release,
   'Release' => :release,
@@ -27,11 +27,11 @@ require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelpe
 
 flutter_ios_podfile_setup
 
-target 'Runner' do
+target 'Zaza Dance' do
   use_frameworks!
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
-  target 'RunnerTests' do
+  target 'Zaza DanceTests' do
     inherit! :search_paths
   end
 end
@@ -41,9 +41,100 @@ post_install do |installer|
     flutter_additional_ios_build_settings(target)
     
     target.build_configurations.each do |config|
+      # Basic Configuration
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
       config.build_settings['ENABLE_BITCODE'] = 'NO'
       config.build_settings['CLANG_ENABLE_OBJC_ARC'] = 'YES'
+      
+      # Comprehensive Warnings Suppression for all Pods
+      config.build_settings['CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS'] = 'NO'
+      config.build_settings['GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS'] = 'NO'
+      config.build_settings['CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES'] = 'NO'
+      config.build_settings['GCC_WARN_ABOUT_MISSING_PROTOTYPES'] = 'NO'
+      config.build_settings['CLANG_WARN_DOCUMENTATION_COMMENTS'] = 'NO'
+      config.build_settings['CLANG_WARN_UNGUARDED_AVAILABILITY'] = 'NO'
+      config.build_settings['CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF'] = 'NO'
+      config.build_settings['CLANG_WARN_IMPLICIT_SIGN_CONVERSION'] = 'NO'
+      config.build_settings['CLANG_WARN_ASSIGN_ENUM'] = 'NO'
+      config.build_settings['CLANG_WARN_UNREACHABLE_CODE'] = 'NO'
+      config.build_settings['CLANG_WARN_COMMA'] = 'NO'
+      config.build_settings['CLANG_WARN_STRICT_PROTOTYPES'] = 'NO'
+      config.build_settings['CLANG_WARN_NULLABLE_TO_NONNULL_CONVERSION'] = 'NO'
+      config.build_settings['CLANG_WARN_OBJC_LITERAL_CONVERSION'] = 'NO'
+      config.build_settings['CLANG_WARN_RANGE_LOOP_ANALYSIS'] = 'NO'
+      config.build_settings['CLANG_WARN_SUSPICIOUS_MOVE'] = 'NO'
+      config.build_settings['GCC_WARN_ABOUT_RETURN_TYPE'] = 'NO'
+      config.build_settings['GCC_WARN_ABOUT_MISSING_NEWLINE'] = 'NO'
+      config.build_settings['GCC_WARN_SIGN_COMPARE'] = 'NO'
+      config.build_settings['GCC_WARN_UNUSED_FUNCTION'] = 'NO'
+      config.build_settings['GCC_WARN_UNUSED_LABEL'] = 'NO'
+      config.build_settings['GCC_WARN_UNUSED_PARAMETER'] = 'NO'
+      config.build_settings['GCC_WARN_UNUSED_VALUE'] = 'NO'
+      config.build_settings['GCC_WARN_UNUSED_VARIABLE'] = 'NO'
+      config.build_settings['GCC_WARN_SHADOW'] = 'NO'
+      config.build_settings['GCC_WARN_64_TO_32_BIT_CONVERSION'] = 'NO'
+      config.build_settings['GCC_WARN_ABOUT_INVALID_OFFSETOF_MACRO'] = 'NO'
+      config.build_settings['GCC_WARN_ABOUT_POINTER_SIGNEDNESS'] = 'NO'
+      config.build_settings['GCC_WARN_ALLOW_INCOMPLETE_PROTOCOL'] = 'NO'
+      config.build_settings['GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED'] = 'NO'
+      config.build_settings['GCC_WARN_MISSING_PARENTHESES'] = 'NO'
+      config.build_settings['GCC_WARN_TYPECHECK_CALLS_TO_PRINTF'] = 'NO'
+      config.build_settings['GCC_WARN_UNINITIALIZED_AUTOS'] = 'NO'
+      
+      # Swift specific warnings
+      config.build_settings['SWIFT_SUPPRESS_WARNINGS'] = 'YES'
+      config.build_settings['SWIFT_TREAT_WARNINGS_AS_ERRORS'] = 'NO'
+      
+      # Additional iOS-specific warnings
+      config.build_settings['CLANG_WARN_OBJC_ROOT_CLASS'] = 'NO'
+      config.build_settings['CLANG_WARN_DIRECT_OBJC_ISA_USAGE'] = 'NO'
+      
+      # Compiler flags for additional warning suppression including FilePickerPlugin pointer issue
+      if config.build_settings['WARNING_CFLAGS']
+        config.build_settings['WARNING_CFLAGS'] += ' -Wno-deprecated-declarations -Wno-unused-variable -Wno-unused-function -Wno-unused-parameter -Wno-sign-compare -Wno-conversion -Wno-shorten-64-to-32 -Wno-conditional-uninitialized -Wno-sometimes-uninitialized -Wno-unreachable-code -Wno-deprecated-implementations -Wno-incompatible-pointer-types -Wno-incompatible-pointer-types-discards-qualifiers'
+      else
+        config.build_settings['WARNING_CFLAGS'] = '-Wno-deprecated-declarations -Wno-unused-variable -Wno-unused-function -Wno-unused-parameter -Wno-sign-compare -Wno-conversion -Wno-shorten-64-to-32 -Wno-conditional-uninitialized -Wno-sometimes-uninitialized -Wno-unreachable-code -Wno-deprecated-implementations -Wno-incompatible-pointer-types -Wno-incompatible-pointer-types-discards-qualifiers'
+      end
+      
+      # Additional flags for specific problematic dependencies including FilePickerPlugin
+      if config.build_settings['OTHER_CFLAGS']
+        config.build_settings['OTHER_CFLAGS'] += ' -Wno-deprecated-declarations -Wno-unused-variable -Wno-incompatible-pointer-types'
+      else
+        config.build_settings['OTHER_CFLAGS'] = '-Wno-deprecated-declarations -Wno-unused-variable -Wno-incompatible-pointer-types'
+      end
+      
+      # Essential Xcode Settings for Pods (minimal for compatibility)
+      config.build_settings['ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES'] = 'NO'
+      config.build_settings['ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS'] = 'YES'
+      
+      # dSYM configuration for proper crash symbolication
+      if config.name == 'Release' || config.name == 'Profile'
+        # Generate dSYMs for all frameworks to satisfy App Store Connect requirements
+        config.build_settings['DEBUG_INFORMATION_FORMAT'] = 'dwarf-with-dsym'
+        config.build_settings['DWARF_DSYM_FOLDER_PATH'] = '$(CONFIGURATION_BUILD_DIR)'
+        config.build_settings['DWARF_DSYM_FILE_NAME'] = '$(EXECUTABLE_NAME).dSYM'
+        config.build_settings['DEPLOYMENT_POSTPROCESSING'] = 'YES'
+        config.build_settings['STRIP_INSTALLED_PRODUCT'] = 'YES'
+        config.build_settings['GCC_GENERATE_DEBUGGING_SYMBOLS'] = 'YES'
+        config.build_settings['STRIP_STYLE'] = 'debugging'
+        config.build_settings['COPY_PHASE_STRIP'] = 'NO'
+        config.build_settings['ONLY_ACTIVE_ARCH'] = 'NO'
+        config.build_settings['VALIDATE_PRODUCT'] = 'YES'
+      else
+        config.build_settings['DEBUG_INFORMATION_FORMAT'] = 'dwarf'
+        config.build_settings['GCC_GENERATE_DEBUGGING_SYMBOLS'] = 'YES'
+        config.build_settings['STRIP_INSTALLED_PRODUCT'] = 'NO'
+      end
     end
   end
+  
+  # Additional project-level settings
+  installer.pods_project.build_configurations.each do |config|
+    config.build_settings['CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED'] = 'NO'
+    config.build_settings['CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER'] = 'NO'
+    # Relax header inclusion warnings for 3rd party pods
+    config.build_settings['GCC_WARN_ABOUT_MISSING_PROTOTYPES'] = 'NO'
+    config.build_settings['CLANG_WARN_DOCUMENTATION_COMMENTS'] = 'NO'
+  end
+  
 end

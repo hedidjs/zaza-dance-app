@@ -73,33 +73,39 @@ class TutorialModel {
   String get instructor => instructorName ?? '';
 
   factory TutorialModel.fromJson(Map<String, dynamic> json) {
-    return TutorialModel(
-      id: json['id'] as String,
-      titleHe: json['title_he'] as String,
-      titleEn: json['title_en'] as String?,
-      descriptionHe: json['description_he'] as String?,
-      descriptionEn: json['description_en'] as String?,
-      videoUrl: json['video_url'] as String,
-      thumbnailUrl: json['thumbnail_url'] as String?,
-      durationSeconds: json['duration_seconds'] as int?,
-      difficultyLevel: json['difficulty_level'] != null 
-          ? DifficultyLevel.fromString(json['difficulty_level'] as String)
-          : null,
-      categoryId: json['category_id'] as String?,
-      category: json['categories'] != null 
-          ? CategoryModel.fromJson(json['categories'] as Map<String, dynamic>)
-          : null,
-      instructorName: json['instructor_name'] as String?,
-      tags: List<String>.from(json['tags'] as List? ?? []),
-      isFeatured: json['is_featured'] as bool? ?? false,
-      likesCount: json['likes_count'] as int? ?? 0,
-      viewsCount: json['views_count'] as int? ?? 0,
-      downloadsCount: json['downloads_count'] as int? ?? 0,
-      sortOrder: json['sort_order'] as int? ?? 0,
-      isActive: json['is_active'] as bool? ?? true,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
-    );
+    try {
+      return TutorialModel(
+        id: json['id']?.toString() ?? '',
+        titleHe: json['title_he']?.toString() ?? '',
+        titleEn: json['title_en']?.toString(),
+        descriptionHe: json['description_he']?.toString(),
+        descriptionEn: json['description_en']?.toString(),
+        videoUrl: json['video_url']?.toString() ?? '',
+        thumbnailUrl: json['thumbnail_url']?.toString(),
+        durationSeconds: json['duration_seconds'] as int?,
+        difficultyLevel: json['difficulty_level'] != null 
+            ? DifficultyLevel.fromString(json['difficulty_level'].toString())
+            : null,
+        categoryId: json['category_id']?.toString(),
+        category: json['categories'] != null 
+            ? CategoryModel.fromJson(json['categories'] as Map<String, dynamic>)
+            : null,
+        instructorName: json['instructor_name']?.toString(),
+        tags: json['tags'] != null 
+            ? List<String>.from(json['tags'] as List)
+            : [],
+        isFeatured: json['is_featured'] as bool? ?? false,
+        likesCount: json['likes_count'] as int? ?? 0,
+        viewsCount: json['views_count'] as int? ?? 0,
+        downloadsCount: json['downloads_count'] as int? ?? 0,
+        sortOrder: json['sort_order'] as int? ?? 0,
+        isActive: json['is_active'] as bool? ?? true,
+        createdAt: DateTime.tryParse(json['created_at']?.toString() ?? '') ?? DateTime.now(),
+        updatedAt: DateTime.tryParse(json['updated_at']?.toString() ?? '') ?? DateTime.now(),
+      );
+    } catch (e) {
+      throw FormatException('Failed to parse TutorialModel from JSON: $e');
+    }
   }
 
   Map<String, dynamic> toJson() {

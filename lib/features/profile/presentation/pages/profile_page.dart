@@ -7,6 +7,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/providers/auth_provider.dart';
 import '../../../../shared/widgets/enhanced_neon_effects.dart';
 import '../../../../shared/widgets/neon_text.dart';
+import '../../../../shared/widgets/zaza_logo.dart';
 
 /// עמוד פרופיל משתמש
 class ProfilePage extends ConsumerWidget {
@@ -23,17 +24,16 @@ class ProfilePage extends ConsumerWidget {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          title: NeonText(
-            text: 'פרופיל אישי',
-            fontSize: 20,
-            glowColor: AppColors.neonTurquoise,
+          title: const ZazaLogo.appBar(
+            width: 100,
+            height: 32,
           ),
           leading: IconButton(
             icon: Icon(
               Icons.arrow_back,
               color: AppColors.primaryText,
             ),
-            onPressed: () => context.pop(),
+            onPressed: () => context.go('/home'),
           ),
           actions: [
             IconButton(
@@ -41,7 +41,7 @@ class ProfilePage extends ConsumerWidget {
                 Icons.edit,
                 color: AppColors.neonTurquoise,
               ),
-              onPressed: () => context.push('/profile/edit'),
+              onPressed: () => context.go('/profile/edit'),
             ),
           ],
         ),
@@ -103,10 +103,10 @@ class ProfilePage extends ConsumerWidget {
           child: CircleAvatar(
             radius: 60,
             backgroundColor: AppColors.darkSurface,
-            backgroundImage: user?.profileImageUrl != null
-                ? NetworkImage(user!.profileImageUrl!)
+            backgroundImage: user?.avatarUrl != null
+                ? NetworkImage(user!.avatarUrl!)
                 : null,
-            child: user?.profileImageUrl == null
+            child: user?.avatarUrl == null
                 ? Icon(
                     Icons.person,
                     size: 60,
@@ -123,7 +123,7 @@ class ProfilePage extends ConsumerWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          _getRoleDisplayName(user?.role ?? 'student'),
+          user?.role.displayName ?? 'תלמיד/ה',
           style: GoogleFonts.assistant(
             color: AppColors.secondaryText,
             fontSize: 16,
@@ -144,7 +144,7 @@ class ProfilePage extends ConsumerWidget {
         ),
         borderRadius: BorderRadius.circular(15),
         border: Border.all(
-          color: AppColors.neonTurquoise.withOpacity(0.3),
+          color: AppColors.neonTurquoise.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -158,12 +158,10 @@ class ProfilePage extends ConsumerWidget {
           ),
           const SizedBox(height: 15),
           _buildInfoRow(Icons.email, 'אימייל', user?.email ?? ''),
-          if (user?.phoneNumber != null)
-            _buildInfoRow(Icons.phone, 'טלפון', user!.phoneNumber!),
-          if (user?.address != null)
-            _buildInfoRow(Icons.location_on, 'כתובת', user!.address!),
+          if (user?.phone != null)
+            _buildInfoRow(Icons.phone, 'טלפון', user!.phone!),
           if (user?.bio != null)
-            _buildInfoRow(Icons.info, 'אודותיי', user!.bio!),
+            _buildInfoRow(Icons.info, 'קצת עליי', user!.bio!),
         ],
       ),
     );
@@ -176,7 +174,7 @@ class ProfilePage extends ConsumerWidget {
         children: [
           Icon(
             icon,
-            color: AppColors.neonTurquoise.withOpacity(0.7),
+            color: AppColors.neonTurquoise.withValues(alpha: 0.7),
             size: 20,
           ),
           const SizedBox(width: 12),
@@ -213,7 +211,7 @@ class ProfilePage extends ConsumerWidget {
         ),
         borderRadius: BorderRadius.circular(15),
         border: Border.all(
-          color: AppColors.neonPink.withOpacity(0.3),
+          color: AppColors.neonPink.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -270,7 +268,7 @@ class ProfilePage extends ConsumerWidget {
           width: double.infinity,
           child: NeonButton(
             text: 'עריכת פרופיל',
-            onPressed: () => context.push('/profile/edit'),
+            onPressed: () => context.go('/profile/edit'),
             glowColor: AppColors.neonTurquoise,
           ),
         ),
@@ -279,7 +277,7 @@ class ProfilePage extends ConsumerWidget {
           width: double.infinity,
           child: NeonButton(
             text: 'הגדרות',
-            onPressed: () => context.push('/settings'),
+            onPressed: () => context.go('/settings'),
             glowColor: AppColors.neonPink,
           ),
         ),
@@ -287,18 +285,4 @@ class ProfilePage extends ConsumerWidget {
     );
   }
 
-  String _getRoleDisplayName(String role) {
-    switch (role) {
-      case 'student':
-        return 'תלמיד/ה';
-      case 'parent':
-        return 'הורה';
-      case 'instructor':
-        return 'מדריך/ה';
-      case 'admin':
-        return 'מנהל/ת';
-      default:
-        return 'משתמש/ת';
-    }
-  }
 }

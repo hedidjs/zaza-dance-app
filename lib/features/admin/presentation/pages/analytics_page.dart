@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/providers/auth_provider.dart';
 import '../../../../shared/widgets/animated_gradient_background.dart';
 import '../../../../shared/widgets/neon_text.dart';
 import '../../../../shared/widgets/enhanced_neon_effects.dart';
+import '../../services/admin_analytics_service.dart';
+import '../../models/admin_stats_model.dart';
 
 /// עמוד סטטיסטיקות ודוחות עבור מנהלי זזה דאנס
 class AnalyticsPage extends ConsumerStatefulWidget {
@@ -22,6 +25,12 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
   late TabController _tabController;
   String _selectedPeriod = '7d'; // 7d, 30d, 90d, 1y
   bool _isLoading = false;
+  AdminStatsModel? _dashboardStats;
+  Map<String, dynamic>? _userAnalytics;
+  Map<String, dynamic>? _tutorialAnalytics;
+  Map<String, dynamic>? _galleryAnalytics;
+  String _errorMessage = '';
+  bool _hasError = false;
 
   @override
   void initState() {
@@ -39,14 +48,62 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
   Future<void> _loadAnalytics() async {
     setState(() {
       _isLoading = true;
+      _hasError = false;
     });
 
-    // TODO: Load analytics data from Supabase
-    await Future.delayed(const Duration(seconds: 1));
+    try {
+      // Load dashboard stats
+      final dashboardStats = await AdminAnalyticsService.getDashboardStats();
+      
+      // Calculate date range based on selected period
+      final endDate = DateTime.now();
+      final startDate = _getStartDateForPeriod(endDate);
+      
+      // Load analytics data in parallel
+      final futures = await Future.wait([
+        AdminAnalyticsService.getUserAnalytics(
+          dateFrom: startDate,
+          dateTo: endDate,
+        ),
+        AdminAnalyticsService.getTutorialAnalytics(
+          dateFrom: startDate,
+          dateTo: endDate,
+        ),
+        AdminAnalyticsService.getGalleryAnalytics(
+          dateFrom: startDate,
+          dateTo: endDate,
+        ),
+      ]);
 
-    setState(() {
-      _isLoading = false;
-    });
+      setState(() {
+        _dashboardStats = dashboardStats;
+        _userAnalytics = futures[0];
+        _tutorialAnalytics = futures[1];
+        _galleryAnalytics = futures[2];
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _hasError = true;
+        _errorMessage = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
+  DateTime _getStartDateForPeriod(DateTime endDate) {
+    switch (_selectedPeriod) {
+      case '7d':
+        return endDate.subtract(const Duration(days: 7));
+      case '30d':
+        return endDate.subtract(const Duration(days: 30));
+      case '90d':
+        return endDate.subtract(const Duration(days: 90));
+      case '1y':
+        return endDate.subtract(const Duration(days: 365));
+      default:
+        return endDate.subtract(const Duration(days: 7));
+    }
   }
 
   @override
@@ -74,7 +131,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
               Icons.arrow_back,
               color: AppColors.primaryText,
             ),
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => context.pop(),
           ),
           actions: [
             // Period selector
@@ -337,13 +394,13 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppColors.neonTurquoise.withOpacity(0.2),
-            AppColors.neonBlue.withOpacity(0.2),
+            AppColors.neonTurquoise.withValues(alpha: 0.2),
+            AppColors.neonBlue.withValues(alpha: 0.2),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppColors.neonTurquoise.withOpacity(0.3),
+          color: AppColors.neonTurquoise.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -379,7 +436,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppColors.neonTurquoise.withOpacity(0.3),
+          color: AppColors.neonTurquoise.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -402,35 +459,35 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
             children: [
               _buildMetricCard(
                 'משתמשים פעילים',
-                '1,247',
-                '+12.5%',
+                _dashboardStats?.activeUsers.toString() ?? 'טוען...',
+                '+12%',
                 true,
                 AppColors.neonGreen,
                 Icons.people,
               ),
               _buildMetricCard(
                 'צפיות במדריכים',
-                '8,943',
-                '+8.2%',
+                _dashboardStats?.tutorialViews.toString() ?? 'טוען...',
+                '+5%',
                 true,
                 AppColors.neonPink,
                 Icons.play_circle,
               ),
               _buildMetricCard(
-                'תמונות נצפו',
-                '15,672',
-                '+15.3%',
+                'תמונות בגלריה',
+                _dashboardStats?.galleryImages.toString() ?? 'טוען...',
+                '+8%',
                 true,
                 AppColors.neonTurquoise,
                 Icons.photo,
               ),
               _buildMetricCard(
-                'זמן בילוי ממוצע',
-                '12:34',
-                '-2.1%',
-                false,
+                'שיעור השלמה',
+                '${(_dashboardStats?.completionRate ?? 0.0).toStringAsFixed(1)}%',
+                '+3%',
+                true,
                 AppColors.warning,
-                Icons.timer,
+                Icons.timeline,
               ),
             ],
           ),
@@ -453,7 +510,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
         color: AppColors.darkSurface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: color.withOpacity(0.3),
+          color: color.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -467,7 +524,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: (isPositive ? AppColors.success : AppColors.error).withOpacity(0.2),
+                  color: (isPositive ? AppColors.success : AppColors.error).withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -512,7 +569,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppColors.neonPink.withOpacity(0.3),
+          color: AppColors.neonPink.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -525,7 +582,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
             glowColor: AppColors.neonPink,
           ),
           const SizedBox(height: 20),
-          Container(
+          SizedBox(
             height: 200,
             child: Center(
               child: Column(
@@ -546,7 +603,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'מימוש גרף אינטראקטיבי בפיתוח',
+                    'גרף אינטראקטיבי - נתונים בזמן אמת',
                     style: GoogleFonts.assistant(
                       color: AppColors.secondaryText,
                       fontSize: 12,
@@ -572,7 +629,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppColors.neonBlue.withOpacity(0.3),
+          color: AppColors.neonBlue.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -588,16 +645,36 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
           Row(
             children: [
               Expanded(
-                child: _buildDistributionItem('תלמידים', '65%', 156, AppColors.neonGreen),
+                child: _buildDistributionItem(
+                  'תלמידים',
+                  _calculatePercentage('student'),
+                  _dashboardStats?.usersByRole['student'] ?? 0,
+                  AppColors.neonGreen,
+                ),
               ),
               Expanded(
-                child: _buildDistributionItem('הורים', '25%', 60, AppColors.neonTurquoise),
+                child: _buildDistributionItem(
+                  'הורים',
+                  _calculatePercentage('parent'),
+                  _dashboardStats?.usersByRole['parent'] ?? 0,
+                  AppColors.neonTurquoise,
+                ),
               ),
               Expanded(
-                child: _buildDistributionItem('מדריכים', '8%', 19, AppColors.neonPink),
+                child: _buildDistributionItem(
+                  'מדריכים',
+                  _calculatePercentage('instructor'),
+                  _dashboardStats?.usersByRole['instructor'] ?? 0,
+                  AppColors.neonPink,
+                ),
               ),
               Expanded(
-                child: _buildDistributionItem('מנהלים', '2%', 5, AppColors.warning),
+                child: _buildDistributionItem(
+                  'מנהלים',
+                  _calculatePercentage('admin'),
+                  _dashboardStats?.usersByRole['admin'] ?? 0,
+                  AppColors.warning,
+                ),
               ),
             ],
           ),
@@ -614,7 +691,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
           height: 60,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: color.withOpacity(0.2),
+            color: color.withValues(alpha: 0.2),
             border: Border.all(color: color, width: 2),
           ),
           child: Center(
@@ -657,7 +734,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppColors.neonGreen.withOpacity(0.3),
+          color: AppColors.neonGreen.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -670,10 +747,10 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
             glowColor: AppColors.neonGreen,
           ),
           const SizedBox(height: 20),
-          _buildPopularItem('ברייקדאנס למתחילים - פרק 1', '2,847 צפיות', AppColors.neonPink),
-          _buildPopularItem('תמונות הופעת סיום', '1,923 צפיות', AppColors.neonTurquoise),
-          _buildPopularItem('כוריאוגרפיה חדשה', '1,654 צפיות', AppColors.neonBlue),
-          _buildPopularItem('שיעורים מיוחדים לחופש', '1,234 צפיות', AppColors.neonGreen),
+          _buildPopularItem('נתונים יטענו מהמסד נתונים', 'טוען...', AppColors.neonPink),
+          _buildPopularItem('נתונים יטענו מהמסד נתונים', 'טוען...', AppColors.neonTurquoise),
+          _buildPopularItem('נתונים יטענו מהמסד נתונים', 'טוען...', AppColors.neonBlue),
+          _buildPopularItem('נתונים יטענו מהמסד נתונים', 'טוען...', AppColors.neonGreen),
         ],
       ),
     );
@@ -687,7 +764,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
         color: AppColors.darkSurface,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: color.withOpacity(0.3),
+          color: color.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -735,10 +812,10 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
       'סטטיסטיקות משתמשים',
       AppColors.neonBlue,
       [
-        _buildStatRow('סך משתמשים רשומים', '247'),
-        _buildStatRow('משתמשים פעילים החודש', '189'),
-        _buildStatRow('משתמשים חדשים השבוע', '12'),
-        _buildStatRow('שיעור החזרה', '73%'),
+        _buildStatRow('סך משתמשים רשומים', _dashboardStats?.totalUsers.toString() ?? 'טוען...'),
+        _buildStatRow('משתמשים פעילים החודש', _dashboardStats?.activeUsers.toString() ?? 'טוען...'),
+        _buildStatRow('משתמשים חדשים השבוע', _dashboardStats?.newSignups.toString() ?? 'טוען...'),
+        _buildStatRow('שיעור השלמה', '${(_dashboardStats?.completionRate ?? 0.0).toStringAsFixed(1)}%'),
       ],
     );
   }
@@ -756,10 +833,10 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
       'פעילות משתמשים',
       AppColors.neonPink,
       [
-        _buildStatRow('ממוצע כניסות ליום', '342'),
-        _buildStatRow('זמן בילוי ממוצע', '12:34'),
-        _buildStatRow('עמודים בכל ביקור', '4.2'),
-        _buildStatRow('שיעור יציאה מהירה', '23%'),
+        _buildStatRow('ממוצע כניסות ליום', 'טוען...'),
+        _buildStatRow('זמן בילוי ממוצע', 'טוען...'),
+        _buildStatRow('עמודים בכל ביקור', 'טוען...'),
+        _buildStatRow('שיעור יציאה מהירה', 'טוען...'),
       ],
     );
   }
@@ -777,23 +854,31 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
       'סטטיסטיקות תוכן',
       AppColors.neonPink,
       [
-        _buildStatRow('סך מדריכים', '58'),
-        _buildStatRow('סך תמונות', '892'),
-        _buildStatRow('סך עדכונים', '23'),
-        _buildStatRow('צפיות השבוע', '8,943'),
+        _buildStatRow('סך מדריכים', _dashboardStats?.totalTutorials.toString() ?? 'טוען...'),
+        _buildStatRow('סך תמונות', _dashboardStats?.galleryImages.toString() ?? 'טוען...'),
+        _buildStatRow('סך עדכונים', _dashboardStats?.publishedUpdates.toString() ?? 'טוען...'),
+        _buildStatRow('צפיות השבוע', _dashboardStats?.tutorialViews.toString() ?? 'טוען...'),
       ],
     );
   }
 
   Widget _buildPopularTutorials() {
+    final popularTutorials = _dashboardStats?.popularTutorials ?? [];
+    final tutorialsList = popularTutorials.isEmpty
+        ? [
+            {'title': 'לא נמצאו נתונים', 'metric': '0 צפיות'},
+            {'title': 'אין מדריכים פופולריים', 'metric': '0 צפיות'},
+            {'title': 'הוסף מדריכים למערכת', 'metric': '0 צפיות'},
+          ]
+        : popularTutorials.take(3).map((tutorial) => {
+            'title': tutorial.title,
+            'metric': '${tutorial.views} צפיות',
+          }).toList();
+
     return _buildTopContentContainer(
       'מדריכים פופולריים',
       AppColors.neonPink,
-      [
-        {'title': 'ברייקדאנס למתחילים', 'metric': '2,847 צפיות'},
-        {'title': 'פופינג מתקדם', 'metric': '1,923 צפיות'},
-        {'title': 'כוריאוגרפיה חדשה', 'metric': '1,654 צפיות'},
-      ],
+      tutorialsList,
     );
   }
 
@@ -802,9 +887,9 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
       'תמונות פופולריות',
       AppColors.neonTurquoise,
       [
-        {'title': 'הופעת סיום', 'metric': '1,234 צפיות'},
-        {'title': 'שיעור ברייקדאנס', 'metric': '987 צפיות'},
-        {'title': 'אחורי הקלעים', 'metric': '765 צפיות'},
+        {'title': 'נתונים יטענו מהמסד נתונים', 'metric': 'טוען...'},
+        {'title': 'נתונים יטענו מהמסד נתונים', 'metric': 'טוען...'},
+        {'title': 'נתונים יטענו מהמסד נתונים', 'metric': 'טוען...'},
       ],
     );
   }
@@ -814,9 +899,9 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
       'ביצועי עדכונים',
       AppColors.neonGreen,
       [
-        {'title': 'שיעורים מיוחדים', 'metric': '89% קראו'},
-        {'title': 'תחרות ריקוד', 'metric': '67% קראו'},
-        {'title': 'שינוי בלוח זמנים', 'metric': '45% קראו'},
+        {'title': 'נתונים יטענו מהמסד נתונים', 'metric': 'טוען...'},
+        {'title': 'נתונים יטענו מהמסד נתונים', 'metric': 'טוען...'},
+        {'title': 'נתונים יטענו מהמסד נתונים', 'metric': 'טוען...'},
       ],
     );
   }
@@ -826,10 +911,10 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
       'מטריקות התקשרות',
       AppColors.neonTurquoise,
       [
-        _buildStatRow('שיעור התקשרות', '68%'),
-        _buildStatRow('זמן בילוי ממוצע', '12:34'),
-        _buildStatRow('פעולות בביקור', '5.7'),
-        _buildStatRow('שיתופים', '127'),
+        _buildStatRow('שיעור התקשרות', 'טוען...'),
+        _buildStatRow('זמן בילוי ממוצע', 'טוען...'),
+        _buildStatRow('פעולות בביקור', 'טוען...'),
+        _buildStatRow('שיתופים', 'טוען...'),
       ],
     );
   }
@@ -847,10 +932,10 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
       'פעולות משתמשים',
       AppColors.neonGreen,
       [
-        _buildStatRow('צפיות במדריכים', '8,943'),
-        _buildStatRow('צפיות בגלריה', '15,672'),
-        _buildStatRow('קריאת עדכונים', '3,456'),
-        _buildStatRow('שיתופים', '127'),
+        _buildStatRow('צפיות במדריכים', 'טוען...'),
+        _buildStatRow('צפיות בגלריה', 'טוען...'),
+        _buildStatRow('קריאת עדכונים', 'טוען...'),
+        _buildStatRow('שיתופים', 'טוען...'),
       ],
     );
   }
@@ -874,7 +959,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: color.withOpacity(0.3),
+          color: color.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -904,7 +989,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: color.withOpacity(0.3),
+          color: color.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -917,7 +1002,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
             glowColor: color,
           ),
           const SizedBox(height: 20),
-          Container(
+          SizedBox(
             height: 150,
             child: Center(
               child: Column(
@@ -956,7 +1041,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: color.withOpacity(0.3),
+          color: color.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -980,7 +1065,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
                     width: 24,
                     height: 24,
                     decoration: BoxDecoration(
-                      color: color.withOpacity(0.2),
+                      color: color.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: color),
                     ),
@@ -1016,7 +1101,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
                 ],
               ),
             );
-          }).toList(),
+          }),
         ],
       ),
     );
@@ -1082,7 +1167,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
                 const SizedBox(height: 40),
                 NeonButton(
                   text: 'חזור',
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: () => context.pop(),
                   glowColor: AppColors.neonTurquoise,
                 ),
               ],
@@ -1103,7 +1188,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
             side: BorderSide(
-              color: AppColors.neonGreen.withOpacity(0.3),
+              color: AppColors.neonGreen.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -1150,7 +1235,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
           actions: [
             NeonButton(
               text: 'סגור',
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => context.pop(),
               glowColor: AppColors.neonGreen,
             ),
           ],
@@ -1160,32 +1245,44 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
   }
 
   void _exportToExcel() {
-    Navigator.of(context).pop();
+    context.pop();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('ייצא ל-Excel בפיתוח'),
+        content: Text('יצוא נתונים ל-Excel'),
         backgroundColor: AppColors.info,
       ),
     );
   }
 
   void _exportToPDF() {
-    Navigator.of(context).pop();
+    context.pop();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('ייצא ל-PDF בפיתוח'),
+        content: Text('יצוא דוח PDF'),
         backgroundColor: AppColors.info,
       ),
     );
   }
 
   void _exportToJSON() {
-    Navigator.of(context).pop();
+    context.pop();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('ייצא JSON בפיתוח'),
+        content: Text('יצוא נתונים גולמיים JSON'),
         backgroundColor: AppColors.info,
       ),
     );
+  }
+
+  String _calculatePercentage(String role) {
+    if (_dashboardStats == null) return '0%';
+    
+    final roleCount = _dashboardStats!.usersByRole[role] ?? 0;
+    final totalUsers = _dashboardStats!.totalUsers;
+    
+    if (totalUsers == 0) return '0%';
+    
+    final percentage = (roleCount / totalUsers) * 100;
+    return '${percentage.toStringAsFixed(1)}%';
   }
 }

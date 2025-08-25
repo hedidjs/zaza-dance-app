@@ -1,13 +1,23 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../config/supabase_config.dart';
-import '../models/user_model.dart';
+import '../../shared/models/user_model.dart';
 import '../../shared/models/tutorial_model.dart';
 import '../../shared/models/gallery_model.dart';
 import '../../shared/models/update_model.dart';
 
 /// Database service for Zaza Dance app using Supabase
 class DatabaseService {
-  static final SupabaseClient _client = SupabaseConfig.client;
+  static final SupabaseClient _client = Supabase.instance.client;
+
+  // Database table names
+  static const String _usersTable = 'users';
+  static const String _tutorialsTable = 'tutorials';
+  static const String _galleryItemsTable = 'gallery_items';
+  static const String _updatesTable = 'updates';
+  static const String _userProgressTable = 'user_progress';
+  static const String _analyticsTable = 'analytics';
+  static const String _notificationsTable = 'notifications';
+  static const String _userPreferencesTable = 'user_preferences';
+  static const String _likesTable = 'likes';
 
   // =============================================
   // USER OPERATIONS
@@ -21,7 +31,7 @@ class DatabaseService {
     bool ascending = false,
   }) async {
     var queryBuilder = _client
-        .from(SupabaseConfig.usersTable)
+        .from(_usersTable)
         .select()
         .eq('is_active', true);
 
@@ -59,7 +69,7 @@ class DatabaseService {
     };
 
     final response = await _client
-        .from(SupabaseConfig.usersTable)
+        .from(_usersTable)
         .insert(userData)
         .select()
         .single();
@@ -73,7 +83,7 @@ class DatabaseService {
     String? displayName,
     String? phone,
     String? address,
-    String? profileImageUrl,
+    String? avatarUrl,
     String? bio,
   }) async {
     final updateData = <String, dynamic>{
@@ -83,11 +93,11 @@ class DatabaseService {
     if (displayName != null) updateData['display_name'] = displayName;
     if (phone != null) updateData['phone'] = phone;
     if (address != null) updateData['address'] = address;
-    if (profileImageUrl != null) updateData['profile_image_url'] = profileImageUrl;
+    if (avatarUrl != null) updateData['avatar_url'] = avatarUrl;
     if (bio != null) updateData['bio'] = bio;
 
     final response = await _client
-        .from(SupabaseConfig.usersTable)
+        .from(_usersTable)
         .update(updateData)
         .eq('id', userId)
         .select()
@@ -99,7 +109,7 @@ class DatabaseService {
   /// Get user by ID
   static Future<UserModel?> getUserById(String userId) async {
     final response = await _client
-        .from(SupabaseConfig.usersTable)
+        .from(_usersTable)
         .select()
         .eq('id', userId)
         .eq('is_active', true)
@@ -111,7 +121,7 @@ class DatabaseService {
   /// Delete user (admin only)
   static Future<void> deleteUser(String userId) async {
     await _client
-        .from(SupabaseConfig.usersTable)
+        .from(_usersTable)
         .update({'is_active': false})
         .eq('id', userId);
   }
@@ -131,15 +141,15 @@ class DatabaseService {
     int? limit,
   }) async {
     var queryBuilder = _client
-        .from(SupabaseConfig.tutorialsTable)
+        .from(_tutorialsTable)
         .select('''
           *,
           instructor:instructor_id(id, display_name)
         ''')
-        .eq('is_published', true);
+        .eq('is_active', true);
 
     if (difficulty != null) {
-      queryBuilder = queryBuilder.eq('difficulty_level', difficulty.name);
+      queryBuilder = queryBuilder.eq('difficulty_level', difficulty.value);
     }
 
     if (category != null && category.isNotEmpty) {
@@ -189,18 +199,18 @@ class DatabaseService {
       'description_en': descriptionEn,
       'video_url': videoUrl,
       'thumbnail_url': thumbnailUrl,
-      'difficulty_level': difficultyLevel.name,
-      'duration_minutes': durationMinutes,
+      'difficulty_level': difficultyLevel.value,
+      'duration_seconds': durationMinutes * 60,
       'instructor_id': instructorId,
       'category': category,
       'dance_style': danceStyle,
       'is_featured': isFeatured,
       'tags': tags,
-      'is_published': true,
+      'is_active': true,
     };
 
     final response = await _client
-        .from(SupabaseConfig.tutorialsTable)
+        .from(_tutorialsTable)
         .insert(tutorialData)
         .select('''
           *,
@@ -239,17 +249,17 @@ class DatabaseService {
     if (descriptionEn != null) updateData['description_en'] = descriptionEn;
     if (videoUrl != null) updateData['video_url'] = videoUrl;
     if (thumbnailUrl != null) updateData['thumbnail_url'] = thumbnailUrl;
-    if (difficultyLevel != null) updateData['difficulty_level'] = difficultyLevel.name;
-    if (durationMinutes != null) updateData['duration_minutes'] = durationMinutes;
+    if (difficultyLevel != null) updateData['difficulty_level'] = difficultyLevel.value;
+    if (durationMinutes != null) updateData['duration_seconds'] = durationMinutes * 60;
     if (instructorId != null) updateData['instructor_id'] = instructorId;
     if (category != null) updateData['category'] = category;
     if (danceStyle != null) updateData['dance_style'] = danceStyle;
     if (isFeatured != null) updateData['is_featured'] = isFeatured;
-    if (isPublished != null) updateData['is_published'] = isPublished;
+    if (isPublished != null) updateData['is_active'] = isPublished;
     if (tags != null) updateData['tags'] = tags;
 
     final response = await _client
-        .from(SupabaseConfig.tutorialsTable)
+        .from(_tutorialsTable)
         .update(updateData)
         .eq('id', tutorialId)
         .select('''
@@ -272,8 +282,8 @@ class DatabaseService {
   /// Delete tutorial
   static Future<void> deleteTutorial(String tutorialId) async {
     await _client
-        .from(SupabaseConfig.tutorialsTable)
-        .update({'is_published': false})
+        .from(_tutorialsTable)
+        .update({'is_active': false})
         .eq('id', tutorialId);
   }
 
@@ -292,12 +302,12 @@ class DatabaseService {
     int? limit,
   }) async {
     var queryBuilder = _client
-        .from(SupabaseConfig.galleryItemsTable)
+        .from(_galleryItemsTable)
         .select('''
           *,
           uploader:uploaded_by(id, display_name)
         ''')
-        .eq('is_published', true);
+        .eq('is_active', true);
 
     if (category != null && category.isNotEmpty) {
       queryBuilder = queryBuilder.eq('category', category);
@@ -345,6 +355,7 @@ class DatabaseService {
     bool isFeatured = false,
     List<String>? tags,
   }) async {
+    print('🎯 DatabaseService: Starting createGalleryItem - titleHe: $titleHe, mediaType: $mediaType');
     final galleryData = {
       'title_he': titleHe,
       'title_en': titleEn,
@@ -361,11 +372,13 @@ class DatabaseService {
       'uploaded_by': uploadedBy,
       'is_featured': isFeatured,
       'tags': tags,
-      'is_published': true,
+      'is_active': true,
     };
 
+    print('📤 DatabaseService: Inserting gallery data: $galleryData');
+    
     final response = await _client
-        .from(SupabaseConfig.galleryItemsTable)
+        .from(_galleryItemsTable)
         .insert(galleryData)
         .select('''
           *,
@@ -373,6 +386,7 @@ class DatabaseService {
         ''')
         .single();
 
+    print('✅ DatabaseService: Gallery item created successfully: ${response['id']}');
     return GalleryModel.fromJson(response);
   }
 
@@ -399,7 +413,7 @@ class DatabaseService {
     int? limit,
   }) async {
     var queryBuilder = _client
-        .from(SupabaseConfig.updatesTable)
+        .from(_updatesTable)
         .select('''
           *,
           author:author_id(id, display_name)
@@ -470,7 +484,7 @@ class DatabaseService {
     };
 
     final response = await _client
-        .from(SupabaseConfig.updatesTable)
+        .from(_updatesTable)
         .insert(updateData)
         .select('''
           *,
@@ -512,14 +526,14 @@ class DatabaseService {
     };
 
     await _client
-        .from(SupabaseConfig.userProgressTable)
+        .from(_userProgressTable)
         .upsert(progressData, onConflict: 'user_id,tutorial_id');
   }
 
   /// Get user progress for tutorials
   static Future<List<Map<String, dynamic>>> getUserProgress(String userId) async {
     final response = await _client
-        .from(SupabaseConfig.userProgressTable)
+        .from(_userProgressTable)
         .select('''
           *,
           tutorial:tutorial_id(id, title_he, thumbnail_url)
@@ -555,7 +569,7 @@ class DatabaseService {
     };
 
     await _client
-        .from(SupabaseConfig.analyticsTable)
+        .from(_analyticsTable)
         .insert(analyticsData);
   }
 
@@ -568,7 +582,7 @@ class DatabaseService {
     int? limit,
   }) async {
     var queryBuilder = _client
-        .from(SupabaseConfig.analyticsTable)
+        .from(_analyticsTable)
         .select();
 
     if (eventType != null) {
@@ -623,7 +637,7 @@ class DatabaseService {
     required String contentType,
   }) async {
     final response = await _client
-        .from(SupabaseConfig.likesTable)
+        .from(_likesTable)
         .select()
         .eq('user_id', userId)
         .eq('content_id', contentId)
@@ -645,7 +659,7 @@ class DatabaseService {
     int? limit,
   }) async {
     var queryBuilder = _client
-        .from(SupabaseConfig.notificationsTable)
+        .from(_notificationsTable)
         .select()
         .eq('user_id', userId);
 
@@ -670,7 +684,7 @@ class DatabaseService {
   /// Mark notification as read
   static Future<void> markNotificationAsRead(String notificationId) async {
     await _client
-        .from(SupabaseConfig.notificationsTable)
+        .from(_notificationsTable)
         .update({
           'is_read': true,
           'read_at': DateTime.now().toIso8601String(),
@@ -699,7 +713,7 @@ class DatabaseService {
     };
 
     await _client
-        .from(SupabaseConfig.notificationsTable)
+        .from(_notificationsTable)
         .insert(notificationData);
   }
 
@@ -710,7 +724,7 @@ class DatabaseService {
   /// Get user preferences
   static Future<Map<String, dynamic>?> getUserPreferences(String userId) async {
     final response = await _client
-        .from(SupabaseConfig.userPreferencesTable)
+        .from(_userPreferencesTable)
         .select()
         .eq('user_id', userId)
         .maybeSingle();
@@ -730,7 +744,7 @@ class DatabaseService {
     updateData['updated_at'] = DateTime.now().toIso8601String();
 
     await _client
-        .from(SupabaseConfig.userPreferencesTable)
+        .from(_userPreferencesTable)
         .upsert(updateData, onConflict: 'user_id');
   }
 }

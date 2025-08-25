@@ -81,11 +81,19 @@ class TutorialsNotifier extends StateNotifier<AsyncValue<List<TutorialModel>>> {
     List<String>? tags,
   }) async {
     try {
+      // Validate Hebrew title and required fields
+      if (titleHe.trim().isEmpty) {
+        throw Exception('כותרת בעברית היא חובה');
+      }
+      if (durationMinutes <= 0) {
+        throw Exception('משך השיעור חייב להיות חיובי');
+      }
+      
       final newTutorial = await DatabaseService.createTutorial(
-        titleHe: titleHe,
-        titleEn: titleEn,
-        descriptionHe: descriptionHe,
-        descriptionEn: descriptionEn,
+        titleHe: titleHe.trim(),
+        titleEn: titleEn?.trim(),
+        descriptionHe: descriptionHe?.trim(),
+        descriptionEn: descriptionEn?.trim(),
         videoUrl: videoUrl,
         thumbnailUrl: thumbnailUrl,
         difficultyLevel: difficultyLevel,
@@ -102,7 +110,8 @@ class TutorialsNotifier extends StateNotifier<AsyncValue<List<TutorialModel>>> {
       
       return newTutorial;
     } catch (error) {
-      // Don't change state on error, just return null
+      // Update state with error for UI feedback
+      state = AsyncValue.error(error, StackTrace.current);
       return null;
     }
   }
@@ -186,9 +195,10 @@ class TutorialsNotifier extends StateNotifier<AsyncValue<List<TutorialModel>>> {
 class TutorialSearchNotifier extends StateNotifier<AsyncValue<List<TutorialModel>>> {
   TutorialSearchNotifier() : super(const AsyncValue.data([]));
 
-  /// Search tutorials by query
+  /// Search tutorials by query (supports Hebrew and English)
   Future<void> searchTutorials(String query) async {
-    if (query.trim().isEmpty) {
+    final trimmedQuery = query.trim();
+    if (trimmedQuery.isEmpty) {
       state = const AsyncValue.data([]);
       return;
     }
@@ -196,8 +206,9 @@ class TutorialSearchNotifier extends StateNotifier<AsyncValue<List<TutorialModel
     try {
       state = const AsyncValue.loading();
       
+      // Search in both Hebrew and English fields
       final tutorials = await DatabaseService.getTutorials(
-        searchQuery: query,
+        searchQuery: trimmedQuery,
         orderBy: 'created_at',
         ascending: false,
       );

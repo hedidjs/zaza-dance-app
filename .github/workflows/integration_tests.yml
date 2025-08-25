@@ -1,0 +1,362 @@
+name: Integration Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run tests daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+jobs:
+  integration_tests_android:
+    name: Android Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+          cache: true
+
+      - name: Cache Flutter dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            **/.flutter-plugins
+            **/.flutter-plugin-dependencies
+            **/.dart_tool/package_config.json
+          key: flutter-${{ runner.os }}-${{ hashFiles('**/pubspec.yaml') }}
+          restore-keys: |
+            flutter-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze code
+        run: flutter analyze
+
+      - name: Run unit tests
+        run: flutter test
+
+      - name: Setup Android Emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: Nexus 6
+          cores: 2
+          ram-size: 4096M
+          heap-size: 512M
+          script: |
+            # Wait for emulator to be ready
+            adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed | tr -d '\r') ]]; do sleep 1; done; input keyevent 82'
+            
+            # Set up test environment variables
+            export SUPABASE_TEST_URL="${{ secrets.SUPABASE_TEST_URL }}"
+            export SUPABASE_TEST_ANON_KEY="${{ secrets.SUPABASE_TEST_ANON_KEY }}"
+            
+            # Run integration tests
+            flutter drive \
+              --driver=test_driver/integration_test.dart \
+              --target=integration_test/app_test.dart \
+              --verbose
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android-test-results
+          path: |
+            integration_test/screenshots/
+            build/app/outputs/flutter-apk/
+            test_driver/screenshots/
+
+  integration_tests_ios:
+    name: iOS Integration Tests  
+    runs-on: macos-latest
+    timeout-minutes: 60
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+          cache: true
+
+      - name: Cache Flutter dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            **/.flutter-plugins
+            **/.flutter-plugin-dependencies
+            **/.dart_tool/package_config.json
+          key: flutter-${{ runner.os }}-${{ hashFiles('**/pubspec.yaml') }}
+          restore-keys: |
+            flutter-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Cache CocoaPods
+        uses: actions/cache@v4
+        with:
+          path: ios/Pods
+          key: pods-${{ runner.os }}-${{ hashFiles('**/Podfile.lock') }}
+          restore-keys: |
+            pods-${{ runner.os }}-
+
+      - name: Install CocoaPods
+        run: |
+          cd ios
+          pod install
+
+      - name: List available simulators
+        run: xcrun simctl list devices available
+
+      - name: Start iOS Simulator
+        run: |
+          # Start iPhone 15 simulator
+          DEVICE_ID=$(xcrun simctl create "Test iPhone" "iPhone 15" "iOS-17-0")
+          xcrun simctl boot $DEVICE_ID
+          xcrun simctl list devices | grep "Test iPhone"
+          
+          # Wait for simulator to be ready
+          sleep 30
+
+      - name: Run iOS Integration Tests
+        env:
+          SUPABASE_TEST_URL: ${{ secrets.SUPABASE_TEST_URL }}
+          SUPABASE_TEST_ANON_KEY: ${{ secrets.SUPABASE_TEST_ANON_KEY }}
+        run: |
+          flutter drive \
+            --driver=test_driver/integration_test.dart \
+            --target=integration_test/app_test.dart \
+            --verbose
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ios-test-results
+          path: |
+            integration_test/screenshots/
+            build/ios/iphoneos/
+            test_driver/screenshots/
+
+  user_journey_tests:
+    name: User Journey Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Setup Android Emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          cores: 2
+          ram-size: 4096M
+          heap-size: 512M
+          script: |
+            # Wait for emulator to be ready
+            adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed | tr -d '\r') ]]; do sleep 1; done; input keyevent 82'
+            
+            # Set up test environment
+            export SUPABASE_TEST_URL="${{ secrets.SUPABASE_TEST_URL }}"
+            export SUPABASE_TEST_ANON_KEY="${{ secrets.SUPABASE_TEST_ANON_KEY }}"
+            
+            # Run user journey tests
+            flutter drive \
+              --driver=test_driver/integration_test.dart \
+              --target=integration_test/user_journeys_test.dart \
+              --verbose
+
+      - name: Upload journey test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: user-journey-test-results
+          path: |
+            integration_test/screenshots/
+            test_driver/screenshots/
+
+  performance_tests:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Setup Android Emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          cores: 2
+          ram-size: 4096M
+          heap-size: 512M
+          script: |
+            # Wait for emulator
+            adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed | tr -d '\r') ]]; do sleep 1; done; input keyevent 82'
+            
+            # Run performance tests with profiling
+            flutter drive \
+              --driver=test_driver/integration_test.dart \
+              --target=integration_test/performance_test.dart \
+              --profile \
+              --verbose
+
+      - name: Upload performance results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: performance-test-results
+          path: |
+            integration_test/performance/
+            test_driver/performance/
+
+  accessibility_tests:
+    name: Accessibility Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Setup Android Emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          script: |
+            # Enable accessibility services
+            adb shell settings put secure enabled_accessibility_services com.android.talkback/com.google.android.marvin.talkback.TalkBackService
+            adb shell settings put secure accessibility_enabled 1
+            
+            # Wait for emulator
+            adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed | tr -d '\r') ]]; do sleep 1; done; input keyevent 82'
+            
+            # Run accessibility tests
+            flutter drive \
+              --driver=test_driver/integration_test.dart \
+              --target=integration_test/accessibility_test.dart \
+              --verbose
+
+      - name: Upload accessibility results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: accessibility-test-results
+          path: |
+            integration_test/accessibility/
+            test_driver/accessibility/
+
+  test_summary:
+    name: Test Summary
+    runs-on: ubuntu-latest
+    needs: [integration_tests_android, integration_tests_ios, user_journey_tests, performance_tests, accessibility_tests]
+    if: always()
+    
+    steps:
+      - name: Download all test results
+        uses: actions/download-artifact@v4
+        
+      - name: Generate test summary
+        run: |
+          echo "# Integration Test Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          echo "## Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "| Test Suite | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Android Integration | ${{ needs.integration_tests_android.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| iOS Integration | ${{ needs.integration_tests_ios.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| User Journey | ${{ needs.user_journey_tests.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Performance | ${{ needs.performance_tests.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Accessibility | ${{ needs.accessibility_tests.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Set overall status
+          if [[ "${{ needs.integration_tests_android.result }}" == "success" && 
+                "${{ needs.integration_tests_ios.result }}" == "success" && 
+                "${{ needs.user_journey_tests.result }}" == "success" ]]; then
+            echo "✅ All critical tests passed!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Some tests failed. Please review the results." >> $GITHUB_STEP_SUMMARY
+          fi
+          
+      - name: Notify on Slack (if tests fail)
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          channel: '#dev-alerts'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+          message: |
+            🚨 Integration tests failed in ${{ github.repository }}
+            Branch: ${{ github.ref }}
+            Commit: ${{ github.sha }}
+            
+            Check the results: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}

@@ -167,11 +167,11 @@ class HebrewTextHighlight {
         fontWeight: FontWeight.bold,
         shadows: [
           Shadow(
-            color: glowColor.withOpacity(0.8),
+            color: glowColor.withValues(alpha: 0.8),
             blurRadius: 8,
           ),
           Shadow(
-            color: glowColor.withOpacity(0.4),
+            color: glowColor.withValues(alpha: 0.4),
             blurRadius: 16,
           ),
         ],
@@ -179,13 +179,13 @@ class HebrewTextHighlight {
     );
   }
 
-  static TextSpan emphasisHighlight(String text) {
+  static TextSpan emphasisHighlight(String text, {double? fontSize}) {
     return TextSpan(
       text: text,
       style: TextStyle(
         color: AppColors.neonTurquoise,
         fontWeight: FontWeight.w600,
-        fontSize: 1.1, // Slightly larger
+        fontSize: fontSize, // Now properly parameterized
       ),
     );
   }
@@ -197,7 +197,7 @@ class HebrewTextHighlight {
         color: AppColors.neonPink,
         fontWeight: FontWeight.bold,
         decoration: TextDecoration.underline,
-        decorationColor: AppColors.neonPink.withOpacity(0.5),
+        decorationColor: AppColors.neonPink.withValues(alpha: 0.5),
       ),
     );
   }

@@ -219,14 +219,14 @@ class _ProfileFormFieldState extends State<ProfileFormField>
         decoration: InputDecoration(
           hintText: widget.hint,
           hintStyle: GoogleFonts.assistant(
-            color: AppColors.secondaryText.withOpacity(0.7),
+            color: AppColors.secondaryText.withValues(alpha: 0.7),
             fontSize: 16,
           ),
           border: _buildBorder(AppColors.inputBorder),
           enabledBorder: _buildBorder(
             hasError 
-                ? AppColors.error.withOpacity(0.5)
-                : AppColors.inputBorder.withOpacity(0.5),
+                ? AppColors.error.withValues(alpha: 0.5)
+                : AppColors.inputBorder.withValues(alpha: 0.5),
           ),
           focusedBorder: _buildBorder(
             hasError ? AppColors.error : glowColor,
@@ -234,11 +234,11 @@ class _ProfileFormFieldState extends State<ProfileFormField>
           ),
           errorBorder: _buildBorder(AppColors.error),
           focusedErrorBorder: _buildBorder(AppColors.error, width: 2),
-          disabledBorder: _buildBorder(AppColors.inputBorder.withOpacity(0.3)),
+          disabledBorder: _buildBorder(AppColors.inputBorder.withValues(alpha: 0.3)),
           filled: true,
           fillColor: widget.enabled 
-              ? AppColors.darkSurface.withOpacity(0.8)
-              : AppColors.darkSurface.withOpacity(0.3),
+              ? AppColors.darkSurface.withValues(alpha: 0.8)
+              : AppColors.darkSurface.withValues(alpha: 0.3),
           contentPadding: EdgeInsets.symmetric(
             horizontal: 16,
             vertical: widget.maxLines > 1 ? 16 : 14,
@@ -331,7 +331,7 @@ class NameFormField extends StatelessWidget {
         if (value.trim().length < 2) {
           return 'השם חייב להכיל לפחות 2 תווים';
         }
-        if (!RegExp(r'^[א-ת\s\-\'\.\,]+$').hasMatch(value.trim())) {
+        if (!RegExp(r'^[א-ת\s\-.,]+$').hasMatch(value.trim())) {
           return 'השם יכול להכיל רק אותיות בעברית, רווחים ומקפים';
         }
         return null;

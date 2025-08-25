@@ -3,13 +3,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_glow/flutter_glow.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
-import '../../../../core/providers/data_providers.dart';
+import '../../../../core/providers/data_providers.dart' as data_providers;
+import '../../../../core/providers/updates_provider.dart';
 import '../../../../shared/widgets/animated_gradient_background.dart';
 import '../../../../shared/widgets/neon_text.dart';
 import '../../../../shared/widgets/app_drawer.dart';
 import '../../../../shared/widgets/app_bottom_navigation.dart';
+import '../../../../shared/widgets/zaza_logo.dart';
 import '../../../../shared/models/update_model.dart';
 
 class UpdatesPage extends ConsumerStatefulWidget {
@@ -85,11 +88,7 @@ class _UpdatesPageState extends ConsumerState<UpdatesPage>
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          title: NeonText(
-            text: 'עדכונים חמים',
-            fontSize: 24,
-            glowColor: AppColors.neonTurquoise,
-          ),
+          title: const ZazaLogo.appBar(),
           leading: Builder(
             builder: (context) => IconButton(
               icon: GlowIcon(
@@ -100,83 +99,83 @@ class _UpdatesPageState extends ConsumerState<UpdatesPage>
               onPressed: () => Scaffold.of(context).openDrawer(),
             ),
           ),
-        actions: [
-          IconButton(
-            icon: GlowIcon(
-              Icons.notifications,
-              color: AppColors.primaryText,
-              glowColor: AppColors.neonPink,
-            ),
-            onPressed: () {
-              _showNotificationSettings();
-            },
-          ),
-        ],
-        bottom: TabBar(
-          controller: _tabController,
-          indicatorColor: AppColors.neonTurquoise,
-          labelColor: AppColors.primaryText,
-          unselectedLabelColor: AppColors.secondaryText,
-          isScrollable: true,
-          tabs: categories.map((category) => Tab(text: category)).toList(),
-        ),
-      ),
-        body: AnimatedGradientBackground(
-        child: SafeArea(
-          child: updatesAsync.when(
-            data: (updates) => TabBarView(
-              controller: _tabController,
-              children: categories.asMap().entries.map((entry) {
-                final categoryIndex = entry.key;
-                return _buildUpdatesFeed(updates, categoryIndex);
-              }).toList(),
-            ),
-            loading: () => Center(
-              child: CircularProgressIndicator(
-                color: AppColors.neonTurquoise,
+          actions: [
+            IconButton(
+              icon: GlowIcon(
+                Icons.notifications,
+                color: AppColors.primaryText,
+                glowColor: AppColors.neonPink,
               ),
+              onPressed: () {
+                _showNotificationSettings();
+              },
             ),
-            error: (error, stack) => Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.error_outline,
-                    size: 80,
-                    color: AppColors.secondaryText,
-                  ),
-                  const SizedBox(height: 20),
-                  NeonText(
-                    text: 'שגיאה בטעינת העדכונים',
-                    fontSize: 18,
-                    glowColor: AppColors.neonPink,
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    'אנא נסו שוב מאוחר יותר',
-                    style: TextStyle(
-                      color: AppColors.secondaryText,
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          ],
+          bottom: TabBar(
+            controller: _tabController,
+            indicatorColor: AppColors.neonTurquoise,
+            labelColor: AppColors.primaryText,
+            unselectedLabelColor: AppColors.secondaryText,
+            isScrollable: true,
+            tabs: categories.map((category) => Tab(text: category)).toList(),
           ),
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _refreshUpdates();
-        },
-        backgroundColor: AppColors.neonPink,
-        child: GlowIcon(
-          Icons.refresh,
-          color: AppColors.primaryText,
-          glowColor: AppColors.neonPink,
-        ),
         ),
         drawer: const AppDrawer(),
+        body: AnimatedGradientBackground(
+          child: SafeArea(
+            child: updatesAsync.when(
+              data: (updates) => TabBarView(
+                controller: _tabController,
+                children: categories.asMap().entries.map((entry) {
+                  final categoryIndex = entry.key;
+                  return _buildUpdatesFeed(updates, categoryIndex);
+                }).toList(),
+              ),
+              loading: () => Center(
+                child: CircularProgressIndicator(
+                  color: AppColors.neonTurquoise,
+                ),
+              ),
+              error: (error, stack) => Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.error_outline,
+                      size: 80,
+                      color: AppColors.secondaryText,
+                    ),
+                    const SizedBox(height: 20),
+                    NeonText(
+                      text: 'שגיאה בטעינת העדכונים',
+                      fontSize: 18,
+                      glowColor: AppColors.neonPink,
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'אנא נסו שוב מאוחר יותר',
+                      style: TextStyle(
+                        color: AppColors.secondaryText,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            _refreshUpdates();
+          },
+          backgroundColor: AppColors.neonPink,
+          child: GlowIcon(
+            Icons.refresh,
+            color: AppColors.primaryText,
+            glowColor: AppColors.neonPink,
+          ),
+        ),
         bottomNavigationBar: const AppBottomNavigation(
           currentPage: NavigationPage.updates,
         ),
@@ -205,7 +204,7 @@ class _UpdatesPageState extends ConsumerState<UpdatesPage>
             ),
             const SizedBox(height: 10),
             Text(
-              'עדכונים חדשים יתווספו בקרוב',
+              'אין עדכונים זמינים בקטגוריה זו כרגע',
               style: TextStyle(
                 color: AppColors.secondaryText,
                 fontSize: 14,
@@ -492,7 +491,7 @@ class _UpdatesPageState extends ConsumerState<UpdatesPage>
                 children: [
                   Consumer(
                     builder: (context, ref, child) {
-                      final interactions = ref.watch(interactionProvider);
+                      final interactions = ref.watch(data_providers.interactionProvider);
                       final isLiked = interactions[update.id] ?? false;
                       
                       return GestureDetector(
@@ -606,25 +605,27 @@ class _UpdatesPageState extends ConsumerState<UpdatesPage>
 
   void _toggleLike(UpdateModel update) async {
     try {
-      final interactionNotifier = ref.read(interactionProvider.notifier);
+      final interactionNotifier = ref.read(data_providers.interactionProvider.notifier);
       await interactionNotifier.toggleLike('update', update.id);
       
       // אין צורך ב-setState כי InteractionProvider מנהל את המצב
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('שגיאה בעדכון לייק: $e'),
-          backgroundColor: AppColors.error,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('שגיאה בעדכון לייק: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
     }
   }
 
   void _openUpdateDetails(UpdateModel update) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => UpdateDetailsPage(update: update),
-      ),
+    showDialog(
+      context: context,
+      useSafeArea: false,
+      builder: (context) => UpdateDetailsPage(update: update),
     );
   }
 
@@ -644,7 +645,7 @@ class _UpdatesPageState extends ConsumerState<UpdatesPage>
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => context.pop(),
             child: Text(
               'סגור',
               style: TextStyle(color: AppColors.neonTurquoise),
@@ -656,8 +657,8 @@ class _UpdatesPageState extends ConsumerState<UpdatesPage>
   }
 
   Future<void> _refreshUpdates() async {
-    // Invalidate the provider to trigger a refresh
-    ref.invalidate(updatesProvider);
+    // Refresh using the notifier
+    ref.read(updatesProvider.notifier).refresh();
   }
 }
 
@@ -682,7 +683,7 @@ class UpdateDetailsPage extends StatelessWidget {
         ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: AppColors.primaryText),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.pop(),
         ),
       ),
       body: AnimatedGradientBackground(

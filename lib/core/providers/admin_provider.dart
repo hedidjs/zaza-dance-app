@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../models/user_model.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../shared/models/user_model.dart';
 import '../services/database_service.dart';
 
 /// Provider for admin user management
@@ -246,3 +247,70 @@ class NotificationsNotifier extends StateNotifier<AsyncValue<List<Map<String, dy
     await loadNotifications(userId: userId);
   }
 }
+
+// Note: isAdminProvider is already defined in auth_provider.dart
+// Removed duplicate provider declarations to avoid conflicts
+
+/// שירות ניהול הרשאות מנהלים מתקדם
+class AdminAuthService {
+  static final AdminAuthService _instance = AdminAuthService._internal();
+  factory AdminAuthService() => _instance;
+  AdminAuthService._internal();
+
+  final SupabaseClient _supabase = Supabase.instance.client;
+
+  /// בדיקה אם משתמש הוא מנהל
+  Future<bool> isUserAdmin(String userId) async {
+    try {
+      final user = await _supabase.auth.admin.getUserById(userId);
+      final metaData = user.user?.userMetadata;
+      final appMetaData = user.user?.appMetadata;
+      
+      // בדיקה גם באימייל ספציפי
+      if (user.user?.email == 'hedidjs@gmail.com') {
+        return true;
+      }
+      
+      return metaData?['role'] == 'admin' || appMetaData?['role'] == 'admin';
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// עדכון משתמש למנהל
+  Future<bool> promoteToAdmin(String userId) async {
+    try {
+      await _supabase.auth.admin.updateUserById(
+        userId,
+        attributes: AdminUserAttributes(
+          userMetadata: {'role': 'admin'},
+          appMetadata: {'role': 'admin'},
+        ),
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// הסרת הרשאות מנהל
+  Future<bool> removeAdminRole(String userId) async {
+    try {
+      await _supabase.auth.admin.updateUserById(
+        userId,
+        attributes: AdminUserAttributes(
+          userMetadata: {'role': 'user'},
+          appMetadata: {'role': 'user'},
+        ),
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+}
+
+/// ספק שירות הרשאות מנהלים
+final adminAuthServiceProvider = Provider<AdminAuthService>((ref) {
+  return AdminAuthService();
+});

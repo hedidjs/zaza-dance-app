@@ -21,11 +21,11 @@ class SupabaseService {
     try {
       await _getDeviceId();
       if (kDebugMode) {
-        print('SupabaseService initialized with device ID: $_deviceId');
+        debugPrint('SupabaseService initialized with device ID: $_deviceId');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Error initializing SupabaseService: $e');
+        debugPrint('Error initializing SupabaseService: $e');
       }
     }
   }
@@ -45,7 +45,7 @@ class SupabaseService {
     } catch (e) {
       _deviceId = 'unknown_device';
       if (kDebugMode) {
-        print('Error getting device ID: $e');
+        debugPrint('Error getting device ID: $e');
       }
     }
   }
@@ -55,16 +55,16 @@ class SupabaseService {
   Future<List<CategoryModel>> getCategories() async {
     try {
       if (kDebugMode) {
-        print('SupabaseService: Fetching categories from Supabase...');
+        debugPrint('SupabaseService: Fetching categories from Supabase...');
       }
       final response = await _client
-          .from('categories')
+          .from('gallery_categories')
           .select('*')
           .eq('is_active', true)
           .order('sort_order');
       
       if (kDebugMode) {
-        print('SupabaseService: Retrieved ${(response as List).length} categories');
+        debugPrint('SupabaseService: Retrieved ${(response as List).length} categories');
       }
       
       return (response as List)
@@ -72,9 +72,9 @@ class SupabaseService {
           .toList();
     } catch (e) {
       if (kDebugMode) {
-        print('Error fetching categories: $e');
+        debugPrint('Error fetching categories: $e');
       }
-      return [];
+      throw Exception('Failed to load categories from database');
     }
   }
 
@@ -89,7 +89,7 @@ class SupabaseService {
     try {
       var query = _client
           .from('gallery_items')
-          .select('*, categories(*)')
+          .select('*, gallery_categories(*)')
           .eq('is_active', true);
 
       if (categoryId != null) {
@@ -110,9 +110,9 @@ class SupabaseService {
           .toList();
     } catch (e) {
       if (kDebugMode) {
-        print('Error fetching gallery items: $e');
+        debugPrint('Error fetching gallery items: $e');
       }
-      return [];
+      throw Exception('Failed to load gallery items from database');
     }
   }
 
@@ -126,7 +126,7 @@ class SupabaseService {
     try {
       final response = await _client
           .from('gallery_items')
-          .select('*, categories(*)')
+          .select('*, gallery_categories(*)')
           .eq('is_active', true)
           .or('title_he.ilike.%$query%,description_he.ilike.%$query%')
           .order('created_at', ascending: false)
@@ -137,9 +137,9 @@ class SupabaseService {
           .toList();
     } catch (e) {
       if (kDebugMode) {
-        print('Error searching gallery items: $e');
+        debugPrint('Error searching gallery items: $e');
       }
-      return [];
+      throw Exception('Failed to search gallery items in database');
     }
   }
 
@@ -154,11 +154,11 @@ class SupabaseService {
   }) async {
     try {
       if (kDebugMode) {
-        print('SupabaseService: Fetching tutorials from Supabase...');
+        debugPrint('SupabaseService: Fetching tutorials from Supabase...');
       }
       var query = _client
           .from('tutorials')
-          .select('*, categories(*)')
+          .select('*, tutorial_categories(*)')
           .eq('is_active', true);
 
       if (categoryId != null) {
@@ -179,7 +179,7 @@ class SupabaseService {
           .range(offset, offset + limit - 1);
 
       if (kDebugMode) {
-        print('SupabaseService: Retrieved ${(response as List).length} tutorials');
+        debugPrint('SupabaseService: Retrieved ${(response as List).length} tutorials');
       }
 
       return (response as List)
@@ -187,9 +187,9 @@ class SupabaseService {
           .toList();
     } catch (e) {
       if (kDebugMode) {
-        print('Error fetching tutorials: $e');
+        debugPrint('Error fetching tutorials: $e');
       }
-      return [];
+      throw Exception('Failed to load tutorials from database');
     }
   }
 
@@ -203,7 +203,7 @@ class SupabaseService {
     try {
       final response = await _client
           .from('tutorials')
-          .select('*, categories(*)')
+          .select('*, tutorial_categories(*)')
           .eq('is_active', true)
           .or('title_he.ilike.%$query%,description_he.ilike.%$query%,instructor_name.ilike.%$query%')
           .order('created_at', ascending: false)
@@ -214,9 +214,9 @@ class SupabaseService {
           .toList();
     } catch (e) {
       if (kDebugMode) {
-        print('Error searching tutorials: $e');
+        debugPrint('Error searching tutorials: $e');
       }
-      return [];
+      throw Exception('Failed to search tutorials in database');
     }
   }
 
@@ -257,9 +257,9 @@ class SupabaseService {
           .toList();
     } catch (e) {
       if (kDebugMode) {
-        print('Error fetching updates: $e');
+        debugPrint('Error fetching updates: $e');
       }
-      return [];
+      throw Exception('Failed to load updates from database');
     }
   }
 
@@ -284,9 +284,9 @@ class SupabaseService {
           .toList();
     } catch (e) {
       if (kDebugMode) {
-        print('Error searching updates: $e');
+        debugPrint('Error searching updates: $e');
       }
-      return [];
+      throw Exception('Failed to search updates in database');
     }
   }
 
@@ -310,12 +310,12 @@ class SupabaseService {
       });
 
       if (kDebugMode) {
-        print('Tracked interaction: $interactionType for $contentType:$contentId');
+        debugPrint('Tracked interaction: $interactionType for $contentType:$contentId');
       }
       return true;
     } catch (e) {
       if (kDebugMode) {
-        print('Error tracking interaction: $e');
+        debugPrint('Error tracking interaction: $e');
       }
       return false;
     }
@@ -341,12 +341,12 @@ class SupabaseService {
           .eq('interaction_type', interactionType);
 
       if (kDebugMode) {
-        print('Removed interaction: $interactionType for $contentType:$contentId');
+        debugPrint('Removed interaction: $interactionType for $contentType:$contentId');
       }
       return true;
     } catch (e) {
       if (kDebugMode) {
-        print('Error removing interaction: $e');
+        debugPrint('Error removing interaction: $e');
       }
       return false;
     }
@@ -375,7 +375,7 @@ class SupabaseService {
       return response != null;
     } catch (e) {
       if (kDebugMode) {
-        print('Error checking user interaction: $e');
+        debugPrint('Error checking user interaction: $e');
       }
       return false;
     }
@@ -402,7 +402,7 @@ class SupabaseService {
       return getStorageUrl(bucket, path);
     } catch (e) {
       if (kDebugMode) {
-        print('Error uploading file: $e');
+        debugPrint('Error uploading file: $e');
       }
       return null;
     }
@@ -506,5 +506,423 @@ class SupabaseService {
       contentId: updateId,
       interactionType: 'like',
     );
+  }
+
+  // MARK: - CRUD OPERATIONS FOR ADMIN
+
+  // CATEGORIES CRUD
+  /// Create a new category
+  Future<CategoryModel?> createCategory({
+    required String nameHe,
+    String? descriptionHe,
+    String color = '#FF00FF',
+    int sortOrder = 0,
+  }) async {
+    try {
+      final response = await _client.from('gallery_categories').insert({
+        'name_he': nameHe,
+        'description_he': descriptionHe,
+        'color': color,
+        'sort_order': sortOrder,
+        'is_active': true,
+        'created_at': DateTime.now().toIso8601String(),
+        'updated_at': DateTime.now().toIso8601String(),
+      }).select().single();
+
+      return CategoryModel.fromJson(response);
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error creating category: $e');
+      }
+      return null;
+    }
+  }
+
+  /// Update an existing category
+  Future<CategoryModel?> updateCategory({
+    required String categoryId,
+    String? nameHe,
+    String? descriptionHe,
+    String? color,
+    int? sortOrder,
+    bool? isActive,
+  }) async {
+    try {
+      final updates = <String, dynamic>{
+        'updated_at': DateTime.now().toIso8601String(),
+      };
+      
+      if (nameHe != null) updates['name_he'] = nameHe;
+      if (descriptionHe != null) updates['description_he'] = descriptionHe;
+      if (color != null) updates['color'] = color;
+      if (sortOrder != null) updates['sort_order'] = sortOrder;
+      if (isActive != null) updates['is_active'] = isActive;
+
+      final response = await _client
+          .from('gallery_categories')
+          .update(updates)
+          .eq('id', categoryId)
+          .select()
+          .single();
+
+      return CategoryModel.fromJson(response);
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error updating category: $e');
+      }
+      return null;
+    }
+  }
+
+  /// Delete a category
+  Future<bool> deleteCategory(String categoryId) async {
+    try {
+      await _client.from('gallery_categories').delete().eq('id', categoryId);
+      return true;
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error deleting category: $e');
+      }
+      return false;
+    }
+  }
+
+  // GALLERY CRUD
+  /// Create a new gallery item
+  Future<GalleryModel?> createGalleryItem({
+    required String titleHe,
+    String? descriptionHe,
+    required String mediaUrl,
+    String? thumbnailUrl,
+    required String mediaType,
+    String? categoryId,
+    List<String> tags = const [],
+    bool isFeatured = false,
+    int sortOrder = 0,
+  }) async {
+    try {
+      final response = await _client.from('gallery_items').insert({
+        'title_he': titleHe,
+        'description_he': descriptionHe,
+        'media_url': mediaUrl,
+        'thumbnail_url': thumbnailUrl,
+        'media_type': mediaType,
+        'category_id': categoryId,
+        'tags': tags,
+        'is_featured': isFeatured,
+        'sort_order': sortOrder,
+        'likes_count': 0,
+        'views_count': 0,
+        'is_active': true,
+        'created_at': DateTime.now().toIso8601String(),
+        'updated_at': DateTime.now().toIso8601String(),
+      }).select('*, gallery_categories(*)').single();
+
+      return GalleryModel.fromJson(response);
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error creating gallery item: $e');
+      }
+      return null;
+    }
+  }
+
+  /// Update an existing gallery item
+  Future<GalleryModel?> updateGalleryItem({
+    required String itemId,
+    String? titleHe,
+    String? descriptionHe,
+    String? mediaUrl,
+    String? thumbnailUrl,
+    String? categoryId,
+    List<String>? tags,
+    bool? isFeatured,
+    int? sortOrder,
+    bool? isActive,
+  }) async {
+    try {
+      final updates = <String, dynamic>{
+        'updated_at': DateTime.now().toIso8601String(),
+      };
+      
+      if (titleHe != null) updates['title_he'] = titleHe;
+      if (descriptionHe != null) updates['description_he'] = descriptionHe;
+      if (mediaUrl != null) updates['media_url'] = mediaUrl;
+      if (thumbnailUrl != null) updates['thumbnail_url'] = thumbnailUrl;
+      if (categoryId != null) updates['category_id'] = categoryId;
+      if (tags != null) updates['tags'] = tags;
+      if (isFeatured != null) updates['is_featured'] = isFeatured;
+      if (sortOrder != null) updates['sort_order'] = sortOrder;
+      if (isActive != null) updates['is_active'] = isActive;
+
+      final response = await _client
+          .from('gallery_items')
+          .update(updates)
+          .eq('id', itemId)
+          .select('*, gallery_categories(*)')
+          .single();
+
+      return GalleryModel.fromJson(response);
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error updating gallery item: $e');
+      }
+      return null;
+    }
+  }
+
+  /// Delete a gallery item
+  Future<bool> deleteGalleryItem(String itemId) async {
+    try {
+      await _client.from('gallery_items').delete().eq('id', itemId);
+      return true;
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error deleting gallery item: $e');
+      }
+      return false;
+    }
+  }
+
+  // TUTORIALS CRUD
+  /// Create a new tutorial
+  Future<TutorialModel?> createTutorial({
+    required String titleHe,
+    String? descriptionHe,
+    required String videoUrl,
+    String? thumbnailUrl,
+    int durationSeconds = 0,
+    String? difficultyLevel,
+    String? instructorName,
+    String? categoryId,
+    List<String> tags = const [],
+    bool isFeatured = false,
+    int sortOrder = 0,
+  }) async {
+    try {
+      final response = await _client.from('tutorials').insert({
+        'title_he': titleHe,
+        'description_he': descriptionHe,
+        'video_url': videoUrl,
+        'thumbnail_url': thumbnailUrl,
+        'duration_seconds': durationSeconds,
+        'difficulty_level': difficultyLevel,
+        'instructor_name': instructorName,
+        'category_id': categoryId,
+        'tags': tags,
+        'is_featured': isFeatured,
+        'sort_order': sortOrder,
+        'likes_count': 0,
+        'views_count': 0,
+        'downloads_count': 0,
+        'is_active': true,
+        'created_at': DateTime.now().toIso8601String(),
+        'updated_at': DateTime.now().toIso8601String(),
+      }).select('*, tutorial_categories(*)').single();
+
+      return TutorialModel.fromJson(response);
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error creating tutorial: $e');
+      }
+      return null;
+    }
+  }
+
+  /// Update an existing tutorial
+  Future<TutorialModel?> updateTutorial({
+    required String tutorialId,
+    String? titleHe,
+    String? descriptionHe,
+    String? videoUrl,
+    String? thumbnailUrl,
+    int? durationSeconds,
+    String? difficultyLevel,
+    String? instructorName,
+    String? categoryId,
+    List<String>? tags,
+    bool? isFeatured,
+    int? sortOrder,
+    bool? isActive,
+  }) async {
+    try {
+      final updates = <String, dynamic>{
+        'updated_at': DateTime.now().toIso8601String(),
+      };
+      
+      if (titleHe != null) updates['title_he'] = titleHe;
+      if (descriptionHe != null) updates['description_he'] = descriptionHe;
+      if (videoUrl != null) updates['video_url'] = videoUrl;
+      if (thumbnailUrl != null) updates['thumbnail_url'] = thumbnailUrl;
+      if (durationSeconds != null) updates['duration_seconds'] = durationSeconds;
+      if (difficultyLevel != null) updates['difficulty_level'] = difficultyLevel;
+      if (instructorName != null) updates['instructor_name'] = instructorName;
+      if (categoryId != null) updates['category_id'] = categoryId;
+      if (tags != null) updates['tags'] = tags;
+      if (isFeatured != null) updates['is_featured'] = isFeatured;
+      if (sortOrder != null) updates['sort_order'] = sortOrder;
+      if (isActive != null) updates['is_active'] = isActive;
+
+      final response = await _client
+          .from('tutorials')
+          .update(updates)
+          .eq('id', tutorialId)
+          .select('*, tutorial_categories(*)')
+          .single();
+
+      return TutorialModel.fromJson(response);
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error updating tutorial: $e');
+      }
+      return null;
+    }
+  }
+
+  /// Delete a tutorial
+  Future<bool> deleteTutorial(String tutorialId) async {
+    try {
+      await _client.from('tutorials').delete().eq('id', tutorialId);
+      return true;
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error deleting tutorial: $e');
+      }
+      return false;
+    }
+  }
+
+  // UPDATES CRUD
+  /// Create a new update/news item
+  Future<UpdateModel?> createUpdate({
+    required String titleHe,
+    required String contentHe,
+    String? excerptHe,
+    String? imageUrl,
+    required String updateType,
+    String? authorName,
+    bool isPinned = false,
+    bool isFeatured = false,
+    DateTime? publishDate,
+    List<String> tags = const [],
+  }) async {
+    try {
+      final response = await _client.from('updates').insert({
+        'title_he': titleHe,
+        'content_he': contentHe,
+        'excerpt_he': excerptHe,
+        'image_url': imageUrl,
+        'update_type': updateType,
+        'author_name': authorName,
+        'is_pinned': isPinned,
+        'is_featured': isFeatured,
+        'publish_date': (publishDate ?? DateTime.now()).toIso8601String(),
+        'tags': tags,
+        'likes_count': 0,
+        'comments_count': 0,
+        'shares_count': 0,
+        'is_active': true,
+        'created_at': DateTime.now().toIso8601String(),
+        'updated_at': DateTime.now().toIso8601String(),
+      }).select().single();
+
+      return UpdateModel.fromJson(response);
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error creating update: $e');
+      }
+      return null;
+    }
+  }
+
+  /// Update an existing update/news item
+  Future<UpdateModel?> updateUpdate({
+    required String updateId,
+    String? titleHe,
+    String? contentHe,
+    String? excerptHe,
+    String? imageUrl,
+    String? updateType,
+    String? authorName,
+    bool? isPinned,
+    bool? isFeatured,
+    DateTime? publishDate,
+    List<String>? tags,
+    bool? isActive,
+  }) async {
+    try {
+      final updates = <String, dynamic>{
+        'updated_at': DateTime.now().toIso8601String(),
+      };
+      
+      if (titleHe != null) updates['title_he'] = titleHe;
+      if (contentHe != null) updates['content_he'] = contentHe;
+      if (excerptHe != null) updates['excerpt_he'] = excerptHe;
+      if (imageUrl != null) updates['image_url'] = imageUrl;
+      if (updateType != null) updates['update_type'] = updateType;
+      if (authorName != null) updates['author_name'] = authorName;
+      if (isPinned != null) updates['is_pinned'] = isPinned;
+      if (isFeatured != null) updates['is_featured'] = isFeatured;
+      if (publishDate != null) updates['publish_date'] = publishDate.toIso8601String();
+      if (tags != null) updates['tags'] = tags;
+      if (isActive != null) updates['is_active'] = isActive;
+
+      final response = await _client
+          .from('updates')
+          .update(updates)
+          .eq('id', updateId)
+          .select()
+          .single();
+
+      return UpdateModel.fromJson(response);
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error updating update: $e');
+      }
+      return null;
+    }
+  }
+
+  /// Delete an update/news item
+  Future<bool> deleteUpdate(String updateId) async {
+    try {
+      await _client.from('updates').delete().eq('id', updateId);
+      return true;
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error deleting update: $e');
+      }
+      return false;
+    }
+  }
+
+  // BULK OPERATIONS
+  /// Get content statistics
+  Future<Map<String, int>> getContentStats() async {
+    try {
+      final futures = await Future.wait([
+        _client.from('gallery_items').select('id').eq('is_active', true),
+        _client.from('tutorials').select('id').eq('is_active', true),
+        _client.from('updates').select('id').eq('is_active', true),
+        _client.from('gallery_categories').select('id').eq('is_active', true),
+      ]);
+
+      return {
+        'gallery_items': (futures[0] as List).length,
+        'tutorials': (futures[1] as List).length,
+        'updates': (futures[2] as List).length,
+        'categories': (futures[3] as List).length,
+      };
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error getting content stats: $e');
+      }
+      return {
+        'gallery_items': 0,
+        'tutorials': 0,
+        'updates': 0,
+        'categories': 0,
+      };
+    }
   }
 }

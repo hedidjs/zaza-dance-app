@@ -83,11 +83,18 @@ class GalleryNotifier extends StateNotifier<AsyncValue<List<GalleryModel>>> {
     List<String>? tags,
   }) async {
     try {
+      // Validate Hebrew title is provided
+      if (titleHe.trim().isEmpty) {
+        throw Exception('כותרת בעברית היא חובה');
+      }
+      
+      print('GalleryProvider: Creating gallery item with titleHe: $titleHe');
+      
       final newGalleryItem = await DatabaseService.createGalleryItem(
-        titleHe: titleHe,
-        titleEn: titleEn,
-        descriptionHe: descriptionHe,
-        descriptionEn: descriptionEn,
+        titleHe: titleHe.trim(),
+        titleEn: titleEn?.trim(),
+        descriptionHe: descriptionHe?.trim(),
+        descriptionEn: descriptionEn?.trim(),
         mediaUrl: mediaUrl,
         mediaType: mediaType,
         category: category,
@@ -101,11 +108,17 @@ class GalleryNotifier extends StateNotifier<AsyncValue<List<GalleryModel>>> {
         tags: tags,
       );
 
+      print('GalleryProvider: Gallery item created successfully: ${newGalleryItem.id}');
+
       // Reload gallery items to include the new one
       await loadGalleryItems();
       
       return newGalleryItem;
     } catch (error) {
+      print('GalleryProvider: Error creating gallery item: $error');
+      
+      // Update state with error for UI feedback
+      state = AsyncValue.error(error, StackTrace.current);
       return null;
     }
   }
@@ -129,9 +142,10 @@ class GalleryNotifier extends StateNotifier<AsyncValue<List<GalleryModel>>> {
 class GallerySearchNotifier extends StateNotifier<AsyncValue<List<GalleryModel>>> {
   GallerySearchNotifier() : super(const AsyncValue.data([]));
 
-  /// Search gallery items by query
+  /// Search gallery items by query (supports Hebrew and English)
   Future<void> searchGalleryItems(String query) async {
-    if (query.trim().isEmpty) {
+    final trimmedQuery = query.trim();
+    if (trimmedQuery.isEmpty) {
       state = const AsyncValue.data([]);
       return;
     }
@@ -139,8 +153,9 @@ class GallerySearchNotifier extends StateNotifier<AsyncValue<List<GalleryModel>>
     try {
       state = const AsyncValue.loading();
       
+      // Search in both Hebrew and English fields
       final galleryItems = await DatabaseService.getGalleryItems(
-        searchQuery: query,
+        searchQuery: trimmedQuery,
         orderBy: 'created_at',
         ascending: false,
       );

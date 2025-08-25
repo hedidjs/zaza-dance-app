@@ -66,7 +66,7 @@ class _NeonGlowContainerState extends State<NeonGlowContainer>
 
   @override
   Widget build(BuildContext context) {
-    // Calculate subtle glow effect
+    // Calculate subtle glow effect with performance optimization
     final effectiveOpacity = widget.isSubtle ? widget.opacity * 0.5 : widget.opacity;
     final effectiveRadius = widget.isSubtle ? widget.glowRadius * 0.6 : widget.glowRadius;
     
@@ -76,13 +76,13 @@ class _NeonGlowContainerState extends State<NeonGlowContainer>
         boxShadow: [
           // Primary subtle glow
           BoxShadow(
-            color: widget.glowColor.withOpacity(effectiveOpacity),
+            color: widget.glowColor.withValues(alpha: effectiveOpacity),
             blurRadius: effectiveRadius,
             spreadRadius: effectiveRadius / 6, // More subtle spread
           ),
           // Secondary very subtle outer glow
           if (!widget.isSubtle) BoxShadow(
-            color: widget.glowColor.withOpacity(effectiveOpacity * 0.3),
+            color: widget.glowColor.withValues(alpha: effectiveOpacity * 0.3),
             blurRadius: effectiveRadius * 1.5,
             spreadRadius: effectiveRadius / 4,
           ),
@@ -142,7 +142,7 @@ class NeonBorder extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: borderColor.withOpacity(0.5),
+            color: borderColor.withValues(alpha: 0.5),
             blurRadius: 10,
             spreadRadius: 2,
           ),
@@ -156,7 +156,7 @@ class NeonBorder extends StatelessWidget {
           .animate(onPlay: (controller) => controller.repeat())
           .shimmer(
             duration: 2000.ms,
-            color: borderColor.withOpacity(0.3),
+            color: borderColor.withValues(alpha: 0.3),
           );
     }
 
@@ -174,7 +174,7 @@ class NeonParticles extends StatefulWidget {
 
   const NeonParticles({
     super.key,
-    this.particleCount = 20,
+    this.particleCount = 5, // מופחת מ-20 ל-5 לביצועים טובים יותר
     this.particleColor = AppColors.neonPink,
     this.maxSize = 4.0,
     this.minSize = 1.0,
@@ -274,7 +274,7 @@ class _NeonParticlesState extends State<NeonParticles>
                     color: widget.particleColor,
                     boxShadow: [
                       BoxShadow(
-                        color: widget.particleColor.withOpacity(0.8),
+                        color: widget.particleColor.withValues(alpha: 0.8),
                         blurRadius: 4,
                         spreadRadius: 2,
                       ),
@@ -324,7 +324,7 @@ class NeonDivider extends StatelessWidget {
             ),
             boxShadow: [
               BoxShadow(
-                color: color.withOpacity(0.6),
+                color: color.withValues(alpha: 0.6),
                 blurRadius: 8,
                 spreadRadius: 1,
               ),
@@ -339,7 +339,7 @@ class NeonDivider extends StatelessWidget {
           .animate(onPlay: (controller) => controller.repeat())
           .shimmer(
             duration: 3000.ms,
-            color: color.withOpacity(0.3),
+            color: color.withValues(alpha: 0.3),
           );
     }
 
@@ -442,18 +442,18 @@ class _NeonButtonState extends State<NeonButton>
                   gradient: LinearGradient(
                     colors: widget.isSubtle 
                       ? [
-                          widget.glowColor.withOpacity(0.3),
-                          widget.glowColor.withOpacity(0.2),
+                          widget.glowColor.withValues(alpha: 0.3),
+                          widget.glowColor.withValues(alpha: 0.2),
                         ]
                       : [
-                          widget.glowColor.withOpacity(0.8),
-                          widget.glowColor.withOpacity(0.6),
+                          widget.glowColor.withValues(alpha: 0.8),
+                          widget.glowColor.withValues(alpha: 0.6),
                         ],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                   ),
                   border: Border.all(
-                    color: widget.glowColor.withOpacity(widget.isSubtle ? 0.4 : 1.0),
+                    color: widget.glowColor.withValues(alpha: widget.isSubtle ? 0.4 : 1.0),
                     width: widget.isSubtle ? 0.5 : 1,
                   ),
                 ),
@@ -466,13 +466,13 @@ class _NeonButtonState extends State<NeonButton>
                     shadows: widget.isSubtle 
                       ? [
                           Shadow(
-                            color: widget.glowColor.withOpacity(0.3),
+                            color: widget.glowColor.withValues(alpha: 0.3),
                             blurRadius: 2,
                           ),
                         ]
                       : [
                           Shadow(
-                            color: widget.glowColor.withOpacity(0.8),
+                            color: widget.glowColor.withValues(alpha: 0.8),
                             blurRadius: 4,
                           ),
                         ],

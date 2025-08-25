@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
@@ -35,11 +36,11 @@ class OfflineDownloadService {
 
       _isInitialized = true;
       if (kDebugMode) {
-        print('OfflineDownloadService initialized successfully');
+        debugPrint('OfflineDownloadService initialized successfully');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Error initializing OfflineDownloadService: $e');
+        debugPrint('Error initializing OfflineDownloadService: $e');
       }
     }
   }
@@ -75,7 +76,7 @@ class OfflineDownloadService {
 
       // Start download
       if (kDebugMode) {
-        print('Starting download for tutorial: ${tutorial.titleHe}');
+        debugPrint('Starting download for tutorial: ${tutorial.titleHe}');
       }
 
       final file = await _cacheManager.downloadFile(
@@ -96,13 +97,13 @@ class OfflineDownloadService {
       await _saveTutorialMetadata(tutorial);
 
       if (kDebugMode) {
-        print('Tutorial downloaded successfully: ${file.file.path}');
+        debugPrint('Tutorial downloaded successfully: ${file.file.path}');
       }
 
       return DownloadResult.success(file.file.path);
     } catch (e) {
       if (kDebugMode) {
-        print('Error downloading tutorial: $e');
+        debugPrint('Error downloading tutorial: $e');
       }
       return DownloadResult.error('Download failed: $e');
     }
@@ -159,15 +160,35 @@ class OfflineDownloadService {
       await _removeTutorialMetadata(tutorialId);
 
       if (kDebugMode) {
-        print('Tutorial deleted successfully: $tutorialId');
+        debugPrint('Tutorial deleted successfully: $tutorialId');
       }
 
       return true;
     } catch (e) {
       if (kDebugMode) {
-        print('Error deleting tutorial: $e');
+        debugPrint('Error deleting tutorial: $e');
       }
       return false;
+    }
+  }
+
+  /// Get downloaded tutorial metadata
+  Future<TutorialModel?> getDownloadedTutorialMetadata(String tutorialId) async {
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final file = File('${directory.path}/tutorial_metadata/$tutorialId.json');
+      
+      if (file.existsSync()) {
+        final jsonString = await file.readAsString();
+        final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
+        return TutorialModel.fromJson(jsonData);
+      }
+      return null;
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error getting tutorial metadata: $e');
+      }
+      return null;
     }
   }
 
@@ -192,7 +213,7 @@ class OfflineDownloadService {
           .toList();
     } catch (e) {
       if (kDebugMode) {
-        print('Error getting downloaded tutorials: $e');
+        debugPrint('Error getting downloaded tutorials: $e');
       }
       return [];
     }
@@ -246,11 +267,11 @@ class OfflineDownloadService {
       }
 
       if (kDebugMode) {
-        print('All downloads cleared successfully');
+        debugPrint('All downloads cleared successfully');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Error clearing downloads: $e');
+        debugPrint('Error clearing downloads: $e');
       }
     }
   }
@@ -270,10 +291,10 @@ class OfflineDownloadService {
       }
 
       final file = File('${metadataDir.path}/${tutorial.id}.json');
-      await file.writeAsString(tutorial.toJson().toString());
+      await file.writeAsString(jsonEncode(tutorial.toJson()));
     } catch (e) {
       if (kDebugMode) {
-        print('Error saving tutorial metadata: $e');
+        debugPrint('Error saving tutorial metadata: $e');
       }
     }
   }
@@ -289,7 +310,7 @@ class OfflineDownloadService {
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Error removing tutorial metadata: $e');
+        debugPrint('Error removing tutorial metadata: $e');
       }
     }
   }

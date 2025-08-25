@@ -4,9 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/providers/auth_provider.dart';
+import '../../../../shared/models/user_model.dart';
 import '../../../../shared/widgets/animated_gradient_background.dart';
 import '../../../../shared/widgets/neon_text.dart';
 import '../../../../shared/widgets/enhanced_neon_effects.dart';
@@ -93,7 +95,7 @@ class _ProfileSettingsPageState extends ConsumerState<ProfileSettingsPage> {
               Icons.arrow_back,
               color: AppColors.primaryText,
             ),
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => context.pop(),
           ),
           actions: [
             if (_hasChanges && !_isLoading)
@@ -122,7 +124,7 @@ class _ProfileSettingsPageState extends ConsumerState<ProfileSettingsPage> {
     );
   }
 
-  Widget _buildProfileForm(user) {
+  Widget _buildProfileForm(UserModel user) {
     return Form(
       key: _formKey,
       child: SingleChildScrollView(
@@ -236,7 +238,7 @@ class _ProfileSettingsPageState extends ConsumerState<ProfileSettingsPage> {
     );
   }
 
-  Widget _buildProfileImageSection(user) {
+  Widget _buildProfileImageSection(UserModel user) {
     return Center(
       child: Column(
         children: [
@@ -256,10 +258,10 @@ class _ProfileSettingsPageState extends ConsumerState<ProfileSettingsPage> {
                   backgroundColor: AppColors.darkSurface,
                   backgroundImage: _selectedImage != null
                       ? FileImage(_selectedImage!)
-                      : (user.profileImageUrl != null
-                          ? NetworkImage(user.profileImageUrl!)
+                      : (user.avatarUrl != null
+                          ? NetworkImage(user.avatarUrl!)
                           : null) as ImageProvider?,
-                  child: (_selectedImage == null && user.profileImageUrl == null)
+                  child: (_selectedImage == null && user.avatarUrl == null)
                       ? Icon(
                           Icons.person,
                           size: 60,
@@ -321,7 +323,7 @@ class _ProfileSettingsPageState extends ConsumerState<ProfileSettingsPage> {
             ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: glowColor.withOpacity(0.3),
+              color: glowColor.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -384,14 +386,14 @@ class _ProfileSettingsPageState extends ConsumerState<ProfileSettingsPage> {
     );
   }
 
-  Widget _buildAccountInfoSection(user) {
+  Widget _buildAccountInfoSection(UserModel user) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.darkSurface.withOpacity(0.5),
+        color: AppColors.darkSurface.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppColors.info.withOpacity(0.3),
+          color: AppColors.info.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -410,7 +412,7 @@ class _ProfileSettingsPageState extends ConsumerState<ProfileSettingsPage> {
             ],
           ),
           const SizedBox(height: 16),
-          _buildInfoRow('תפקיד', _getRoleDisplayName(user.role)),
+          _buildInfoRow('תפקיד', user.role.displayName),
           _buildInfoRow('תאריך הצטרפות', _formatDate(user.createdAt)),
           _buildInfoRow('עדכון אחרון', _formatDate(user.updatedAt)),
         ],
@@ -503,7 +505,7 @@ class _ProfileSettingsPageState extends ConsumerState<ProfileSettingsPage> {
           const SizedBox(height: 30),
           NeonButton(
             text: 'התחבר',
-            onPressed: () => Navigator.of(context).pushNamed('/login'),
+            onPressed: () => context.go('/auth/login'),
             glowColor: AppColors.neonGreen,
           ),
         ],
@@ -600,7 +602,7 @@ class _ProfileSettingsPageState extends ConsumerState<ProfileSettingsPage> {
         decoration: BoxDecoration(
           color: AppColors.darkCard,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.neonTurquoise.withOpacity(0.3)),
+          border: Border.all(color: AppColors.neonTurquoise.withValues(alpha: 0.3)),
         ),
         child: Column(
           children: [
@@ -624,7 +626,7 @@ class _ProfileSettingsPageState extends ConsumerState<ProfileSettingsPage> {
   }
 
   Future<void> _selectImageSource(ImageSource source) async {
-    Navigator.of(context).pop();
+    context.pop();
     
     try {
       final XFile? image = await _imagePicker.pickImage(
@@ -641,12 +643,14 @@ class _ProfileSettingsPageState extends ConsumerState<ProfileSettingsPage> {
         });
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('שגיאה בבחירת תמונה: $e'),
-          backgroundColor: AppColors.error,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('שגיאה בבחירת תמונה: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
     }
   }
 
@@ -658,7 +662,7 @@ class _ProfileSettingsPageState extends ConsumerState<ProfileSettingsPage> {
     });
 
     try {
-      final authService = ref.read(authServiceProvider);
+      final authService = ref.read(authProvider.notifier);
       
       String? imageUrl;
       if (_selectedImage != null) {
@@ -667,19 +671,20 @@ class _ProfileSettingsPageState extends ConsumerState<ProfileSettingsPage> {
         final bytes = await _selectedImage!.readAsBytes();
         
         await Supabase.instance.client.storage
-            .from('profiles')
+            .from('profile-images')
             .uploadBinary(fileName, bytes);
             
         imageUrl = Supabase.instance.client.storage
-            .from('profiles')
+            .from('profile-images')
             .getPublicUrl(fileName);
       }
       
-      final result = await authService.updateProfile(
-        fullName: _displayNameController.text.trim(),
+      final result = await authService.updateUserProfile(
+        displayName: _displayNameController.text.trim(),
         phoneNumber: _phoneController.text.trim(),
         address: _addressController.text.trim(),
-        profileImageUrl: imageUrl,
+        avatarUrl: imageUrl,
+        bio: _bioController.text.trim().isEmpty ? null : _bioController.text.trim(),
       );
       
       if (result.isSuccess) {
@@ -694,31 +699,35 @@ class _ProfileSettingsPageState extends ConsumerState<ProfileSettingsPage> {
         throw Exception(result.message);
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('הפרופיל נשמר בהצלחה'),
-          backgroundColor: AppColors.success,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('הפרופיל נשמר בהצלחה'),
+            backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
-        ),
-      );
+        );
+      }
     } catch (e) {
       setState(() {
         _isLoading = false;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('שגיאה בשמירת הפרופיל: $e'),
-          backgroundColor: AppColors.error,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('שגיאה בשמירת הפרופיל: $e'),
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
-        ),
-      );
+        );
+      }
     }
   }
 
@@ -750,7 +759,7 @@ class _ProfileSettingsPageState extends ConsumerState<ProfileSettingsPage> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
             side: BorderSide(
-              color: AppColors.accent1.withOpacity(0.3),
+              color: AppColors.accent1.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -774,7 +783,7 @@ class _ProfileSettingsPageState extends ConsumerState<ProfileSettingsPage> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => context.pop(),
               child: Text(
                 'ביטול',
                 style: TextStyle(color: AppColors.secondaryText),
@@ -783,28 +792,32 @@ class _ProfileSettingsPageState extends ConsumerState<ProfileSettingsPage> {
             NeonButton(
               text: 'שלח',
               onPressed: () async {
-                Navigator.of(context).pop();
+                context.pop();
                 try {
                   await Supabase.instance.client.auth.resetPasswordForEmail(
                     ref.read(currentUserProvider).value?.email ?? '',
                   );
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('הודעה נשלחה לאימייל לשינוי סיסמה'),
-                      backgroundColor: AppColors.info,
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('הודעה נשלחה לאימייל לשינוי סיסמה'),
+                        backgroundColor: AppColors.info,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
-                    ),
-                  );
+                    );
+                  }
                 } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('שגיאה בשליחת אימייל: $e'),
-                      backgroundColor: AppColors.error,
-                    ),
-                  );
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('שגיאה בשליחת אימייל: $e'),
+                        backgroundColor: AppColors.error,
+                      ),
+                    );
+                  }
                 }
               },
               glowColor: AppColors.accent1,
@@ -815,20 +828,6 @@ class _ProfileSettingsPageState extends ConsumerState<ProfileSettingsPage> {
     );
   }
 
-  String _getRoleDisplayName(String role) {
-    switch (role) {
-      case 'student':
-        return 'תלמיד/ה';
-      case 'parent':
-        return 'הורה';
-      case 'instructor':
-        return 'מדריך/ה';
-      case 'admin':
-        return 'מנהל/ת';
-      default:
-        return 'משתמש/ת';
-    }
-  }
 
   String _formatDate(DateTime? date) {
     if (date == null) return 'לא ידוע';

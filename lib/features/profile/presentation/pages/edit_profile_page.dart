@@ -20,7 +20,6 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
-  final _addressController = TextEditingController();
   final _bioController = TextEditingController();
   
   bool _isLoading = false;
@@ -36,7 +35,6 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
     if (user != null) {
       _nameController.text = user.displayName;
       _phoneController.text = user.phone ?? '';
-      _addressController.text = user.address ?? '';
       _bioController.text = user.bio ?? '';
     }
   }
@@ -45,7 +43,6 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
   void dispose() {
     _nameController.dispose();
     _phoneController.dispose();
-    _addressController.dispose();
     _bioController.dispose();
     super.dispose();
   }
@@ -133,10 +130,10 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
         child: CircleAvatar(
           radius: 60,
           backgroundColor: AppColors.darkSurface,
-          backgroundImage: user?.profileImageUrl != null
-              ? NetworkImage(user!.profileImageUrl!)
+          backgroundImage: user?.avatarUrl != null
+              ? NetworkImage(user!.avatarUrl!)
               : null,
-          child: user?.profileImageUrl == null
+          child: user?.avatarUrl == null
               ? Icon(
                   Icons.person,
                   size: 60,
@@ -178,12 +175,6 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
         ),
         const SizedBox(height: 20),
         _buildFormField(
-          label: 'כתובת',
-          controller: _addressController,
-          icon: Icons.location_on,
-        ),
-        const SizedBox(height: 20),
-        _buildFormField(
           label: 'קצת עליי',
           controller: _bioController,
           icon: Icons.info,
@@ -213,7 +204,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppColors.neonTurquoise.withOpacity(0.3),
+          color: AppColors.neonTurquoise.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -236,7 +227,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
           ),
           prefixIcon: Icon(
             icon,
-            color: AppColors.neonTurquoise.withOpacity(0.7),
+            color: AppColors.neonTurquoise.withValues(alpha: 0.7),
             size: 20,
           ),
           border: InputBorder.none,
@@ -286,7 +277,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
       final result = await ref.read(currentUserProvider.notifier).updateProfile(
         fullName: _nameController.text.trim(),
         phoneNumber: _phoneController.text.trim().isEmpty ? null : _phoneController.text.trim(),
-        address: _addressController.text.trim().isEmpty ? null : _addressController.text.trim(),
+        address: _bioController.text.trim().isEmpty ? null : _bioController.text.trim(), // Using address for bio temporarily
       );
 
       if (mounted) {

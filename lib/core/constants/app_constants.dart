@@ -29,7 +29,7 @@ class AppConstants {
   static const String roleAdmin = 'admin';
   
   // Default values
-  static const String defaultProfileImageUrl = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&h=200&fit=crop&crop=face';
+  static const String? defaultProfileImageUrl = null; // No default image - use app icon or empty state
   static const int defaultCacheExpiry = 7; // days
   static const int maxOfflineDownloads = 50;
 }

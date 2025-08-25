@@ -1,11 +1,8 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
 import '../../../../core/constants/app_colors.dart';
@@ -171,32 +168,23 @@ class _ImageCompressionHandlerState extends ConsumerState<ImageCompressionHandle
       'size': size,
       'width': image.width,
       'height': image.height,
-      'format': path.extension(imageFile.path).toLowerCase(),
+      'format': imageFile.path.split('.').last.toLowerCase(),
     };
   }
 
   Future<XFile> _compressImage(XFile imageFile) async {
     final dir = await getTemporaryDirectory();
-    final targetPath = path.join(
-      dir.absolute.path,
-      'compressed_profile_${DateTime.now().millisecondsSinceEpoch}.jpg',
-    );
+    final targetPath = '${dir.absolute.path}/compressed_profile_${DateTime.now().millisecondsSinceEpoch}.jpg';
 
     // Calculate optimal compression settings
     final imageInfo = _imageInfo!;
     int quality = 85;
-    int maxWidth = 1024;
-    int maxHeight = 1024;
 
     // Adjust settings based on original image size
     if (imageInfo['size'] > 10 * 1024 * 1024) { // > 10MB
       quality = 70;
-      maxWidth = 800;
-      maxHeight = 800;
     } else if (imageInfo['size'] > 5 * 1024 * 1024) { // > 5MB
       quality = 75;
-      maxWidth = 900;
-      maxHeight = 900;
     }
 
     final compressedFile = await FlutterImageCompress.compressAndGetFile(
@@ -205,8 +193,6 @@ class _ImageCompressionHandlerState extends ConsumerState<ImageCompressionHandle
       quality: quality,
       minWidth: 512,
       minHeight: 512,
-      maxWidth: maxWidth,
-      maxHeight: maxHeight,
       format: CompressFormat.jpeg,
     );
 
@@ -246,7 +232,7 @@ class _ImageCompressionHandlerState extends ConsumerState<ImageCompressionHandle
 
   Widget _buildCompressionOverlay() {
     return Container(
-      color: Colors.black.withOpacity(0.8),
+      color: Colors.black.withValues(alpha: 0.8),
       child: Center(
         child: NeonGlowContainer(
           glowColor: AppColors.neonTurquoise,
@@ -262,7 +248,7 @@ class _ImageCompressionHandlerState extends ConsumerState<ImageCompressionHandle
               color: AppColors.authCardBackground,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: AppColors.neonTurquoise.withOpacity(0.3),
+                color: AppColors.neonTurquoise.withValues(alpha: 0.3),
                 width: 1,
               ),
             ),
@@ -306,12 +292,12 @@ class _ImageCompressionHandlerState extends ConsumerState<ImageCompressionHandle
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    AppColors.neonTurquoise.withOpacity(0.3),
-                    AppColors.neonPink.withOpacity(0.3),
+                    AppColors.neonTurquoise.withValues(alpha: 0.3),
+                    AppColors.neonPink.withValues(alpha: 0.3),
                   ],
                 ),
                 border: Border.all(
-                  color: AppColors.neonTurquoise.withOpacity(0.6),
+                  color: AppColors.neonTurquoise.withValues(alpha: 0.6),
                   width: 2,
                 ),
               ),
@@ -337,7 +323,7 @@ class _ImageCompressionHandlerState extends ConsumerState<ImageCompressionHandle
             color: AppColors.darkSurface,
             borderRadius: BorderRadius.circular(3),
             border: Border.all(
-              color: AppColors.neonTurquoise.withOpacity(0.3),
+              color: AppColors.neonTurquoise.withValues(alpha: 0.3),
               width: 0.5,
             ),
           ),
@@ -358,7 +344,7 @@ class _ImageCompressionHandlerState extends ConsumerState<ImageCompressionHandle
                     borderRadius: BorderRadius.circular(3),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.neonTurquoise.withOpacity(0.5),
+                        color: AppColors.neonTurquoise.withValues(alpha: 0.5),
                         blurRadius: 8,
                         spreadRadius: 1,
                       ),
@@ -401,10 +387,10 @@ class _ImageCompressionHandlerState extends ConsumerState<ImageCompressionHandle
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.darkSurface.withOpacity(0.5),
+        color: AppColors.darkSurface.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppColors.neonTurquoise.withOpacity(0.2),
+          color: AppColors.neonTurquoise.withValues(alpha: 0.2),
           width: 0.5,
         ),
       ),
@@ -430,7 +416,7 @@ class _ImageCompressionHandlerState extends ConsumerState<ImageCompressionHandle
                 ),
               ),
               Text(
-                '${sizeInMB} MB',
+                '$sizeInMB MB',
                 style: GoogleFonts.assistant(
                   color: AppColors.primaryText,
                   fontSize: 11,
@@ -551,10 +537,10 @@ class _ProfileLoadingStateState extends State<ProfileLoadingState>
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: AppColors.authCardBackground.withOpacity(0.9),
+                color: AppColors.authCardBackground.withValues(alpha: 0.9),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: effectiveColor.withOpacity(0.3),
+                  color: effectiveColor.withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -614,12 +600,12 @@ class _ProfileLoadingStateState extends State<ProfileLoadingState>
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    color.withOpacity(0.3),
-                    color.withOpacity(0.1),
+                    color.withValues(alpha: 0.3),
+                    color.withValues(alpha: 0.1),
                   ],
                 ),
                 border: Border.all(
-                  color: color.withOpacity(0.6),
+                  color: color.withValues(alpha: 0.6),
                   width: 2,
                 ),
               ),
@@ -654,7 +640,7 @@ class _ProfileLoadingStateState extends State<ProfileLoadingState>
                 borderRadius: BorderRadius.circular(2),
                 boxShadow: [
                   BoxShadow(
-                    color: color.withOpacity(0.5),
+                    color: color.withValues(alpha: 0.5),
                     blurRadius: 4,
                     spreadRadius: 1,
                   ),
@@ -739,10 +725,7 @@ class ImageCompressionNotifier extends StateNotifier<ImageCompressionState> {
       // This is a simplified version
       
       final dir = await getTemporaryDirectory();
-      final targetPath = path.join(
-        dir.absolute.path,
-        'compressed_${DateTime.now().millisecondsSinceEpoch}.jpg',
-      );
+      final targetPath = '${dir.absolute.path}/compressed_${DateTime.now().millisecondsSinceEpoch}.jpg';
 
       state = state.copyWith(progress: 0.5, currentStep: 'דוחס תמונה...');
 
@@ -752,8 +735,6 @@ class ImageCompressionNotifier extends StateNotifier<ImageCompressionState> {
         quality: 85,
         minWidth: 512,
         minHeight: 512,
-        maxWidth: 1024,
-        maxHeight: 1024,
         format: CompressFormat.jpeg,
       );
 

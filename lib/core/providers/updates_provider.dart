@@ -83,10 +83,20 @@ class UpdatesNotifier extends StateNotifier<AsyncValue<List<UpdateModel>>> {
     List<String>? tags,
   }) async {
     try {
+      // Validate Hebrew content
+      if (titleHe.trim().isEmpty) {
+        throw Exception('כותרת בעברית היא חובה');
+      }
+      if (contentHe.trim().isEmpty) {
+        throw Exception('תוכן בעברית הוא חובה');
+      }
+      
+      print('UpdatesProvider: Creating update with titleHe: $titleHe');
+      
       final newUpdate = await DatabaseService.createUpdate(
-        titleHe: titleHe,
-        contentHe: contentHe,
-        summaryHe: summaryHe,
+        titleHe: titleHe.trim(),
+        contentHe: contentHe.trim(),
+        summaryHe: summaryHe?.trim(),
         updateType: updateType,
         authorId: authorId,
         isActive: isActive,
@@ -98,11 +108,17 @@ class UpdatesNotifier extends StateNotifier<AsyncValue<List<UpdateModel>>> {
         tags: tags,
       );
 
+      print('UpdatesProvider: Update created successfully: ${newUpdate.id}');
+
       // Reload updates to include the new one
       await loadUpdates();
       
       return newUpdate;
     } catch (error) {
+      print('UpdatesProvider: Error creating update: $error');
+      
+      // Update state with error for UI feedback
+      state = AsyncValue.error(error, StackTrace.current);
       return null;
     }
   }

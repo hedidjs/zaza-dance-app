@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Zaza Dance Brand Colors -->
+    <color name="primary_fuchsia">#FF00FF</color>
+    <color name="primary_dark_fuchsia">#E91E63</color>
+    <color name="secondary_turquoise">#00FFFF</color>
+    <color name="secondary_dark_turquoise">#26C6DA</color>
+    
+    <!-- Background Colors -->
+    <color name="background_black">#0A0A0A</color>
+    <color name="background_dark_grey">#1A1A1A</color>
+    <color name="background_grey">#2A2A2A</color>
+    
+    <!-- System Colors -->
+    <color name="transparent">#00000000</color>
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+</resources>

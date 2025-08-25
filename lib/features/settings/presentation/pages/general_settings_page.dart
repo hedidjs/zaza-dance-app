@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/providers/settings_provider.dart';
 import '../../../../shared/widgets/animated_gradient_background.dart';
 import '../../../../shared/widgets/neon_text.dart';
 import '../../../../shared/widgets/enhanced_neon_effects.dart';
@@ -18,8 +20,6 @@ class GeneralSettingsPage extends ConsumerStatefulWidget {
 
 class _GeneralSettingsPageState extends ConsumerState<GeneralSettingsPage> {
   // הגדרות תצוגה
-  String _selectedTheme = 'dark'; // dark, light, auto
-  String _selectedLanguage = 'he'; // he, en, ar
   double _fontSize = 16.0;
   bool _animationsEnabled = true;
   bool _neonEffectsEnabled = true;
@@ -57,8 +57,6 @@ class _GeneralSettingsPageState extends ConsumerState<GeneralSettingsPage> {
       
       setState(() {
         // טעינת הגדרות מראה
-        _selectedTheme = prefs.getString('theme') ?? 'dark';
-        _selectedLanguage = prefs.getString('language') ?? 'he';
         _fontSize = prefs.getDouble('font_size') ?? 16.0;
         _animationsEnabled = prefs.getBool('animations_enabled') ?? true;
         _neonEffectsEnabled = prefs.getBool('neon_effects_enabled') ?? true;
@@ -150,7 +148,7 @@ class _GeneralSettingsPageState extends ConsumerState<GeneralSettingsPage> {
               Icons.arrow_back,
               color: AppColors.primaryText,
             ),
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => context.pop(),
           ),
         ),
         body: AnimatedGradientBackground(
@@ -162,41 +160,9 @@ class _GeneralSettingsPageState extends ConsumerState<GeneralSettingsPage> {
                 children: [
                   // הגדרות תצוגה
                   _buildSection(
-                    'תצוגה ונושא',
+                    'תצוגה',
                     AppColors.neonPurple,
                     [
-                      _buildDropdownTile(
-                        icon: Icons.palette,
-                        title: 'נושא',
-                        value: _selectedTheme,
-                        options: const {
-                          'dark': 'כהה',
-                          'light': 'בהיר',
-                          'auto': 'אוטומטי',
-                        },
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedTheme = value!;
-                          });
-                        },
-                        glowColor: AppColors.neonPurple,
-                      ),
-                      _buildDropdownTile(
-                        icon: Icons.language,
-                        title: 'שפה',
-                        value: _selectedLanguage,
-                        options: const {
-                          'he': 'עברית',
-                          'en': 'אנגלית',
-                          'ar': 'ערבית',
-                        },
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedLanguage = value!;
-                          });
-                        },
-                        glowColor: AppColors.neonBlue,
-                      ),
                       _buildSliderTile(
                         icon: Icons.format_size,
                         title: 'גודל טקסט',
@@ -479,7 +445,7 @@ class _GeneralSettingsPageState extends ConsumerState<GeneralSettingsPage> {
             ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: glowColor.withOpacity(0.3),
+              color: glowColor.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -504,7 +470,7 @@ class _GeneralSettingsPageState extends ConsumerState<GeneralSettingsPage> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: glowColor.withOpacity(0.2),
+              color: glowColor.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
@@ -540,8 +506,8 @@ class _GeneralSettingsPageState extends ConsumerState<GeneralSettingsPage> {
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: glowColor,
-            activeTrackColor: glowColor.withOpacity(0.3),
+            activeThumbColor: glowColor,
+            activeTrackColor: glowColor.withValues(alpha: 0.3),
             inactiveThumbColor: AppColors.secondaryText,
             inactiveTrackColor: AppColors.darkSurface,
           ),
@@ -565,7 +531,7 @@ class _GeneralSettingsPageState extends ConsumerState<GeneralSettingsPage> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: glowColor.withOpacity(0.2),
+              color: glowColor.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
@@ -630,7 +596,7 @@ class _GeneralSettingsPageState extends ConsumerState<GeneralSettingsPage> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: glowColor.withOpacity(0.2),
+                  color: glowColor.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
@@ -665,7 +631,7 @@ class _GeneralSettingsPageState extends ConsumerState<GeneralSettingsPage> {
               activeTrackColor: glowColor,
               inactiveTrackColor: AppColors.darkSurface,
               thumbColor: glowColor,
-              overlayColor: glowColor.withOpacity(0.2),
+              overlayColor: glowColor.withValues(alpha: 0.2),
             ),
             child: Slider(
               value: value,
@@ -693,7 +659,7 @@ class _GeneralSettingsPageState extends ConsumerState<GeneralSettingsPage> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: glowColor.withOpacity(0.2),
+              color: glowColor.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
@@ -742,7 +708,7 @@ class _GeneralSettingsPageState extends ConsumerState<GeneralSettingsPage> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: glowColor.withOpacity(0.2),
+                color: glowColor.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
@@ -810,7 +776,7 @@ class _GeneralSettingsPageState extends ConsumerState<GeneralSettingsPage> {
     );
   }
 
-  void _clearCache() {
+  void _confirmClearCache() {
     showDialog(
       context: context,
       builder: (context) => Directionality(
@@ -820,7 +786,7 @@ class _GeneralSettingsPageState extends ConsumerState<GeneralSettingsPage> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
             side: BorderSide(
-              color: AppColors.warning.withOpacity(0.3),
+              color: AppColors.warning.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -844,7 +810,7 @@ class _GeneralSettingsPageState extends ConsumerState<GeneralSettingsPage> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => context.pop(),
               child: Text(
                 'ביטול',
                 style: TextStyle(color: AppColors.secondaryText),
@@ -853,7 +819,7 @@ class _GeneralSettingsPageState extends ConsumerState<GeneralSettingsPage> {
             NeonButton(
               text: 'נקה',
               onPressed: () async {
-                Navigator.of(context).pop();
+                context.pop();
                 try {
                   setState(() {
                     _cacheSize = 'מנקה...';
@@ -874,38 +840,34 @@ class _GeneralSettingsPageState extends ConsumerState<GeneralSettingsPage> {
                     _cacheSize = '0 MB';
                   });
                   
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('מטמון נוקה בהצלחה'),
-                      backgroundColor: AppColors.success,
-                    ),
-                  );
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('מטמון נוקה בהצלחה'),
+                        backgroundColor: AppColors.success,
+                      ),
+                    );
+                  }
                 } catch (e) {
                   setState(() {
                     _cacheSize = 'שגיאה';
                   });
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('שגיאה בניקוי מטמון: $e'),
-                      backgroundColor: AppColors.error,
-                    ),
-                  );
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('שגיאה בניקוי מטמון: $e'),
+                        backgroundColor: AppColors.error,
+                      ),
+                    );
+                  }
                 }
                 Future.delayed(const Duration(seconds: 2), () {
-                  setState(() {
-                    _cacheSize = '12 MB';
-                  });
+                  if (mounted) {
+                    setState(() {
+                      _cacheSize = '12 MB';
+                    });
+                  }
                 });
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('המטמון נוקה בהצלחה'),
-                    backgroundColor: AppColors.success,
-                    behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                );
               },
               glowColor: AppColors.warning,
             ),
@@ -916,13 +878,216 @@ class _GeneralSettingsPageState extends ConsumerState<GeneralSettingsPage> {
   }
 
   void _manageDownloads() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('ניהול הורדות בקרוב'),
-        backgroundColor: AppColors.info,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+    showDialog(
+      context: context,
+      builder: (context) => Directionality(
+        textDirection: TextDirection.rtl,
+        child: AlertDialog(
+          backgroundColor: AppColors.darkSurface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+            side: BorderSide(
+              color: AppColors.neonTurquoise.withValues(alpha: 0.3),
+              width: 1,
+            ),
+          ),
+          title: Row(
+            children: [
+              Icon(Icons.download, color: AppColors.neonTurquoise),
+              const SizedBox(width: 8),
+              NeonText(
+                text: 'ניהול הורדות',
+                fontSize: 18,
+                glowColor: AppColors.neonTurquoise,
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildDownloadOption('מחק הורדות ישנות', Icons.delete_sweep, () {
+                _clearOldDownloads();
+                context.pop();
+              }),
+              const SizedBox(height: 12),
+              _buildDownloadOption('ניקוי מטמון', Icons.cleaning_services, () {
+                _confirmClearCache();
+                context.pop();
+              }),
+              const SizedBox(height: 12),
+              _buildDownloadOption('הצג מקום תפוס', Icons.storage, () {
+                _showStorageInfo();
+                context.pop();
+              }),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => context.pop(),
+              child: Text(
+                'סגור',
+                style: TextStyle(color: AppColors.secondaryText),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDownloadOption(String title, IconData icon, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            Icon(icon, color: AppColors.neonTurquoise, size: 20),
+            const SizedBox(width: 12),
+            Text(
+              title,
+              style: GoogleFonts.assistant(
+                color: AppColors.primaryText,
+                fontSize: 16,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _clearOldDownloads() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('cached_videos');
+      await prefs.remove('cached_images');
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('הורדות ישנות נוקו בהצלחה'),
+            backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('שגיאה בניקוי הורדות: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
+  void _clearCache() async {
+    try {
+      await ref.read(settingsServiceProvider).clearLocalCache();
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('מטמון נוקה בהצלחה'),
+            backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('שגיאה בניקוי מטמון: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
+  void _showStorageInfo() {
+    showDialog(
+      context: context,
+      builder: (context) => Directionality(
+        textDirection: TextDirection.rtl,
+        child: AlertDialog(
+          backgroundColor: AppColors.darkSurface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          title: Text(
+            'מידע אחסון',
+            style: GoogleFonts.assistant(
+              color: AppColors.primaryText,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'מקום תפוס על ידי האפליקציה:',
+                style: GoogleFonts.assistant(
+                  color: AppColors.primaryText,
+                  fontSize: 16,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '• מטמון תמונות: ~50MB',
+                style: GoogleFonts.assistant(
+                  color: AppColors.secondaryText,
+                  fontSize: 14,
+                ),
+              ),
+              Text(
+                '• וידאו שמורים: ~200MB',
+                style: GoogleFonts.assistant(
+                  color: AppColors.secondaryText,
+                  fontSize: 14,
+                ),
+              ),
+              Text(
+                '• נתוני אפליקציה: ~10MB',
+                style: GoogleFonts.assistant(
+                  color: AppColors.secondaryText,
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'סך הכל: ~260MB',
+                style: GoogleFonts.assistant(
+                  color: AppColors.neonTurquoise,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => context.pop(),
+              child: Text(
+                'סגור',
+                style: TextStyle(color: AppColors.neonTurquoise),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -933,8 +1098,6 @@ class _GeneralSettingsPageState extends ConsumerState<GeneralSettingsPage> {
       final prefs = await SharedPreferences.getInstance();
       
       // שמירת הגדרות מראה
-      await prefs.setString('theme', _selectedTheme);
-      await prefs.setString('language', _selectedLanguage);
       await prefs.setDouble('font_size', _fontSize);
       await prefs.setBool('animations_enabled', _animationsEnabled);
       await prefs.setBool('neon_effects_enabled', _neonEffectsEnabled);
@@ -956,23 +1119,27 @@ class _GeneralSettingsPageState extends ConsumerState<GeneralSettingsPage> {
       await prefs.setBool('crash_reports_enabled', _crashReportsEnabled);
       await prefs.setBool('personalized_content', _personalizedContent);
       
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('הגדרות נשמרו בהצלחה'),
-          backgroundColor: AppColors.success,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('הגדרות נשמרו בהצלחה'),
+            backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
-        ),
-      );
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('שגיאה בשמירת הגדרות: $e'),
-          backgroundColor: AppColors.error,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('שגיאה בשמירת הגדרות: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
     }
   }
 
@@ -986,7 +1153,7 @@ class _GeneralSettingsPageState extends ConsumerState<GeneralSettingsPage> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
             side: BorderSide(
-              color: AppColors.warning.withOpacity(0.3),
+              color: AppColors.warning.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -1010,7 +1177,7 @@ class _GeneralSettingsPageState extends ConsumerState<GeneralSettingsPage> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => context.pop(),
               child: Text(
                 'ביטול',
                 style: TextStyle(color: AppColors.secondaryText),
@@ -1019,10 +1186,8 @@ class _GeneralSettingsPageState extends ConsumerState<GeneralSettingsPage> {
             NeonButton(
               text: 'איפוס',
               onPressed: () {
-                Navigator.of(context).pop();
+                context.pop();
                 setState(() {
-                  _selectedTheme = 'dark';
-                  _selectedLanguage = 'he';
                   _fontSize = 16.0;
                   _animationsEnabled = true;
                   _neonEffectsEnabled = true;

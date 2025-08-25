@@ -4,12 +4,13 @@ import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/constants/app_colors.dart';
 import 'neon_text.dart';
 import 'enhanced_neon_effects.dart';
 
-/// נגן וידאו משופר עם בקרות מלאות לאפליקציית זזה דאנס
+/// Enhanced video player with full controls for Zaza Dance app
 class EnhancedVideoPlayer extends StatefulWidget {
   final String videoUrl;
   final String title;
@@ -108,7 +109,12 @@ class _EnhancedVideoPlayerState extends State<EnhancedVideoPlayer>
 
       _controller = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
       
-      await _controller!.initialize();
+      await _controller!.initialize().timeout(
+        const Duration(seconds: 30),
+        onTimeout: () {
+          throw Exception('Video loading timed out');
+        },
+      );
       
       _controller!.addListener(_videoListener);
       
@@ -264,7 +270,7 @@ class _EnhancedVideoPlayerState extends State<EnhancedVideoPlayer>
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: AppColors.neonPink.withOpacity(0.2),
+              color: AppColors.neonPink.withValues(alpha: 0.2),
               blurRadius: 20,
               spreadRadius: 5,
             ),
@@ -589,7 +595,7 @@ class _EnhancedVideoPlayerState extends State<EnhancedVideoPlayer>
         margin: const EdgeInsets.only(bottom: 8),
         decoration: BoxDecoration(
           color: isSelected 
-              ? AppColors.neonTurquoise.withOpacity(0.1)
+              ? AppColors.neonTurquoise.withValues(alpha: 0.1)
               : AppColors.darkCard,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
@@ -614,7 +620,9 @@ class _EnhancedVideoPlayerState extends State<EnhancedVideoPlayer>
           ),
           onTap: () async {
             await _changeVideoQuality(entry.key);
-            Navigator.of(context).pop();
+            if (mounted) {
+              context.pop();
+            }
           },
         ),
       );
@@ -691,8 +699,8 @@ class _EnhancedVideoPlayerState extends State<EnhancedVideoPlayer>
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: isPrimary 
-              ? AppColors.neonPink.withOpacity(0.2)
-              : AppColors.darkSurface.withOpacity(0.7),
+              ? AppColors.neonPink.withValues(alpha: 0.2)
+              : AppColors.darkSurface.withValues(alpha: 0.7),
           border: Border.all(
             color: isPrimary ? AppColors.neonPink : AppColors.neonTurquoise,
             width: 1,
@@ -726,7 +734,7 @@ class _EnhancedVideoPlayerState extends State<EnhancedVideoPlayer>
           activeTrackColor: AppColors.neonPink,
           inactiveTrackColor: AppColors.darkSurface,
           thumbColor: AppColors.neonPink,
-          overlayColor: AppColors.neonPink.withOpacity(0.2),
+          overlayColor: AppColors.neonPink.withValues(alpha: 0.2),
         ),
         child: Slider(
           value: _duration.inMilliseconds > 0

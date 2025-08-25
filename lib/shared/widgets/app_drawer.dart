@@ -1,19 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../core/providers/auth_provider.dart';
-import '../../features/auth/presentation/pages/login_page.dart';
-import '../../features/gallery/presentation/pages/gallery_page.dart';
-import '../../features/tutorials/presentation/pages/tutorials_page.dart';
-import '../../features/updates/presentation/pages/updates_page.dart';
-import '../../features/home/presentation/pages/home_page.dart';
-import '../../features/profile/presentation/pages/profile_page.dart';
-import '../../features/settings/presentation/pages/settings_page.dart';
-// import '../../features/admin/presentation/pages/admin_page.dart'; // Temporarily disabled
 import 'enhanced_neon_effects.dart';
 import 'neon_text.dart';
+import 'zaza_logo.dart';
 
 class AppDrawer extends ConsumerWidget {
   const AppDrawer({super.key});
@@ -22,8 +16,12 @@ class AppDrawer extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentUser = ref.watch(currentUserProvider);
     final isAuthenticated = ref.watch(isAuthenticatedProvider);
-    // final isAdmin = ref.watch(isAdminProvider); // Temporarily disabled
-    // final canAccessAdmin = ref.watch(canAccessAdminProvider); // Temporarily disabled
+    
+    // Use the admin provider from auth_provider  
+    final isAdmin = ref.watch(isAdminProvider);
+    
+    // Debug: print current user email for troubleshooting
+    // Debug information removed for production
 
     return Directionality(
       textDirection: TextDirection.rtl,
@@ -41,7 +39,7 @@ class AppDrawer extends ConsumerWidget {
             children: [
               _buildHeader(context, currentUser, isAuthenticated),
               Expanded(
-                child: _buildMenuItems(context, ref, isAuthenticated),
+                child: _buildMenuItems(context, ref, isAuthenticated, isAdmin),
               ),
               if (isAuthenticated) _buildFooter(context, ref),
             ],
@@ -62,7 +60,7 @@ class AppDrawer extends ConsumerWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.neonPink.withOpacity(0.3),
+            color: AppColors.neonPink.withValues(alpha: 0.3),
             blurRadius: 15,
             spreadRadius: 5,
           ),
@@ -71,6 +69,15 @@ class AppDrawer extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Zaza Logo
+          Center(
+            child: ZazaLogo.appBar(
+              width: 140,
+              height: 45,
+              glowColor: AppColors.neonPink,
+            ),
+          ),
+          const SizedBox(height: 20),
           Row(
             children: [
               NeonGlowContainer(
@@ -111,9 +118,9 @@ class AppDrawer extends ConsumerWidget {
                       const SizedBox(height: 5),
                       currentUser.when(
                         data: (user) => Text(
-                          _getRoleDisplayName(user?.role ?? 'student'),
+                          _getRoleDisplayName(user?.role.value ?? 'student'),
                           style: GoogleFonts.assistant(
-                            color: AppColors.primaryText.withOpacity(0.8),
+                            color: AppColors.primaryText.withValues(alpha: 0.8),
                             fontSize: 14,
                           ),
                         ),
@@ -130,7 +137,7 @@ class AppDrawer extends ConsumerWidget {
                       Text(
                         'היכנסו לחשבון שלכם',
                         style: GoogleFonts.assistant(
-                          color: AppColors.primaryText.withOpacity(0.8),
+                          color: AppColors.primaryText.withValues(alpha: 0.8),
                           fontSize: 14,
                         ),
                       ),
@@ -145,7 +152,7 @@ class AppDrawer extends ConsumerWidget {
     );
   }
 
-  Widget _buildMenuItems(BuildContext context, WidgetRef ref, bool isAuthenticated) {
+  Widget _buildMenuItems(BuildContext context, WidgetRef ref, bool isAuthenticated, bool isAdmin) {
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: 10),
       children: [
@@ -153,28 +160,28 @@ class AppDrawer extends ConsumerWidget {
           context,
           icon: Icons.home,
           title: 'בית',
-          onTap: () => _navigateToPage(context, const HomePage()),
+          onTap: () => _navigateToPage(context, '/home'),
           glowColor: AppColors.neonPink,
         ),
         _buildMenuItem(
           context,
           icon: Icons.video_library,
           title: 'מדריכי ריקוד',
-          onTap: () => _navigateToPage(context, const TutorialsPage()),
+          onTap: () => _navigateToPage(context, '/tutorials'),
           glowColor: AppColors.neonTurquoise,
         ),
         _buildMenuItem(
           context,
           icon: Icons.photo_library,
           title: 'גלריה',
-          onTap: () => _navigateToPage(context, const GalleryPage()),
+          onTap: () => _navigateToPage(context, '/gallery'),
           glowColor: AppColors.neonPurple,
         ),
         _buildMenuItem(
           context,
           icon: Icons.announcement,
           title: 'עדכונים',
-          onTap: () => _navigateToPage(context, const UpdatesPage()),
+          onTap: () => _navigateToPage(context, '/updates'),
           glowColor: AppColors.neonBlue,
         ),
         
@@ -184,29 +191,29 @@ class AppDrawer extends ConsumerWidget {
             context,
             icon: Icons.person,
             title: 'פרופיל אישי',
-            onTap: () => _navigateToPage(context, const ProfilePage()),
+            onTap: () => _navigateToPage(context, '/profile'),
             glowColor: AppColors.neonGreen,
           ),
           _buildMenuItem(
             context,
             icon: Icons.settings,
             title: 'הגדרות',
-            onTap: () => _navigateToPage(context, const SettingsPage()),
+            onTap: () => _navigateToPage(context, '/settings'),
             glowColor: AppColors.accent1,
           ),
         ],
 
-        // Admin functionality temporarily disabled - keeping backend structure intact
-        // if (canAccessAdmin) ...[
-        //   const NeonDivider(),
-        //   _buildMenuItem(
-        //     context,
-        //     icon: Icons.admin_panel_settings,
-        //     title: 'ניהול מערכת',
-        //     onTap: () => _navigateToPage(context, const AdminPage()),
-        //     glowColor: AppColors.warning,
-        //   ),
-        // ],
+        // Admin functionality
+        if (isAuthenticated && isAdmin) ...[
+          const NeonDivider(),
+          _buildMenuItem(
+            context,
+            icon: Icons.admin_panel_settings,
+            title: 'ניהול מערכת',
+            onTap: () => _navigateToPage(context, '/admin/dashboard'),
+            glowColor: AppColors.warning,
+          ),
+        ],
 
         if (!isAuthenticated) ...[
           const NeonDivider(),
@@ -214,7 +221,7 @@ class AppDrawer extends ConsumerWidget {
             context,
             icon: Icons.login,
             title: 'התחברות',
-            onTap: () => _navigateToPage(context, const LoginPage()),
+            onTap: () => _navigateToPage(context, '/auth/login'),
             glowColor: AppColors.neonGreen,
           ),
         ],
@@ -225,7 +232,7 @@ class AppDrawer extends ConsumerWidget {
           icon: Icons.info_outline,
           title: 'אודות הסטודיו',
           onTap: () {
-            Navigator.of(context).pop();
+            context.pop();
             _showAboutDialog(context);
           },
           glowColor: AppColors.info,
@@ -235,7 +242,7 @@ class AppDrawer extends ConsumerWidget {
           icon: Icons.contact_phone,
           title: 'יצירת קשר',
           onTap: () {
-            Navigator.of(context).pop();
+            context.pop();
             _showContactDialog(context);
           },
           glowColor: AppColors.accent2,
@@ -263,7 +270,7 @@ class AppDrawer extends ConsumerWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: glowColor.withOpacity(0.2),
+                color: glowColor.withValues(alpha: 0.2),
                 width: 1,
               ),
             ),
@@ -304,7 +311,7 @@ class AppDrawer extends ConsumerWidget {
       decoration: BoxDecoration(
         border: Border(
           top: BorderSide(
-            color: AppColors.neonTurquoise.withOpacity(0.3),
+            color: AppColors.neonTurquoise.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -321,21 +328,19 @@ class AppDrawer extends ConsumerWidget {
     );
   }
 
-  void _navigateToPage(BuildContext context, Widget page) {
-    Navigator.of(context).pop();
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (context) => page),
-    );
+  void _navigateToPage(BuildContext context, String route) {
+    context.pop();
+    context.go(route);
   }
 
   Future<void> _handleLogout(BuildContext context, WidgetRef ref) async {
-    Navigator.of(context).pop();
+    context.pop();
     
     final result = await ref.read(currentUserProvider.notifier).signOut();
     
     if (context.mounted) {
       if (result.isSuccess) {
-        Navigator.of(context).pushReplacementNamed('/');
+        context.go('/');
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -350,43 +355,6 @@ class AppDrawer extends ConsumerWidget {
     }
   }
 
-  void _showComingSoonDialog(BuildContext context, String feature) {
-    showDialog(
-      context: context,
-      builder: (context) => Directionality(
-        textDirection: TextDirection.rtl,
-        child: AlertDialog(
-          backgroundColor: AppColors.darkSurface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
-            side: BorderSide(
-              color: AppColors.neonTurquoise.withOpacity(0.3),
-              width: 1,
-            ),
-          ),
-          title: NeonText(
-            text: 'בקרוב',
-            fontSize: 20,
-            glowColor: AppColors.neonTurquoise,
-          ),
-          content: Text(
-            feature,
-            style: GoogleFonts.assistant(
-              color: AppColors.primaryText,
-              fontSize: 16,
-            ),
-          ),
-          actions: [
-            NeonButton(
-              text: 'הבנתי',
-              onPressed: () => Navigator.of(context).pop(),
-              glowColor: AppColors.neonTurquoise,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   void _showAboutDialog(BuildContext context) {
     showDialog(
@@ -398,7 +366,7 @@ class AppDrawer extends ConsumerWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
             side: BorderSide(
-              color: AppColors.neonPink.withOpacity(0.3),
+              color: AppColors.neonPink.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -420,7 +388,7 @@ class AppDrawer extends ConsumerWidget {
           actions: [
             NeonButton(
               text: 'סגור',
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => context.pop(),
               glowColor: AppColors.neonPink,
             ),
           ],
@@ -439,7 +407,7 @@ class AppDrawer extends ConsumerWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
             side: BorderSide(
-              color: AppColors.neonTurquoise.withOpacity(0.3),
+              color: AppColors.neonTurquoise.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -464,7 +432,7 @@ class AppDrawer extends ConsumerWidget {
           actions: [
             NeonButton(
               text: 'סגור',
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => context.pop(),
               glowColor: AppColors.neonTurquoise,
             ),
           ],

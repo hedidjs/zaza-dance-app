@@ -15,9 +15,19 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
         isCoreLibraryDesugaringEnabled = true
     }
+    
+    // Suppress obsolete warnings
+    tasks.withType<JavaCompile> {
+        options.compilerArgs.add("-Xlint:-options")
+    }
 
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_11.toString()
+        freeCompilerArgs += listOf(
+            "-Xno-param-assertions",
+            "-Xno-call-assertions", 
+            "-Xno-receiver-assertions"
+        )
     }
 
     defaultConfig {
@@ -29,12 +39,35 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        multiDexEnabled = true
+    }
+
+    signingConfigs {
+        create("release") {
+            // כדי ליצור production build, תצטרכו להוסיף פה את פרטי ה-keystore שלכם:
+            // keyAlias = "your_key_alias"
+            // keyPassword = "your_key_password"
+            // storeFile = file("../path/to/your/keystore.jks")
+            // storePassword = "your_store_password"
+            
+            // עד אז, נשתמש ב-debug keys רק לפיתוח
+            storeFile = signingConfigs.getByName("debug").storeFile
+            storePassword = signingConfigs.getByName("debug").storePassword
+            keyAlias = signingConfigs.getByName("debug").keyAlias
+            keyPassword = signingConfigs.getByName("debug").keyPassword
+        }
     }
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
+            // Disable minification temporarily for faster builds
+            isMinifyEnabled = false
+            isShrinkResources = false
+            signingConfig = signingConfigs.getByName("release")
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+        }
+        debug {
+            isDebuggable = true
             signingConfig = signingConfigs.getByName("debug")
         }
     }
@@ -45,5 +78,6 @@ flutter {
 }
 
 dependencies {
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.2")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+    implementation("androidx.multidex:multidex:2.0.1")
 }

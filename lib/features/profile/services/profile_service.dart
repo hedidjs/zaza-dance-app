@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../../core/models/user_model.dart';
+import '../../../shared/models/user_model.dart';
 import '../../../core/constants/app_constants.dart';
 
 /// Service for managing user profile operations
@@ -14,30 +14,23 @@ class ProfileService {
   /// Get user statistics and dashboard data
   Future<Map<String, dynamic>> getUserStats(String userId) async {
     try {
-      // Mock data for demonstration - in real app, fetch from database
-      await Future.delayed(const Duration(milliseconds: 500));
+      // Get real user statistics from Supabase database
+      final response = await _supabase.rpc('get_user_stats', params: {'user_id': userId});
       
-      final stats = {
-        'danceLevel': 'מתחיל',
-        'instructorsWatched': 5,
-        'attendanceDays': 42,
-        'favoriteMoves': ['Breakdance', 'Freestyle', 'Hip-Hop'],
-        'achievements': [
-          {'title': 'רקדן חדש', 'icon': '🎯', 'date': '2024-01-15'},
-          {'title': 'נוכחות מושלמת', 'icon': '⭐', 'date': '2024-02-01'},
-          {'title': 'תלמיד מצטיין', 'icon': '🏆', 'date': '2024-03-01'},
-        ],
-        'recentActivity': [
-          {'action': 'צפיה בשיעור חדש', 'date': '2024-03-10'},
-          {'action': 'עדכון פרופיל', 'date': '2024-03-08'},
-          {'action': 'השתתפות באירוע', 'date': '2024-03-05'},
-        ],
+      // If no data is returned, provide default empty stats
+      final stats = response ?? {
+        'danceLevel': 'טוען...',
+        'instructorsWatched': 0,
+        'attendanceDays': 0,
+        'favoriteMoves': [],
+        'achievements': [],
+        'recentActivity': [],
       };
       
       return stats;
     } catch (error) {
       if (kDebugMode) {
-        print('ProfileService: Error getting user stats: $error');
+        debugPrint('ProfileService: Error getting user stats: $error');
       }
       throw Exception('Failed to load user statistics');
     }
@@ -68,7 +61,7 @@ class ProfileService {
       return response;
     } catch (error) {
       if (kDebugMode) {
-        print('ProfileService: Error getting user preferences: $error');
+        debugPrint('ProfileService: Error getting user preferences: $error');
       }
       // Return default preferences on error
       return {
@@ -95,7 +88,7 @@ class ProfileService {
           });
     } catch (error) {
       if (kDebugMode) {
-        print('ProfileService: Error updating user preferences: $error');
+        debugPrint('ProfileService: Error updating user preferences: $error');
       }
       throw Exception('Failed to update preferences');
     }
@@ -107,8 +100,6 @@ class ProfileService {
       // Pick image from gallery
       final XFile? image = await _imagePicker.pickImage(
         source: ImageSource.gallery,
-        maxWidth: 512,
-        maxHeight: 512,
         imageQuality: 80,
       );
 
@@ -138,7 +129,7 @@ class ProfileService {
       return publicUrl;
     } catch (error) {
       if (kDebugMode) {
-        print('ProfileService: Error uploading profile image: $error');
+        debugPrint('ProfileService: Error uploading profile image: $error');
       }
       throw Exception('Failed to upload image: $error');
     }
@@ -151,32 +142,54 @@ class ProfileService {
     String? phoneNumber,
     String? address,
     DateTime? birthDate,
-    String? profileImageUrl,
+    String? avatarUrl,
   }) async {
     try {
       final Map<String, dynamic> updates = {
         'updated_at': DateTime.now().toIso8601String(),
       };
 
-      if (fullName != null) updates['full_name'] = fullName;
-      if (phoneNumber != null) updates['phone_number'] = phoneNumber;
+      // Use correct column names for 'users' table
+      if (fullName != null) updates['display_name'] = fullName;
+      if (phoneNumber != null) updates['phone'] = phoneNumber;
       if (address != null) updates['address'] = address;
       if (birthDate != null) updates['birth_date'] = birthDate.toIso8601String();
-      if (profileImageUrl != null) updates['profile_image_url'] = profileImageUrl;
+      if (avatarUrl != null) updates['avatar_url'] = avatarUrl;
+
+      if (kDebugMode) {
+        debugPrint('ProfileService: Updating profile for userId: $userId');
+        debugPrint('ProfileService: Updates data: $updates');
+      }
 
       final response = await _supabase
-          .from('profiles')
+          .from('users')  // Use 'users' table, not 'profiles'
           .update(updates)
           .eq('id', userId)
           .select()
           .single();
 
+      if (kDebugMode) {
+        debugPrint('ProfileService: Update successful, response: $response');
+      }
+
       return UserModel.fromJson(response);
     } catch (error) {
       if (kDebugMode) {
-        print('ProfileService: Error updating profile: $error');
+        debugPrint('ProfileService: Error updating profile: $error');
+        debugPrint('ProfileService: Error type: ${error.runtimeType}');
       }
-      throw Exception('Failed to update profile');
+      
+      // Enhanced error handling with specific error messages
+      String errorMessage = 'Failed to update profile';
+      if (error.toString().contains('Row Level Security')) {
+        errorMessage = 'אין הרשאה לעדכן פרופיל. יש להתחבר קודם.';
+      } else if (error.toString().contains('duplicate key')) {
+        errorMessage = 'שגיאה בנתונים - כתובת אימייל או טלפון כבר קיימים';
+      } else if (error.toString().contains('violates foreign key')) {
+        errorMessage = 'שגיאה בחיבור לנתונים';
+      }
+      
+      throw Exception(errorMessage);
     }
   }
 
@@ -192,7 +205,7 @@ class ProfileService {
       }
     } catch (error) {
       if (kDebugMode) {
-        print('ProfileService: Error changing password: $error');
+        debugPrint('ProfileService: Error changing password: $error');
       }
       throw Exception('Failed to change password: $error');
     }
@@ -201,10 +214,10 @@ class ProfileService {
   /// Delete user account
   Future<void> deleteAccount(String userId) async {
     try {
-      // Delete user profile
+      // Mark user as inactive instead of deleting (for data integrity)
       await _supabase
-          .from('profiles')
-          .delete()
+          .from('users')
+          .update({'is_active': false})
           .eq('id', userId);
 
       // Delete user preferences
@@ -213,13 +226,13 @@ class ProfileService {
           .delete()
           .eq('user_id', userId);
 
-      // Delete auth user (this will cascade delete related data)
-      await _supabase.auth.admin.deleteUser(userId);
+      // Note: We don't delete the auth user directly here as it requires service role
+      // This should be handled by a server-side function
     } catch (error) {
       if (kDebugMode) {
-        print('ProfileService: Error deleting account: $error');
+        debugPrint('ProfileService: Error deleting account: $error');
       }
-      throw Exception('Failed to delete account');
+      throw Exception('Failed to delete account: $error');
     }
   }
 
@@ -227,7 +240,7 @@ class ProfileService {
   Future<Map<String, dynamic>> exportUserData(String userId) async {
     try {
       final List<Future> futures = [
-        _supabase.from('profiles').select().eq('id', userId).maybeSingle(),
+        _supabase.from('users').select().eq('id', userId).maybeSingle(),
         _supabase.from('user_preferences').select().eq('user_id', userId).maybeSingle(),
       ];
 
@@ -240,9 +253,9 @@ class ProfileService {
       };
     } catch (error) {
       if (kDebugMode) {
-        print('ProfileService: Error exporting user data: $error');
+        debugPrint('ProfileService: Error exporting user data: $error');
       }
-      throw Exception('Failed to export user data');
+      throw Exception('Failed to export user data: $error');
     }
   }
 

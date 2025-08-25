@@ -18,12 +18,10 @@ class AppTheme {
         tertiary: AppColors.neonPurple,
         surface: AppColors.darkSurface,
         onSurface: AppColors.primaryText,
-        background: AppColors.darkBackground,
-        onBackground: AppColors.primaryText,
         error: AppColors.error,
         onError: AppColors.primaryText,
         outline: AppColors.darkBorder,
-        surfaceVariant: AppColors.darkCard,
+        surfaceContainerHighest: AppColors.darkCard,
         onSurfaceVariant: AppColors.secondaryText,
       ),
       

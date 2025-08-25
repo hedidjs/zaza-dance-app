@@ -25,7 +25,6 @@ class ZazaDanceApp extends StatelessWidget {
       colorScheme: const ColorScheme.dark(
         primary: Color(0xFFFF00FF), // Fuchsia
         secondary: Color(0xFF40E0D0), // Turquoise
-        background: Color(0xFF0A0A0A),
         surface: Color(0xFF1A1A1A),
       ),
       textTheme: GoogleFonts.assistantTextTheme().apply(
@@ -152,12 +151,12 @@ class _LandingPageState extends State<LandingPage>
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.8),
+            color: color.withValues(alpha: 0.8),
             blurRadius: 20,
             spreadRadius: 5,
           ),
           BoxShadow(
-            color: color.withOpacity(0.6),
+            color: color.withValues(alpha: 0.6),
             blurRadius: 40,
             spreadRadius: 10,
           ),
@@ -190,7 +189,7 @@ class _LandingPageState extends State<LandingPage>
         ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFFFF00FF).withOpacity(0.4),
+            color: const Color(0xFFFF00FF).withValues(alpha: 0.4),
             blurRadius: 20,
             spreadRadius: 5,
           ),
@@ -294,20 +293,20 @@ class _LandingPageState extends State<LandingPage>
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
         border: Border.all(
-          color: const Color(0xFF40E0D0).withOpacity(0.3),
+          color: const Color(0xFF40E0D0).withValues(alpha: 0.3),
           width: 1,
         ),
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            const Color(0xFF2A2A2A).withOpacity(0.8),
-            const Color(0xFF1A1A1A).withOpacity(0.8),
+            const Color(0xFF2A2A2A).withValues(alpha: 0.8),
+            const Color(0xFF1A1A1A).withValues(alpha: 0.8),
           ],
         ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF40E0D0).withOpacity(0.2),
+            color: const Color(0xFF40E0D0).withValues(alpha: 0.2),
             blurRadius: 10,
             spreadRadius: 2,
           ),
@@ -394,7 +393,7 @@ class _LandingPageState extends State<LandingPage>
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.3),
+            color: color.withValues(alpha: 0.3),
             blurRadius: 10,
             spreadRadius: 2,
           ),
@@ -403,11 +402,11 @@ class _LandingPageState extends State<LandingPage>
       child: ElevatedButton.icon(
         onPressed: () {},
         style: ElevatedButton.styleFrom(
-          backgroundColor: color.withOpacity(0.2),
+          backgroundColor: color.withValues(alpha: 0.2),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
-            side: BorderSide(color: color.withOpacity(0.5)),
+            side: BorderSide(color: color.withValues(alpha: 0.5)),
           ),
         ),
         icon: Icon(icon, color: color, size: 20),

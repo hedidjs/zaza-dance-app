@@ -2,10 +2,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/widgets/enhanced_neon_effects.dart';
-import '../providers/edit_profile_provider.dart';
+import '../../providers/edit_profile_provider.dart';
 
 class AutoSaveIndicator extends ConsumerStatefulWidget {
   final bool hasUnsavedChanges;
@@ -156,10 +157,10 @@ class _AutoSaveIndicatorState extends ConsumerState<AutoSaveIndicator>
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               decoration: BoxDecoration(
-                color: AppColors.neonTurquoise.withOpacity(0.1),
+                color: AppColors.neonTurquoise.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: AppColors.neonTurquoise.withOpacity(0.3),
+                  color: AppColors.neonTurquoise.withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -202,10 +203,10 @@ class _AutoSaveIndicatorState extends ConsumerState<AutoSaveIndicator>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: AppColors.warning.withOpacity(0.1),
+          color: AppColors.warning.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: AppColors.warning.withOpacity(0.4),
+            color: AppColors.warning.withValues(alpha: 0.4),
             width: 1,
           ),
         ),
@@ -251,10 +252,10 @@ class _AutoSaveIndicatorState extends ConsumerState<AutoSaveIndicator>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: AppColors.success.withOpacity(0.1),
+          color: AppColors.success.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: AppColors.success.withOpacity(0.3),
+            color: AppColors.success.withValues(alpha: 0.3),
             width: 0.5,
           ),
         ),
@@ -351,7 +352,7 @@ class UnsavedChangesDialog extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.warning.withOpacity(0.2),
+                  color: AppColors.warning.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
@@ -463,19 +464,17 @@ class _UnsavedChangesHandlerState extends State<UnsavedChangesHandler> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: _onWillPop,
+    return PopScope(
+      canPop: !widget.hasUnsavedChanges,
+      onPopInvokedWithResult: _onPopInvoked,
       child: widget.child,
     );
   }
 
-  Future<bool> _onWillPop() async {
-    if (!widget.hasUnsavedChanges) {
-      return true;
+  void _onPopInvoked(bool didPop, dynamic result) async {
+    if (widget.hasUnsavedChanges && !didPop) {
+      _showUnsavedChangesDialog();
     }
-
-    _showUnsavedChangesDialog();
-    return false;
   }
 
   void _showUnsavedChangesDialog() {
@@ -490,9 +489,9 @@ class _UnsavedChangesHandlerState extends State<UnsavedChangesHandler> {
           });
           
           try {
-            await widget.onSave();
+            widget.onSave();
             if (mounted) {
-              Navigator.of(context).pop();
+              context.pop();
               widget.onExit();
             }
           } catch (e) {
@@ -505,11 +504,11 @@ class _UnsavedChangesHandlerState extends State<UnsavedChangesHandler> {
           }
         },
         onDiscard: () {
-          Navigator.of(context).pop();
+          context.pop();
           widget.onExit();
         },
         onCancel: () {
-          Navigator.of(context).pop();
+          context.pop();
         },
       ),
     );
@@ -542,10 +541,10 @@ class AutoSaveConfig extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.authCardBackground.withOpacity(0.8),
+          color: AppColors.authCardBackground.withValues(alpha: 0.8),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: AppColors.neonTurquoise.withOpacity(0.2),
+            color: AppColors.neonTurquoise.withValues(alpha: 0.2),
             width: 0.5,
           ),
         ),
@@ -572,7 +571,7 @@ class AutoSaveConfig extends StatelessWidget {
                 Switch(
                   value: enabled,
                   onChanged: (_) => onToggle?.call(),
-                  activeColor: AppColors.neonTurquoise,
+                  activeThumbColor: AppColors.neonTurquoise,
                   inactiveThumbColor: AppColors.secondaryText,
                   inactiveTrackColor: AppColors.darkSurface,
                 ),

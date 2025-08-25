@@ -4,7 +4,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../core/services/cache_service.dart';
-import '../../core/services/performance_service.dart';
 
 /// Optimized image widget with enhanced performance and user experience
 class OptimizedImage extends StatelessWidget {
@@ -127,9 +126,9 @@ class OptimizedImage extends StatelessWidget {
                   end: const Alignment(1.0, 0.3),
                   colors: [
                     AppColors.darkCard,
-                    AppColors.darkCard.withOpacity(0.3),
-                    AppColors.neonTurquoise.withOpacity(0.1),
-                    AppColors.darkCard.withOpacity(0.3),
+                    AppColors.darkCard.withValues(alpha: 0.3),
+                    AppColors.neonTurquoise.withValues(alpha: 0.1),
+                    AppColors.darkCard.withValues(alpha: 0.3),
                     AppColors.darkCard,
                   ],
                   stops: const [0.0, 0.35, 0.5, 0.65, 1.0],
@@ -147,7 +146,7 @@ class OptimizedImage extends StatelessWidget {
           Center(
             child: Icon(
               Icons.image,
-              color: AppColors.secondaryText.withOpacity(0.5),
+              color: AppColors.secondaryText.withValues(alpha: 0.5),
               size: 40,
             ),
           ),
@@ -194,7 +193,7 @@ class OptimizedImage extends StatelessWidget {
         color: AppColors.darkCard,
         borderRadius: borderRadius,
         border: Border.all(
-          color: AppColors.error.withOpacity(0.3),
+          color: AppColors.error.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -223,14 +222,14 @@ class OptimizedImage extends StatelessWidget {
   // Optimize memory usage by calculating appropriate cache dimensions
   int? _getOptimalWidth() {
     if (width == null) return null;
-    // Use 2x for high DPI screens, but cap at reasonable size
-    return (width! * 2).clamp(100, 800).toInt();
+    // Use 1.5x for better performance while maintaining quality, capped at reasonable size
+    return (width! * 1.5).clamp(100, 600).toInt();
   }
 
   int? _getOptimalHeight() {
     if (height == null) return null;
-    // Use 2x for high DPI screens, but cap at reasonable size
-    return (height! * 2).clamp(100, 800).toInt();
+    // Use 1.5x for better performance while maintaining quality, capped at reasonable size
+    return (height! * 1.5).clamp(100, 600).toInt();
   }
 }
 

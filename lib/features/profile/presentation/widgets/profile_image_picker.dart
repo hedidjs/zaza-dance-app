@@ -4,13 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../shared/widgets/enhanced_neon_effects.dart';
-import '../providers/edit_profile_provider.dart';
 
 class ProfileImagePicker extends ConsumerStatefulWidget {
   final String? currentImageUrl;
@@ -106,20 +105,20 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker>
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: AppColors.neonPink.withOpacity(0.6),
+                color: AppColors.neonPink.withValues(alpha: 0.6),
                 width: 3,
               ),
               gradient: _selectedImage == null && widget.currentImageUrl == null
                   ? RadialGradient(
                       colors: [
-                        AppColors.neonPink.withOpacity(0.2),
-                        AppColors.neonTurquoise.withOpacity(0.2),
+                        AppColors.neonPink.withValues(alpha: 0.2),
+                        AppColors.neonTurquoise.withValues(alpha: 0.2),
                       ],
                     )
                   : null,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.3),
+                  color: Colors.black.withValues(alpha: 0.3),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -135,7 +134,7 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker>
             child: Container(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.black.withOpacity(0.7),
+                color: Colors.black.withValues(alpha: 0.7),
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -205,8 +204,8 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker>
         shape: BoxShape.circle,
         gradient: RadialGradient(
           colors: [
-            AppColors.neonPink.withOpacity(0.3),
-            AppColors.neonTurquoise.withOpacity(0.3),
+            AppColors.neonPink.withValues(alpha: 0.3),
+            AppColors.neonTurquoise.withValues(alpha: 0.3),
           ],
         ),
       ),
@@ -217,13 +216,13 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker>
             Icon(
               Icons.person,
               size: 60,
-              color: AppColors.primaryText.withOpacity(0.7),
+              color: AppColors.primaryText.withValues(alpha: 0.7),
             ),
             const SizedBox(height: 8),
             Text(
               'הוספת תמונה',
               style: GoogleFonts.assistant(
-                color: AppColors.primaryText.withOpacity(0.7),
+                color: AppColors.primaryText.withValues(alpha: 0.7),
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
@@ -270,7 +269,7 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker>
           color: AppColors.darkSurface,
           shape: BoxShape.circle,
           border: Border.all(
-            color: AppColors.neonTurquoise.withOpacity(0.6),
+            color: AppColors.neonTurquoise.withValues(alpha: 0.6),
             width: 1.5,
           ),
         ),
@@ -298,7 +297,7 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker>
             color: AppColors.darkSurface,
             shape: BoxShape.circle,
             border: Border.all(
-              color: AppColors.error.withOpacity(0.6),
+              color: AppColors.error.withValues(alpha: 0.6),
               width: 1.5,
             ),
           ),
@@ -347,10 +346,10 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker>
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: AppColors.darkSurface.withOpacity(0.8),
+            color: AppColors.darkSurface.withValues(alpha: 0.8),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppColors.neonTurquoise.withOpacity(0.3),
+              color: AppColors.neonTurquoise.withValues(alpha: 0.3),
               width: 0.5,
             ),
           ),
@@ -381,10 +380,10 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.darkSurface.withOpacity(0.5),
+        color: AppColors.darkSurface.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppColors.neonTurquoise.withOpacity(0.2),
+          color: AppColors.neonTurquoise.withValues(alpha: 0.2),
           width: 0.5,
         ),
       ),
@@ -395,7 +394,7 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker>
             children: [
               Icon(
                 Icons.info_outline,
-                color: AppColors.neonTurquoise.withOpacity(0.7),
+                color: AppColors.neonTurquoise.withValues(alpha: 0.7),
                 size: 16,
               ),
               const SizedBox(width: 6),
@@ -462,7 +461,7 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker>
                 title: 'מהגלריה',
                 subtitle: 'בחירה מהתמונות השמורות',
                 onTap: () {
-                  Navigator.pop(context);
+                  context.pop();
                   _pickImage(ImageSource.gallery);
                 },
               ),
@@ -472,7 +471,7 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker>
                 title: 'מהמצלמה',
                 subtitle: 'צילום תמונה חדשה',
                 onTap: () {
-                  Navigator.pop(context);
+                  context.pop();
                   _pickImage(ImageSource.camera);
                 },
               ),
@@ -498,7 +497,7 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker>
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: AppColors.neonTurquoise.withOpacity(0.3),
+            color: AppColors.neonTurquoise.withValues(alpha: 0.3),
             width: 0.5,
           ),
         ),
@@ -513,7 +512,7 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker>
               child: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.neonTurquoise.withOpacity(0.2),
+                  color: AppColors.neonTurquoise.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
@@ -563,8 +562,6 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker>
       final ImagePicker picker = ImagePicker();
       final XFile? image = await picker.pickImage(
         source: source,
-        maxWidth: 1024,
-        maxHeight: 1024,
         imageQuality: 90,
       );
 
@@ -604,10 +601,7 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker>
 
   Future<XFile> _compressImage(XFile image) async {
     final dir = await getTemporaryDirectory();
-    final targetPath = path.join(
-      dir.absolute.path,
-      'compressed_profile_${DateTime.now().millisecondsSinceEpoch}.jpg',
-    );
+    final targetPath = '${dir.absolute.path}/compressed_profile_${DateTime.now().millisecondsSinceEpoch}.jpg';
 
     final compressedFile = await FlutterImageCompress.compressAndGetFile(
       image.path,
@@ -664,7 +658,7 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker>
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => context.pop(),
               child: Text(
                 'אישור',
                 style: GoogleFonts.assistant(

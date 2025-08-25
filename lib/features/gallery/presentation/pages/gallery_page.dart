@@ -3,14 +3,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_glow/flutter_glow.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:share_plus/share_plus.dart' as share_plus;
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/providers/data_providers.dart';
+import '../../../../shared/models/category_model.dart';
 import '../../../../shared/widgets/animated_gradient_background.dart';
 import '../../../../shared/widgets/neon_text.dart';
 import '../../../../shared/widgets/app_drawer.dart';
 import '../../../../shared/widgets/app_bottom_navigation.dart';
+import '../../../../shared/widgets/zaza_logo.dart';
 import '../../../../shared/models/gallery_model.dart';
 
 class GalleryPage extends ConsumerStatefulWidget {
@@ -23,13 +26,39 @@ class GalleryPage extends ConsumerStatefulWidget {
 class _GalleryPageState extends ConsumerState<GalleryPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-
-  List<String> get categories => ['הכל', 'שיעורים', 'הופעות', 'חיי הסטודיו', 'תלמידים'];
+  List<CategoryModel> _categories = [];
+  List<String> _categoryTabs = ['הכל'];
+  bool _isLoadingCategories = true;
   
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: categories.length, vsync: this);
+    _tabController = TabController(length: 1, vsync: this); // Start with 1 for 'הכל'
+    _loadCategories();
+  }
+
+  Future<void> _loadCategories() async {
+    try {
+      final categories = await ref.read(categoriesProvider.future);
+      
+      if (mounted) {
+        setState(() {
+          _categories = categories.where((cat) => cat.isActive).toList();
+          _categoryTabs = ['הכל', ..._categories.map((cat) => cat.nameHe)];
+          _isLoadingCategories = false;
+          
+          // Rebuild tab controller with correct length
+          _tabController.dispose();
+          _tabController = TabController(length: _categoryTabs.length, vsync: this);
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoadingCategories = false;
+        });
+      }
+    }
   }
 
   @override
@@ -41,8 +70,12 @@ class _GalleryPageState extends ConsumerState<GalleryPage>
   List<GalleryModel> _getFilteredItems(List<GalleryModel> allItems, int categoryIndex) {
     if (categoryIndex == 0) return allItems; // הכל
     
-    // כאן נוכל להוסיף לוגיקה לסינון לפי קטגוריות
-    // בינתיים מחזיר את כל הפריטים
+    // סינון לפי קטגוריה
+    if (categoryIndex <= _categories.length) {
+      final selectedCategory = _categories[categoryIndex - 1]; // -1 כי האינדקס 0 הוא 'הכל'
+      return allItems.where((item) => item.categoryId == selectedCategory.id).toList();
+    }
+    
     return allItems;
   }
 
@@ -57,11 +90,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage>
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          title: NeonText(
-            text: 'גלריה',
-            fontSize: 24,
-            glowColor: AppColors.neonTurquoise,
-          ),
+          title: const ZazaLogo.appBar(),
           leading: Builder(
             builder: (context) => IconButton(
               icon: GlowIcon(
@@ -72,26 +101,34 @@ class _GalleryPageState extends ConsumerState<GalleryPage>
               onPressed: () => Scaffold.of(context).openDrawer(),
             ),
           ),
-          bottom: TabBar(
-            controller: _tabController,
-            indicatorColor: AppColors.neonTurquoise,
-            labelColor: AppColors.primaryText,
-            unselectedLabelColor: AppColors.secondaryText,
-            isScrollable: true,
-            tabs: categories.map((category) => Tab(text: category)).toList(),
-          ),
+          bottom: _isLoadingCategories 
+            ? null
+            : TabBar(
+                controller: _tabController,
+                indicatorColor: AppColors.neonTurquoise,
+                labelColor: AppColors.primaryText,
+                unselectedLabelColor: AppColors.secondaryText,
+                isScrollable: true,
+                tabs: _categoryTabs.map((category) => Tab(text: category)).toList(),
+              ),
         ),
         drawer: const AppDrawer(),
         body: AnimatedGradientBackground(
           child: SafeArea(
-            child: galleryAsync.when(
-              data: (items) => TabBarView(
-                controller: _tabController,
-                children: categories.asMap().entries.map((entry) {
-                  final categoryIndex = entry.key;
-                  return _buildGalleryGrid(items, categoryIndex);
-                }).toList(),
-              ),
+            child: _isLoadingCategories
+              ? Center(
+                  child: CircularProgressIndicator(
+                    color: AppColors.neonTurquoise,
+                  ),
+                )
+              : galleryAsync.when(
+                  data: (items) => TabBarView(
+                    controller: _tabController,
+                    children: _categoryTabs.asMap().entries.map((entry) {
+                      final categoryIndex = entry.key;
+                      return _buildGalleryGrid(items, categoryIndex);
+                    }).toList(),
+                  ),
               loading: () => Center(
                 child: CircularProgressIndicator(
                   color: AppColors.neonTurquoise,
@@ -148,13 +185,17 @@ class _GalleryPageState extends ConsumerState<GalleryPage>
             ),
             const SizedBox(height: 20),
             NeonText(
-              text: 'אין תמונות בקטגוריה זו',
+              text: categoryIndex == 0 
+                ? 'אין תמונות בגלריה'
+                : 'אין תמונות בקטגוריה זו',
               fontSize: 18,
               glowColor: AppColors.neonPink,
             ),
             const SizedBox(height: 10),
             Text(
-              'תמונות חדשות יתווספו בקרוב',
+              categoryIndex == 0
+                ? 'אין תמונות או סרטונים זמינים כרגע'
+                : 'אין תוכן זמין בקטגוריה זו כרגע',
               style: TextStyle(
                 color: AppColors.secondaryText,
                 fontSize: 14,
@@ -603,20 +644,18 @@ class _GalleryPageState extends ConsumerState<GalleryPage>
                               final shareText = 'בדקו את הצילום הזה מהסטודיו של זזה דאנס! 💃\n\n'
                                   '${item.titleHe}\n\n'
                                   '${item.descriptionHe ?? ''}\n\n'
-                                  'בואו להצטרף למשפחת זזה דאנס! 🎵\n'
-                                  'https://zazadance.com';
+                                  'בואו להצטרף למשפחת זזה דאנס! 🎵';
                               
-                              await Share.share(
-                                shareText,
-                                subject: 'זזה דאנס - ${item.titleHe}',
-                              );
+                              await share_plus.SharePlus.instance.share(share_plus.ShareParams(text: shareText));
                             } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('שגיאה בשיתוף: $e'),
-                                  backgroundColor: AppColors.error,
-                                ),
-                              );
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('שגיאה בשיתוף: $e'),
+                                    backgroundColor: AppColors.error,
+                                  ),
+                                );
+                              }
                             }
                           },
                           icon: Icon(Icons.share),
@@ -630,7 +669,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage>
                       Expanded(
                         child: ElevatedButton.icon(
                           onPressed: () {
-                            Navigator.pop(context);
+                            context.pop();
                           },
                           icon: Icon(Icons.close),
                           label: Text('סגור'),

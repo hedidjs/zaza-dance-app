@@ -49,10 +49,10 @@ class UpdateModel {
 
     if (difference.inDays > 30) {
       final months = (difference.inDays / 30).floor();
-      return 'לפני ${months} חודשים';
+      return 'לפני $months חודשים';
     } else if (difference.inDays > 7) {
       final weeks = (difference.inDays / 7).floor();
-      return 'לפני ${weeks} שבועות';
+      return 'לפני $weeks שבועות';
     } else if (difference.inDays > 0) {
       return 'לפני ${difference.inDays} ימים';
     } else if (difference.inHours > 0) {
@@ -72,30 +72,37 @@ class UpdateModel {
   bool get isNew => DateTime.now().difference(publishDate).inDays < 3;
   int get likeCount => likesCount;
   int get commentCount => commentsCount;
+  bool get isImportant => isPinned || isFeatured; // Consider pinned/featured as important
 
   factory UpdateModel.fromJson(Map<String, dynamic> json) {
-    return UpdateModel(
-      id: json['id'] as String,
-      titleHe: json['title_he'] as String,
-      titleEn: json['title_en'] as String?,
-      contentHe: json['content_he'] as String,
-      contentEn: json['content_en'] as String?,
-      excerptHe: json['excerpt_he'] as String?,
-      excerptEn: json['excerpt_en'] as String?,
-      imageUrl: json['image_url'] as String?,
-      updateType: UpdateType.fromString(json['update_type'] as String),
-      isPinned: json['is_pinned'] as bool? ?? false,
-      isFeatured: json['is_featured'] as bool? ?? false,
-      authorName: json['author_name'] as String?,
-      likesCount: json['likes_count'] as int? ?? 0,
-      commentsCount: json['comments_count'] as int? ?? 0,
-      sharesCount: json['shares_count'] as int? ?? 0,
-      tags: List<String>.from(json['tags'] as List? ?? []),
-      publishDate: DateTime.parse(json['publish_date'] as String),
-      isActive: json['is_active'] as bool? ?? true,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
-    );
+    try {
+      return UpdateModel(
+        id: json['id']?.toString() ?? '',
+        titleHe: json['title_he']?.toString() ?? json['title']?.toString() ?? '',
+        titleEn: json['title_en']?.toString(),
+        contentHe: json['content_he']?.toString() ?? json['content']?.toString() ?? '',
+        contentEn: json['content_en']?.toString(),
+        excerptHe: json['excerpt_he']?.toString() ?? json['excerpt']?.toString(),
+        excerptEn: json['excerpt_en']?.toString(),
+        imageUrl: json['image_url']?.toString(),
+        updateType: UpdateType.fromString(json['update_type']?.toString() ?? 'announcement'),
+        isPinned: json['is_pinned'] as bool? ?? false,
+        isFeatured: json['is_featured'] as bool? ?? false,
+        authorName: json['author_name']?.toString(),
+        likesCount: json['likes_count'] as int? ?? 0,
+        commentsCount: json['comments_count'] as int? ?? 0,
+        sharesCount: json['shares_count'] as int? ?? 0,
+        tags: json['tags'] != null 
+            ? List<String>.from(json['tags'] as List)
+            : [],
+        publishDate: DateTime.tryParse(json['publish_date']?.toString() ?? '') ?? DateTime.now(),
+        isActive: json['is_active'] as bool? ?? true,
+        createdAt: DateTime.tryParse(json['created_at']?.toString() ?? '') ?? DateTime.now(),
+        updatedAt: DateTime.tryParse(json['updated_at']?.toString() ?? '') ?? DateTime.now(),
+      );
+    } catch (e) {
+      throw FormatException('Failed to parse UpdateModel from JSON: $e');
+    }
   }
 
   Map<String, dynamic> toJson() {

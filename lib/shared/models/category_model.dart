@@ -27,19 +27,23 @@ class CategoryModel {
   });
 
   factory CategoryModel.fromJson(Map<String, dynamic> json) {
-    return CategoryModel(
-      id: json['id'] as String,
-      nameHe: json['name_he'] as String,
-      nameEn: json['name_en'] as String?,
-      descriptionHe: json['description_he'] as String?,
-      descriptionEn: json['description_en'] as String?,
-      color: json['color'] as String? ?? '#FF00FF',
-      icon: json['icon'] as String?,
-      sortOrder: json['sort_order'] as int? ?? 0,
-      isActive: json['is_active'] as bool? ?? true,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
-    );
+    try {
+      return CategoryModel(
+        id: json['id']?.toString() ?? '',
+        nameHe: json['name_he']?.toString() ?? json['name']?.toString() ?? '',
+        nameEn: json['name_en']?.toString(),
+        descriptionHe: json['description_he']?.toString() ?? json['description']?.toString(),
+        descriptionEn: json['description_en']?.toString(),
+        color: json['color']?.toString() ?? '#FF00FF',
+        icon: json['icon']?.toString(),
+        sortOrder: json['sort_order'] as int? ?? 0,
+        isActive: json['is_active'] as bool? ?? true,
+        createdAt: DateTime.tryParse(json['created_at']?.toString() ?? '') ?? DateTime.now(),
+        updatedAt: DateTime.tryParse(json['updated_at']?.toString() ?? '') ?? DateTime.now(),
+      );
+    } catch (e) {
+      throw FormatException('Failed to parse CategoryModel from JSON: $e');
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -99,4 +103,19 @@ class CategoryModel {
 
   @override
   int get hashCode => id.hashCode;
+
+  // Additional convenience getters for compatibility
+  String get name => nameHe;
+  String get description => descriptionHe ?? '';
+  
+  // Color validation helper
+  bool get hasValidColor {
+    try {
+      // Check if color is a valid hex color
+      final hexColor = color.replaceAll('#', '');
+      return hexColor.length == 6 && int.tryParse(hexColor, radix: 16) != null;
+    } catch (e) {
+      return false;
+    }
+  }
 }

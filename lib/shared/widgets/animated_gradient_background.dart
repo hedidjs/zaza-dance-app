@@ -59,12 +59,12 @@ class _AnimatedGradientBackgroundState extends State<AnimatedGradientBackground>
                 AppColors.darkBackground,
                 Color.lerp(
                   AppColors.darkBackground,
-                  AppColors.neonPink.withOpacity(0.1),
+                  AppColors.neonPink.withValues(alpha: 0.1),
                   _animation.value * 0.3,
                 )!,
                 Color.lerp(
                   AppColors.darkBackground,
-                  AppColors.neonTurquoise.withOpacity(0.1),
+                  AppColors.neonTurquoise.withValues(alpha: 0.1),
                   (1 - _animation.value) * 0.3,
                 )!,
                 AppColors.darkBackground,

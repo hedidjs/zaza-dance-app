@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/providers/auth_provider.dart';
@@ -9,9 +10,6 @@ import '../../../../shared/widgets/neon_text.dart';
 import '../../../../shared/widgets/enhanced_neon_effects.dart';
 import '../../../../shared/widgets/app_drawer.dart';
 import '../../../../shared/widgets/app_bottom_navigation.dart';
-import 'notification_settings_page.dart';
-import 'profile_settings_page.dart';
-import 'general_settings_page.dart';
 
 /// עמוד הגדרות ראשי לאפליקציית זזה דאנס
 class SettingsPage extends ConsumerWidget {
@@ -83,7 +81,7 @@ class SettingsPage extends ConsumerWidget {
                           icon: Icons.login,
                           title: 'התחברות',
                           subtitle: 'התחבר כדי לגשת להגדרות אישיות',
-                          onTap: () => Navigator.of(context).pushNamed('/login'),
+                          onTap: () => context.go('/auth/login'),
                           glowColor: AppColors.neonGreen,
                         ),
                       ],
@@ -153,7 +151,7 @@ class SettingsPage extends ConsumerWidget {
           ),
         ),
         bottomNavigationBar: const AppBottomNavigation(
-          currentPage: NavigationPage.home, // אין עמוד הגדרות בניווט, נשאיר בית
+          currentPage: NavigationPage.home, // ההגדרות נפתחות מתפריט הצד
         ),
       ),
     );
@@ -177,7 +175,7 @@ class SettingsPage extends ConsumerWidget {
               ),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: AppColors.neonPink.withOpacity(0.3),
+                color: AppColors.neonPink.withValues(alpha: 0.3),
                 width: 1,
               ),
             ),
@@ -189,10 +187,10 @@ class SettingsPage extends ConsumerWidget {
                   child: CircleAvatar(
                     radius: 30,
                     backgroundColor: AppColors.darkSurface,
-                    backgroundImage: user.profileImageUrl != null
-                        ? NetworkImage(user.profileImageUrl!)
+                    backgroundImage: user.avatarUrl != null
+                        ? NetworkImage(user.avatarUrl!)
                         : null,
-                    child: user.profileImageUrl == null
+                    child: user.avatarUrl == null
                         ? Icon(
                             Icons.person,
                             size: 35,
@@ -223,15 +221,15 @@ class SettingsPage extends ConsumerWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: AppColors.neonTurquoise.withOpacity(0.2),
+                          color: AppColors.neonTurquoise.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: AppColors.neonTurquoise.withOpacity(0.5),
+                            color: AppColors.neonTurquoise.withValues(alpha: 0.5),
                             width: 1,
                           ),
                         ),
                         child: Text(
-                          _getRoleDisplayName(user.role),
+                          _getRoleDisplayName(user.role.value),
                           style: GoogleFonts.assistant(
                             color: AppColors.neonTurquoise,
                             fontSize: 12,
@@ -289,12 +287,12 @@ class SettingsPage extends ConsumerWidget {
               color: AppColors.darkSurface,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: glowColor.withOpacity(0.3),
+                color: glowColor.withValues(alpha: 0.3),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: glowColor.withOpacity(0.1),
+                  color: glowColor.withValues(alpha: 0.1),
                   blurRadius: 8,
                   spreadRadius: 2,
                 ),
@@ -305,7 +303,7 @@ class SettingsPage extends ConsumerWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: glowColor.withOpacity(0.2),
+                    color: glowColor.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
@@ -353,27 +351,15 @@ class SettingsPage extends ConsumerWidget {
   }
 
   void _navigateToProfileSettings(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const ProfileSettingsPage(),
-      ),
-    );
+    context.go('/settings/profile');
   }
 
   void _navigateToNotificationSettings(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const NotificationSettingsPage(),
-      ),
-    );
+    context.go('/settings/notifications');
   }
 
   void _navigateToGeneralSettings(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const GeneralSettingsPage(),
-      ),
-    );
+    context.go('/settings/general');
   }
 
   void _showAboutDialog(BuildContext context) {
@@ -386,7 +372,7 @@ class SettingsPage extends ConsumerWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
             side: BorderSide(
-              color: AppColors.info.withOpacity(0.3),
+              color: AppColors.info.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -435,7 +421,7 @@ class SettingsPage extends ConsumerWidget {
           actions: [
             NeonButton(
               text: 'סגור',
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => context.pop(),
               glowColor: AppColors.info,
             ),
           ],
@@ -454,7 +440,7 @@ class SettingsPage extends ConsumerWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
             side: BorderSide(
-              color: AppColors.neonBlue.withOpacity(0.3),
+              color: AppColors.neonBlue.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -491,7 +477,7 @@ class SettingsPage extends ConsumerWidget {
           actions: [
             NeonButton(
               text: 'סגור',
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => context.pop(),
               glowColor: AppColors.neonBlue,
             ),
           ],
@@ -510,7 +496,7 @@ class SettingsPage extends ConsumerWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
             side: BorderSide(
-              color: AppColors.warning.withOpacity(0.3),
+              color: AppColors.warning.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -543,7 +529,7 @@ class SettingsPage extends ConsumerWidget {
           actions: [
             NeonButton(
               text: 'הבנתי',
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => context.pop(),
               glowColor: AppColors.warning,
             ),
           ],
@@ -562,7 +548,7 @@ class SettingsPage extends ConsumerWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
             side: BorderSide(
-              color: AppColors.accent1.withOpacity(0.3),
+              color: AppColors.accent1.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -596,7 +582,7 @@ class SettingsPage extends ConsumerWidget {
           actions: [
             NeonButton(
               text: 'הבנתי',
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => context.pop(),
               glowColor: AppColors.accent1,
             ),
           ],

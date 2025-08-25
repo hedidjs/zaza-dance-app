@@ -35,11 +35,11 @@ class PushNotificationService {
 
       _isInitialized = true;
       if (kDebugMode) {
-        print('PushNotificationService initialized successfully');
+        debugPrint('PushNotificationService initialized successfully');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Error initializing PushNotificationService: $e');
+        debugPrint('Error initializing PushNotificationService: $e');
       }
     }
   }
@@ -67,19 +67,25 @@ class PushNotificationService {
 
   /// Request notification permissions
   Future<void> _requestPermissions() async {
-    // Request permissions for iOS
-    await _flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()
-        ?.requestPermissions(
-          alert: true,
-          badge: true,
-          sound: true,
-        );
+    try {
+      // Request permissions for iOS
+      await _flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()
+          ?.requestPermissions(
+            alert: true,
+            badge: true,
+            sound: true,
+          );
 
-    // Request permissions for Android 13+
-    await _flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-        ?.requestNotificationsPermission();
+      // Request permissions for Android 13+
+      await _flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+          ?.requestNotificationsPermission();
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error requesting notification permissions: $e');
+      }
+    }
   }
 
   /// Handle notification tap
@@ -92,7 +98,7 @@ class PushNotificationService {
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Error handling notification tap: $e');
+        debugPrint('Error handling notification tap: $e');
       }
     }
   }
@@ -103,12 +109,12 @@ class PushNotificationService {
     final targetId = data['targetId'] as String?;
 
     if (kDebugMode) {
-      print('Navigating to: $type with ID: $targetId');
+      debugPrint('Navigating to: $type with ID: $targetId');
     }
 
     if (_context == null || !_context!.mounted) {
       if (kDebugMode) {
-        print('Context not available for navigation');
+        debugPrint('Context not available for navigation');
       }
       return;
     }
@@ -146,18 +152,18 @@ class PushNotificationService {
       }
 
       if (kDebugMode) {
-        print('Successfully navigated to $type');
+        debugPrint('Successfully navigated to $type');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Error navigating from notification: $e');
+        debugPrint('Error navigating from notification: $e');
       }
       // במקרה של שגיאה, נווט לעמוד הבית
       try {
         _context!.go('/home');
       } catch (navError) {
         if (kDebugMode) {
-          print('Failed to navigate to home: $navError');
+          debugPrint('Failed to navigate to home: $navError');
         }
       }
     }
@@ -367,6 +373,7 @@ class PushNotificationService {
       'בואו נתרגל יחד את הטוטוריאלים החדשים',
       RepeatInterval.weekly,
       notificationDetails,
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
     );
   }
 
@@ -384,5 +391,39 @@ class PushNotificationService {
   Future<int> getPendingNotificationsCount() async {
     final pending = await _flutterLocalNotificationsPlugin.pendingNotificationRequests();
     return pending.length;
+  }
+
+  /// Send notification (for admin panel compatibility)
+  Future<void> sendNotification({
+    required String title,
+    required String body,
+    Map<String, dynamic>? data,
+  }) async {
+    if (!_isInitialized) await initialize();
+
+    const notificationDetails = NotificationDetails(
+      android: AndroidNotificationDetails(
+        'admin_notifications',
+        'התראות מנהל',
+        channelDescription: 'התראות שנשלחות מלוח הבקרה',
+        importance: Importance.high,
+        priority: Priority.high,
+        icon: '@mipmap/ic_launcher',
+        color: Color(0xFF9C27B0),
+      ),
+      iOS: DarwinNotificationDetails(
+        categoryIdentifier: 'admin_notifications',
+      ),
+    );
+
+    final payload = data != null ? jsonEncode(data) : null;
+
+    await _flutterLocalNotificationsPlugin.show(
+      DateTime.now().millisecondsSinceEpoch % 100000,
+      title,
+      body,
+      notificationDetails,
+      payload: payload,
+    );
   }
 }

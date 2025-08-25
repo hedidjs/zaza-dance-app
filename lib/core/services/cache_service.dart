@@ -1,8 +1,6 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import 'package:path_provider/path_provider.dart';
 
 /// Advanced cache management service for optimal performance
 class CacheService {
@@ -13,11 +11,11 @@ class CacheService {
   static const Duration _defaultMaxAge = Duration(days: 30);
   static const Duration _thumbnailMaxAge = Duration(days: 7);
   static const int _maxCacheObjects = 200;
-  static const int _maxCacheSize = 100 * 1024 * 1024; // 100MB
 
   late final CacheManager _imageCache;
   late final CacheManager _videoCache;
   late final CacheManager _thumbnailCache;
+  bool _isInitialized = false;
 
   static final CacheService _instance = CacheService._internal();
   factory CacheService() => _instance;
@@ -25,6 +23,8 @@ class CacheService {
 
   /// Initialize cache managers
   Future<void> initialize() async {
+    if (_isInitialized) return;
+    
     try {
       _imageCache = CacheManager(
         Config(
@@ -56,24 +56,40 @@ class CacheService {
         ),
       );
 
+      _isInitialized = true;
       if (kDebugMode) {
-        print('CacheService initialized successfully');
+        debugPrint('CacheService initialized successfully');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Error initializing CacheService: $e');
+        debugPrint('Error initializing CacheService: $e');
       }
     }
   }
 
   /// Get image cache manager
-  CacheManager get imageCache => _imageCache;
+  CacheManager get imageCache {
+    if (!_isInitialized) {
+      throw StateError('CacheService not initialized. Call initialize() first.');
+    }
+    return _imageCache;
+  }
 
   /// Get video cache manager  
-  CacheManager get videoCache => _videoCache;
+  CacheManager get videoCache {
+    if (!_isInitialized) {
+      throw StateError('CacheService not initialized. Call initialize() first.');
+    }
+    return _videoCache;
+  }
 
   /// Get thumbnail cache manager
-  CacheManager get thumbnailCache => _thumbnailCache;
+  CacheManager get thumbnailCache {
+    if (!_isInitialized) {
+      throw StateError('CacheService not initialized. Call initialize() first.');
+    }
+    return _thumbnailCache;
+  }
 
   /// Preload important images for faster loading
   Future<void> preloadImages(List<String> imageUrls) async {
@@ -82,11 +98,11 @@ class CacheService {
       await Future.wait(futures);
       
       if (kDebugMode) {
-        print('Preloaded ${imageUrls.length} images');
+        debugPrint('Preloaded ${imageUrls.length} images');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Error preloading images: $e');
+        debugPrint('Error preloading images: $e');
       }
     }
   }
@@ -98,11 +114,11 @@ class CacheService {
       await Future.wait(futures);
       
       if (kDebugMode) {
-        print('Preloaded ${thumbnailUrls.length} thumbnails');
+        debugPrint('Preloaded ${thumbnailUrls.length} thumbnails');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Error preloading thumbnails: $e');
+        debugPrint('Error preloading thumbnails: $e');
       }
     }
   }
@@ -113,13 +129,13 @@ class CacheService {
       final fileInfo = await _videoCache.downloadFile(videoUrl);
       
       if (kDebugMode) {
-        print('Downloaded video for offline: $videoUrl');
+        debugPrint('Downloaded video for offline: $videoUrl');
       }
       
       return fileInfo.file;
     } catch (e) {
       if (kDebugMode) {
-        print('Error downloading video: $e');
+        debugPrint('Error downloading video: $e');
       }
       return null;
     }
@@ -143,7 +159,7 @@ class CacheService {
       return CacheInfo.empty();
     } catch (e) {
       if (kDebugMode) {
-        print('Error getting cache info: $e');
+        debugPrint('Error getting cache info: $e');
       }
       return CacheInfo.empty();
     }
@@ -154,11 +170,11 @@ class CacheService {
     try {
       await _imageCache.emptyCache();
       if (kDebugMode) {
-        print('Image cache cleared');
+        debugPrint('Image cache cleared');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Error clearing image cache: $e');
+        debugPrint('Error clearing image cache: $e');
       }
     }
   }
@@ -167,11 +183,11 @@ class CacheService {
     try {
       await _videoCache.emptyCache();
       if (kDebugMode) {
-        print('Video cache cleared');
+        debugPrint('Video cache cleared');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Error clearing video cache: $e');
+        debugPrint('Error clearing video cache: $e');
       }
     }
   }
@@ -180,11 +196,11 @@ class CacheService {
     try {
       await _thumbnailCache.emptyCache();
       if (kDebugMode) {
-        print('Thumbnail cache cleared');
+        debugPrint('Thumbnail cache cleared');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Error clearing thumbnail cache: $e');
+        debugPrint('Error clearing thumbnail cache: $e');
       }
     }
   }
@@ -207,11 +223,11 @@ class CacheService {
       await _thumbnailCache.emptyCache();
       
       if (kDebugMode) {
-        print('Old cache entries cleaned up');
+        debugPrint('Old cache entries cleaned up');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Error cleaning up old cache: $e');
+        debugPrint('Error cleaning up old cache: $e');
       }
     }
   }

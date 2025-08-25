@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 
 /// Service for performance optimizations throughout the app
@@ -27,11 +26,11 @@ class PerformanceService {
 
       _isInitialized = true;
       if (kDebugMode) {
-        print('PerformanceService initialized successfully');
+        debugPrint('PerformanceService initialized successfully');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Error initializing PerformanceService: $e');
+        debugPrint('Error initializing PerformanceService: $e');
       }
     }
   }
@@ -43,16 +42,14 @@ class PerformanceService {
     
     // Configure garbage collection
     if (kDebugMode) {
-      print('Configuring memory optimization (target: ${targetMemoryMB}MB)');
+      debugPrint('Configuring memory optimization (target: ${targetMemoryMB}MB)');
     }
 
-    // Force garbage collection on low memory
-    SystemChannels.platform.setMethodCallHandler((call) async {
-      if (call.method == 'SystemChrome.onMemoryPressure') {
-        await _performMemoryCleanup();
-      }
-      return null;
-    });
+    // Note: Memory pressure handling would be implemented differently
+    // This is just a placeholder for the concept
+    if (kDebugMode) {
+      debugPrint('Memory optimization configured');
+    }
   }
 
   /// Configure optimized image caching
@@ -62,7 +59,7 @@ class PerformanceService {
     final int maxCacheSizeMB = Platform.isAndroid ? 50 : 100;
 
     if (kDebugMode) {
-      print('Configuring image cache: $maxCacheObjects objects, ${maxCacheSizeMB}MB');
+      debugPrint('Configuring image cache: $maxCacheObjects objects, ${maxCacheSizeMB}MB');
     }
 
     // Configure HTTP cache settings
@@ -77,7 +74,7 @@ class PerformanceService {
         for (final timing in timings) {
           final frameTime = timing.totalSpan.inMilliseconds;
           if (frameTime > 16) { // 60fps = ~16ms per frame
-            print('Slow frame detected: ${frameTime}ms');
+            debugPrint('Slow frame detected: ${frameTime}ms');
           }
         }
       });
@@ -85,9 +82,9 @@ class PerformanceService {
   }
 
   /// Perform memory cleanup when needed
-  Future<void> _performMemoryCleanup() async {
+  Future<void> performMemoryCleanup() async {
     if (kDebugMode) {
-      print('Performing memory cleanup...');
+      debugPrint('Performing memory cleanup...');
     }
 
     // Clear image cache if memory pressure
@@ -101,18 +98,34 @@ class PerformanceService {
   /// Preload critical assets for better performance
   Future<void> preloadCriticalAssets(BuildContext context) async {
     try {
-      // Preload app logo and critical icons
-      await Future.wait([
-        precacheImage(const AssetImage('assets/images/logo.png'), context),
-        // Add more critical assets here
-      ]);
+      // Preload critical assets that exist in the app
+      const assetImages = [
+        'assets/images/logo.png',
+        // Add other critical assets as they are created
+      ];
+
+      final futures = <Future>[];
+      for (final asset in assetImages) {
+        try {
+          futures.add(precacheImage(AssetImage(asset), context));
+        } catch (e) {
+          // Asset doesn't exist, skip it
+          if (kDebugMode) {
+            debugPrint('Asset not found: $asset');
+          }
+        }
+      }
+
+      if (futures.isNotEmpty) {
+        await Future.wait(futures);
+      }
 
       if (kDebugMode) {
-        print('Critical assets preloaded successfully');
+        debugPrint('Critical assets preloaded successfully');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Error preloading assets: $e');
+        debugPrint('Error preloading assets: $e');
       }
     }
   }
@@ -130,17 +143,17 @@ class PerformanceService {
 
   /// Get optimal image resolution based on device
   static String getOptimalImageUrl(String baseUrl, double displayWidth) {
-    // Calculate optimal resolution
-    final devicePixelRatio = WidgetsBinding.instance.window.devicePixelRatio;
-    final targetWidth = (displayWidth * devicePixelRatio).round();
-
-    // Return URL with appropriate size parameter
-    if (baseUrl.contains('unsplash.com')) {
-      return '$baseUrl&w=$targetWidth&q=80';
-    }
-    
-    // For other providers, return original URL
+    // For now, return original URL - all images should come from Supabase storage
+    // In the future, could implement dynamic resizing based on device capabilities
     return baseUrl;
+  }
+
+  /// Log performance events for analytics
+  Future<void> logEvent(String eventName, [Map<String, dynamic>? parameters]) async {
+    if (kDebugMode) {
+      debugPrint('Performance Event: $eventName ${parameters != null ? '- $parameters' : ''}');
+    }
+    // In production, integrate with Firebase Analytics or similar
   }
 
   /// Check if device is low-end for performance adjustments

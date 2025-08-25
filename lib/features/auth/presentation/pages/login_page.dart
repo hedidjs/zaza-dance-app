@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/providers/auth_provider.dart';
 import '../../../../shared/widgets/neon_text.dart';
 import '../../../../shared/widgets/enhanced_neon_effects.dart';
-import 'register_page.dart';
+import '../../../../shared/widgets/zaza_logo.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -35,17 +36,29 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     setState(() => _isLoading = true);
 
     try {
-      final result = await ref.read(currentUserProvider.notifier).signIn(
+      print('🔐 Attempting login with email: ${_emailController.text.trim()}');
+      
+      final result = await ref.read(authProvider.notifier).signIn(
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
 
+      print('🔐 Login result: success=${result.isSuccess}, message=${result.message}');
+
       if (mounted) {
         if (result.isSuccess) {
-          Navigator.of(context).pushReplacementNamed('/home');
+          print('✅ Login successful, navigating to home');
+          context.go('/home');
         } else {
+          print('❌ Login failed: ${result.message}');
           _showErrorMessage(result.message);
         }
+      }
+    } catch (e, stackTrace) {
+      print('💥 Login exception: $e');
+      print('Stack trace: $stackTrace');
+      if (mounted) {
+        _showErrorMessage('Login failed: $e');
       }
     } finally {
       if (mounted) {
@@ -60,7 +73,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       return;
     }
 
-    final result = await ref.read(currentUserProvider.notifier).resetPassword(
+    final result = await ref.read(authProvider.notifier).resetPassword(
       email: _emailController.text.trim(),
     );
 
@@ -92,6 +105,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: AppColors.primaryText),
+            onPressed: () => context.go('/'),
+          ),
+        ),
         body: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -129,31 +150,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   Widget _buildHeader() {
     return Column(
       children: [
-        // Subtle animated icon with elegant glow
-        NeonGlowContainer(
-          glowColor: AppColors.neonPink,
-          animate: true,
-          glowRadius: 12.0,
-          opacity: 0.25,
-          isSubtle: true,
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: [
-                  AppColors.neonPink.withOpacity(0.15),
-                  AppColors.neonPink.withOpacity(0.05),
-                  Colors.transparent,
-                ],
-              ),
-            ),
-            child: Icon(
-              Icons.login,
-              size: 60,
-              color: AppColors.neonPink.withOpacity(0.9),
-            ),
-          ),
+        // Zaza Logo
+        const ZazaLogo.hero(
+          width: 220,
+          height: 70,
         ),
         const SizedBox(height: 30),
         // Refined title with subtle glow
@@ -189,16 +189,16 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       child: Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: AppColors.authCardBackground.withOpacity(0.8),
+          color: AppColors.authCardBackground.withValues(alpha: 0.8),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: AppColors.neonTurquoise.withOpacity(0.2),
+            color: AppColors.neonTurquoise.withValues(alpha: 0.2),
             width: 0.5,
           ),
           // Subtle backdrop blur effect
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.2),
+              color: Colors.black.withValues(alpha: 0.2),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -230,7 +230,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       decoration: InputDecoration(
         labelText: 'כתובת אימייל',
         labelStyle: GoogleFonts.assistant(color: AppColors.secondaryText),
-        prefixIcon: Icon(Icons.email, color: AppColors.neonTurquoise.withOpacity(0.7)),
+        prefixIcon: Icon(Icons.email, color: AppColors.neonTurquoise.withValues(alpha: 0.7)),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.inputBorder),
@@ -266,7 +266,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       decoration: InputDecoration(
         labelText: 'סיסמה',
         labelStyle: GoogleFonts.assistant(color: AppColors.secondaryText),
-        prefixIcon: Icon(Icons.lock, color: AppColors.neonTurquoise.withOpacity(0.7)),
+        prefixIcon: Icon(Icons.lock, color: AppColors.neonTurquoise.withValues(alpha: 0.7)),
         suffixIcon: IconButton(
           icon: Icon(
             _isPasswordVisible ? Icons.visibility_off : Icons.visibility,
@@ -311,7 +311,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         child: Text(
           'שכחתם את הסיסמה?',
           style: GoogleFonts.assistant(
-            color: AppColors.neonTurquoise.withOpacity(0.8),
+            color: AppColors.neonTurquoise.withValues(alpha: 0.8),
             fontSize: 14,
             decoration: TextDecoration.underline,
           ),
@@ -346,16 +346,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         ),
         TextButton(
           onPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => const RegisterPage(),
-              ),
-            );
+            context.go('/auth/register');
           },
           child: Text(
             'הרשמה',
             style: GoogleFonts.assistant(
-              color: AppColors.neonTurquoise.withOpacity(0.8),
+              color: AppColors.neonTurquoise.withValues(alpha: 0.8),
               fontSize: 16,
               fontWeight: FontWeight.bold,
               decoration: TextDecoration.underline,

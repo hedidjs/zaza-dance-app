@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/providers/auth_provider.dart';
 import '../../../../shared/widgets/neon_text.dart';
 import '../../../../shared/widgets/enhanced_neon_effects.dart';
+import '../../../../shared/widgets/zaza_logo.dart';
 
 class RegisterPage extends ConsumerStatefulWidget {
   const RegisterPage({super.key});
@@ -46,7 +48,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     setState(() => _isLoading = true);
 
     try {
-      final result = await ref.read(currentUserProvider.notifier).register(
+      final result = await ref.read(authProvider.notifier).register(
         email: _emailController.text.trim(),
         password: _passwordController.text,
         fullName: _fullNameController.text.trim(),
@@ -58,7 +60,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       if (mounted) {
         if (result.isSuccess) {
           _showMessage(result.message);
-          Navigator.of(context).pop(); // Go back to login
+          context.go('/auth/login'); // Go back to login
         } else {
           _showErrorMessage(result.message);
         }
@@ -98,7 +100,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
           elevation: 0,
           leading: IconButton(
             icon: Icon(Icons.arrow_back, color: AppColors.primaryText),
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => context.go('/auth/login'),
           ),
         ),
         body: Container(
@@ -123,6 +125,8 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                   _buildHeader(),
                   const SizedBox(height: 40),
                   _buildRegisterForm(),
+                  const SizedBox(height: 30),
+                  _buildLoginPrompt(),
                   const SizedBox(height: 40),
                 ],
               ),
@@ -136,31 +140,10 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   Widget _buildHeader() {
     return Column(
       children: [
-        // Subtle animated icon with elegant glow
-        NeonGlowContainer(
-          glowColor: AppColors.neonTurquoise,
-          animate: true,
-          glowRadius: 10.0,
-          opacity: 0.25,
-          isSubtle: true,
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: [
-                  AppColors.neonTurquoise.withOpacity(0.15),
-                  AppColors.neonTurquoise.withOpacity(0.05),
-                  Colors.transparent,
-                ],
-              ),
-            ),
-            child: Icon(
-              Icons.person_add,
-              size: 50,
-              color: AppColors.neonTurquoise.withOpacity(0.9),
-            ),
-          ),
+        // Zaza Logo
+        const ZazaLogo.hero(
+          width: 200,
+          height: 65,
         ),
         const SizedBox(height: 20),
         // Refined title with subtle glow
@@ -196,16 +179,16 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       child: Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: AppColors.authCardBackground.withOpacity(0.8),
+          color: AppColors.authCardBackground.withValues(alpha: 0.8),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: AppColors.neonPink.withOpacity(0.2),
+            color: AppColors.neonPink.withValues(alpha: 0.2),
             width: 0.5,
           ),
           // Subtle backdrop blur effect
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.2),
+              color: Colors.black.withValues(alpha: 0.2),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -244,7 +227,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       decoration: InputDecoration(
         labelText: 'שם מלא *',
         labelStyle: GoogleFonts.assistant(color: AppColors.secondaryText),
-        prefixIcon: Icon(Icons.person, color: AppColors.neonTurquoise.withOpacity(0.7)),
+        prefixIcon: Icon(Icons.person, color: AppColors.neonTurquoise.withValues(alpha: 0.7)),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.inputBorder),
@@ -280,7 +263,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       decoration: InputDecoration(
         labelText: 'כתובת אימייל *',
         labelStyle: GoogleFonts.assistant(color: AppColors.secondaryText),
-        prefixIcon: Icon(Icons.email, color: AppColors.neonTurquoise.withOpacity(0.7)),
+        prefixIcon: Icon(Icons.email, color: AppColors.neonTurquoise.withValues(alpha: 0.7)),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.inputBorder),
@@ -316,7 +299,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       decoration: InputDecoration(
         labelText: 'מספר טלפון *',
         labelStyle: GoogleFonts.assistant(color: AppColors.secondaryText),
-        prefixIcon: Icon(Icons.phone, color: AppColors.neonTurquoise.withOpacity(0.7)),
+        prefixIcon: Icon(Icons.phone, color: AppColors.neonTurquoise.withValues(alpha: 0.7)),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.inputBorder),
@@ -351,7 +334,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       decoration: InputDecoration(
         labelText: 'כתובת (אופציונלי)',
         labelStyle: GoogleFonts.assistant(color: AppColors.secondaryText),
-        prefixIcon: Icon(Icons.location_on, color: AppColors.neonTurquoise.withOpacity(0.7)),
+        prefixIcon: Icon(Icons.location_on, color: AppColors.neonTurquoise.withValues(alpha: 0.7)),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.inputBorder),
@@ -385,7 +368,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
             border: Border.all(color: AppColors.inputBorder),
           ),
           child: DropdownButtonFormField<String>(
-            value: _selectedRole,
+            initialValue: _selectedRole,
             style: GoogleFonts.assistant(color: AppColors.primaryText),
             dropdownColor: AppColors.darkSurface,
             decoration: const InputDecoration(
@@ -421,7 +404,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       decoration: InputDecoration(
         labelText: 'סיסמה *',
         labelStyle: GoogleFonts.assistant(color: AppColors.secondaryText),
-        prefixIcon: Icon(Icons.lock, color: AppColors.neonTurquoise.withOpacity(0.7)),
+        prefixIcon: Icon(Icons.lock, color: AppColors.neonTurquoise.withValues(alpha: 0.7)),
         suffixIcon: IconButton(
           icon: Icon(
             _isPasswordVisible ? Icons.visibility_off : Icons.visibility,
@@ -466,7 +449,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       decoration: InputDecoration(
         labelText: 'אישור סיסמה *',
         labelStyle: GoogleFonts.assistant(color: AppColors.secondaryText),
-        prefixIcon: Icon(Icons.lock_outline, color: AppColors.neonTurquoise.withOpacity(0.7)),
+        prefixIcon: Icon(Icons.lock_outline, color: AppColors.neonTurquoise.withValues(alpha: 0.7)),
         suffixIcon: IconButton(
           icon: Icon(
             _isConfirmPasswordVisible ? Icons.visibility_off : Icons.visibility,
@@ -513,6 +496,35 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
         fontSize: 18,
         padding: const EdgeInsets.symmetric(vertical: 16),
       ),
+    );
+  }
+
+  Widget _buildLoginPrompt() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          'יש לכם כבר חשבון? ',
+          style: GoogleFonts.assistant(
+            color: AppColors.secondaryText,
+            fontSize: 16,
+          ),
+        ),
+        TextButton(
+          onPressed: () {
+            context.go('/auth/login');
+          },
+          child: Text(
+            'התחברות',
+            style: GoogleFonts.assistant(
+              color: AppColors.neonPink.withValues(alpha: 0.8),
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              decoration: TextDecoration.underline,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

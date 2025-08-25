@@ -28,17 +28,29 @@ class UserPreferencesNotifier extends StateNotifier<AsyncValue<Map<String, dynam
     required String userId,
     Map<String, dynamic>? preferences,
   }) async {
+    if (preferences == null || preferences.isEmpty) {
+      return false;
+    }
+    
+    final previousState = state;
+    
     try {
+      // Optimistic update
+      if (state.value != null) {
+        final updatedPrefs = Map<String, dynamic>.from(state.value!);
+        updatedPrefs.addAll(preferences);
+        state = AsyncValue.data(updatedPrefs);
+      }
+      
       await DatabaseService.updateUserPreferences(
         userId: userId,
         preferences: preferences,
       );
-
-      // Reload preferences to reflect changes
-      await loadPreferences(userId);
       
       return true;
     } catch (error) {
+      // Revert on error
+      state = previousState;
       return false;
     }
   }
@@ -144,6 +156,43 @@ class UserPreferencesNotifier extends StateNotifier<AsyncValue<Map<String, dynam
   /// Get preferred language
   String get preferredLanguage {
     return getPreference<String>('preferred_language') ?? 'he';
+  }
+  
+  /// Check if current language is Hebrew
+  bool get isHebrewEnabled {
+    return preferredLanguage == 'he';
+  }
+  
+  /// Check if quiet hours are currently active
+  bool get isInQuietHours {
+    if (!(getPreference<bool>('quiet_hours_enabled') ?? false)) return false;
+    
+    final now = DateTime.now();
+    final currentTime = '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+    final startTime = getPreference<String>('quiet_hours_start') ?? '22:00';
+    final endTime = getPreference<String>('quiet_hours_end') ?? '08:00';
+    
+    return _isTimeInRange(currentTime, startTime, endTime);
+  }
+  
+  /// Helper method to check if time is in range
+  bool _isTimeInRange(String current, String start, String end) {
+    final currentMinutes = _timeToMinutes(current);
+    final startMinutes = _timeToMinutes(start);
+    final endMinutes = _timeToMinutes(end);
+    
+    if (startMinutes <= endMinutes) {
+      return currentMinutes >= startMinutes && currentMinutes <= endMinutes;
+    } else {
+      // Crosses midnight
+      return currentMinutes >= startMinutes || currentMinutes <= endMinutes;
+    }
+  }
+  
+  /// Convert time string to minutes since midnight
+  int _timeToMinutes(String time) {
+    final parts = time.split(':');
+    return int.parse(parts[0]) * 60 + int.parse(parts[1]);
   }
 
   /// Refresh preferences

@@ -32,7 +32,7 @@ class NotificationService {
     _isInitialized = true;
 
     if (kDebugMode) {
-      print('NotificationService initialized');
+      debugPrint('NotificationService initialized');
     }
   }
 
@@ -43,18 +43,18 @@ class NotificationService {
       
       if (status.isGranted) {
         if (kDebugMode) {
-          print('Notification permission granted');
+          debugPrint('Notification permission granted');
         }
         return true;
       } else {
         if (kDebugMode) {
-          print('Notification permission denied');
+          debugPrint('Notification permission denied');
         }
         return false;
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Error requesting notification permissions: $e');
+        debugPrint('Error requesting notification permissions: $e');
       }
       return false;
     }
@@ -84,7 +84,7 @@ class NotificationService {
       await _createNotificationChannels();
     } catch (e) {
       if (kDebugMode) {
-        print('Error initializing local notifications: $e');
+        debugPrint('Error initializing local notifications: $e');
       }
     }
   }
@@ -157,11 +157,11 @@ class NotificationService {
       );
 
       if (kDebugMode) {
-        print('Notification shown: $title');
+        debugPrint('Notification shown: $title');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Error showing notification: $e');
+        debugPrint('Error showing notification: $e');
       }
     }
   }
@@ -188,17 +188,15 @@ class NotificationService {
         tz.TZDateTime.from(scheduledDate, tz.local),
         notificationDetails,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
         payload: payload,
       );
 
       if (kDebugMode) {
-        print('Notification scheduled for: $scheduledDate');
+        debugPrint('Notification scheduled for: $scheduledDate');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Error scheduling notification: $e');
+        debugPrint('Error scheduling notification: $e');
       }
     }
   }
@@ -238,7 +236,6 @@ class NotificationService {
       case NotificationType.achievement:
         return 'achievements';
       case NotificationType.update:
-      default:
         return 'updates';
     }
   }
@@ -250,7 +247,6 @@ class NotificationService {
       case NotificationType.achievement:
         return 'הישגים';
       case NotificationType.update:
-      default:
         return 'עדכונים';
     }
   }
@@ -262,7 +258,6 @@ class NotificationService {
       case NotificationType.achievement:
         return 'הישגי תלמידים חדשים';
       case NotificationType.update:
-      default:
         return 'עדכונים חדשים מהסטודיו';
     }
   }
@@ -274,7 +269,6 @@ class NotificationService {
       case NotificationType.achievement:
         return const Color(0xFF40E0D0); // Neon Turquoise
       case NotificationType.update:
-      default:
         return const Color(0xFF9C27B0); // Purple
     }
   }
@@ -284,11 +278,11 @@ class NotificationService {
     try {
       await _localNotifications.cancelAll();
       if (kDebugMode) {
-        print('All notifications cancelled');
+        debugPrint('All notifications cancelled');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Error cancelling notifications: $e');
+        debugPrint('Error cancelling notifications: $e');
       }
     }
   }
@@ -298,11 +292,11 @@ class NotificationService {
     try {
       await _localNotifications.cancel(id);
       if (kDebugMode) {
-        print('Notification $id cancelled');
+        debugPrint('Notification $id cancelled');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Error cancelling notification $id: $e');
+        debugPrint('Error cancelling notification $id: $e');
       }
     }
   }
@@ -313,7 +307,7 @@ class NotificationService {
       return await _localNotifications.pendingNotificationRequests();
     } catch (e) {
       if (kDebugMode) {
-        print('Error getting pending notifications: $e');
+        debugPrint('Error getting pending notifications: $e');
       }
       return [];
     }
@@ -326,52 +320,15 @@ class NotificationService {
       return status.isGranted;
     } catch (e) {
       if (kDebugMode) {
-        print('Error checking notification status: $e');
+        debugPrint('Error checking notification status: $e');
       }
       return false;
     }
   }
 
-  /// Show mock notifications for testing
-  Future<void> showMockNotifications() async {
-    // New update notification
-    await showNotification(
-      title: '🔥 עדכון חדש!',
-      body: 'תחרות ההיפ הופ השנתית נפתחה להרשמה!',
-      type: NotificationType.announcement,
-      payload: jsonEncode({
-        'type': 'update',
-        'id': 'update_1',
-        'route': '/updates'
-      }),
-    );
 
-    // Achievement notification
-    await Future.delayed(const Duration(seconds: 2));
-    await showNotification(
-      title: '⭐ הישג חדש!',
-      body: 'מיה זכתה במקום הראשון בתחרות הארצית!',
-      type: NotificationType.achievement,
-      payload: jsonEncode({
-        'type': 'achievement',
-        'id': 'achievement_1',
-        'route': '/updates'
-      }),
-    );
-
-    // Tutorial notification
-    await Future.delayed(const Duration(seconds: 2));
-    await showNotification(
-      title: '🎬 מדריך חדש!',
-      body: 'מדריך ברייקדאנס למתחילים זמין כעת',
-      type: NotificationType.update,
-      payload: jsonEncode({
-        'type': 'tutorial',
-        'id': 'tutorial_1',
-        'route': '/tutorials'
-      }),
-    );
-  }
+  /// Check initialization status
+  bool get isInitialized => _isInitialized;
 }
 
 /// Types of notifications

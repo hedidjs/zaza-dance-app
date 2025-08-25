@@ -112,12 +112,12 @@ class _AuthCallbackPageState extends ConsumerState<AuthCallbackPage> {
                         shape: BoxShape.circle,
                         gradient: LinearGradient(
                           colors: _isSuccess 
-                              ? [AppColors.success, AppColors.success.withOpacity(0.7)]
-                              : [AppColors.neonTurquoise, AppColors.neonTurquoise.withOpacity(0.7)],
+                              ? [AppColors.success, AppColors.success.withValues(alpha: 0.7)]
+                              : [AppColors.neonTurquoise, AppColors.neonTurquoise.withValues(alpha: 0.7)],
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: (_isSuccess ? AppColors.success : AppColors.neonTurquoise).withOpacity(0.5),
+                            color: (_isSuccess ? AppColors.success : AppColors.neonTurquoise).withValues(alpha: 0.5),
                             blurRadius: 20,
                             spreadRadius: 5,
                           ),
@@ -150,7 +150,7 @@ class _AuthCallbackPageState extends ConsumerState<AuthCallbackPage> {
                         ),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: AppColors.neonTurquoise.withOpacity(0.3),
+                          color: AppColors.neonTurquoise.withValues(alpha: 0.3),
                           width: 1,
                         ),
                       ),

@@ -1,15 +1,17 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_constants.dart';
 import '../../../../core/providers/auth_provider.dart';
 import '../../../../shared/widgets/animated_gradient_background.dart';
 import '../../../../shared/widgets/neon_text.dart';
 import '../../../../shared/widgets/enhanced_neon_effects.dart';
 import '../../../../shared/models/user_model.dart';
+import '../../services/admin_user_service.dart';
 
 /// עמוד ניהול משתמשים עבור מנהלי זזה דאנס
 class UserManagementPage extends ConsumerStatefulWidget {
@@ -26,118 +28,144 @@ class _UserManagementPageState extends ConsumerState<UserManagementPage> {
   String _sortBy = 'created_at';
   bool _sortDescending = true;
   
-  // Mock data - TODO: Replace with real data from Supabase
   List<UserModel> _users = [];
   bool _isLoading = false;
+  bool _hasError = false;
+  String _errorMessage = '';
+  int _currentPage = 0;
+  final int _pageSize = 20;
+  bool _hasMoreData = true;
+  
+  // פרטי עריכת משתמש
+  final _editFormKey = GlobalKey<FormState>();
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _addressController = TextEditingController();
+  String _selectedEditRole = 'student';
+  
+  // פרטי יצירת משתמש
+  final _createFormKey = GlobalKey<FormState>();
+  final _createFirstNameController = TextEditingController();
+  final _createLastNameController = TextEditingController();
+  final _createEmailController = TextEditingController();
+  final _createPhoneController = TextEditingController();
+  final _createAddressController = TextEditingController();
+  String _selectedCreateRole = 'student';
 
   @override
   void initState() {
     super.initState();
-    _loadUsers();
+    _loadUsers(isRefresh: true);
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _addressController.dispose();
+    _createFirstNameController.dispose();
+    _createLastNameController.dispose();
+    _createEmailController.dispose();
+    _createPhoneController.dispose();
+    _createAddressController.dispose();
     super.dispose();
   }
 
-  Future<void> _loadUsers() async {
+  Future<void> _loadUsers({bool isRefresh = false}) async {
+    if (isRefresh) {
+      _currentPage = 0;
+      _hasMoreData = true;
+      _users.clear();
+    }
+    
     setState(() {
       _isLoading = true;
+      _hasError = false;
     });
 
-    // TODO: Load users from Supabase
-    await Future.delayed(const Duration(seconds: 1));
-    
-    // Mock data for demonstration
-    _users = [
-      UserModel(
-        id: '1',
-        email: 'admin@zazadance.com',
-        displayName: 'מנהל ראשי',
-        role: AppConstants.roleAdmin,
-        phone: '050-1234567',
-        address: 'תל אביב',
-        createdAt: DateTime.now().subtract(const Duration(days: 30)),
-        updatedAt: DateTime.now(),
-      ),
-      UserModel(
-        id: '2',
-        email: 'instructor@zazadance.com',
-        displayName: 'דני המדריך',
-        role: AppConstants.roleInstructor,
-        phone: '052-7654321',
-        address: 'רמת גן',
-        createdAt: DateTime.now().subtract(const Duration(days: 20)),
-        updatedAt: DateTime.now(),
-      ),
-      UserModel(
-        id: '3',
-        email: 'parent@example.com',
-        displayName: 'שרה כהן',
-        role: AppConstants.roleParent,
-        phone: '054-9876543',
-        address: 'פתח תקווה',
-        createdAt: DateTime.now().subtract(const Duration(days: 10)),
-        updatedAt: DateTime.now(),
-      ),
-      UserModel(
-        id: '4',
-        email: 'student@example.com',
-        displayName: 'נועה לוי',
-        role: AppConstants.roleStudent,
-        phone: '055-1357924',
-        address: 'בת ים',
-        createdAt: DateTime.now().subtract(const Duration(days: 5)),
-        updatedAt: DateTime.now(),
-      ),
-    ];
+    try {
+      final result = await AdminUserService.getAllUsers(
+        role: _selectedRole == 'all' ? null : _selectedRole,
+        searchQuery: _searchQuery.isEmpty ? null : _searchQuery,
+        sortBy: _sortBy,
+        sortOrder: _sortDescending ? 'desc' : 'asc',
+        isActive: true,
+        limit: _pageSize,
+        offset: _currentPage * _pageSize,
+      );
 
-    setState(() {
-      _isLoading = false;
-    });
+      if (result.isSuccess && result.data != null) {
+        setState(() {
+          if (isRefresh) {
+            _users = result.data!;
+          } else {
+            _users.addAll(result.data!);
+          }
+          _hasMoreData = result.data!.length == _pageSize;
+          _currentPage++;
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _hasError = true;
+          _errorMessage = result.message;
+          _isLoading = false;
+        });
+        _showErrorSnackBar(result.message);
+      }
+    } catch (e) {
+      setState(() {
+        _hasError = true;
+        _errorMessage = 'שגיאה בטעינת נתונים: $e';
+        _isLoading = false;
+      });
+      _showErrorSnackBar('שגיאה בטעינת נתונים');
+    }
   }
 
   List<UserModel> get _filteredUsers {
-    List<UserModel> filtered = List.from(_users);
-    
-    // Filter by search query
-    if (_searchQuery.isNotEmpty) {
-      filtered = filtered.where((user) =>
-        user.displayName.contains(_searchQuery) ||
-        user.email.contains(_searchQuery) ||
-        (user.phone?.contains(_searchQuery) ?? false)
-      ).toList();
-    }
-    
-    // Filter by role
-    if (_selectedRole != 'all') {
-      filtered = filtered.where((user) => user.role == _selectedRole).toList();
-    }
-    
-    // Sort
-    filtered.sort((a, b) {
-      int comparison = 0;
-      switch (_sortBy) {
-        case 'name':
-          comparison = a.displayName.compareTo(b.displayName);
-          break;
-        case 'email':
-          comparison = a.email.compareTo(b.email);
-          break;
-        case 'role':
-          comparison = a.role.compareTo(b.role);
-          break;
-        case 'created_at':
-        default:
-          comparison = a.createdAt.compareTo(b.createdAt);
-          break;
-      }
-      return _sortDescending ? -comparison : comparison;
+    // Since we're using server-side filtering, just return the users
+    return _users;
+  }
+  
+  Timer? _searchDebounceTimer;
+  
+  void _debounceSearch() {
+    _searchDebounceTimer?.cancel();
+    _searchDebounceTimer = Timer(const Duration(milliseconds: 500), () {
+      _loadUsers(isRefresh: true);
     });
-    
-    return filtered;
+  }
+  
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.error,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
+  }
+  
+  void _showSuccessSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.success,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
   }
 
   @override
@@ -165,7 +193,7 @@ class _UserManagementPageState extends ConsumerState<UserManagementPage> {
               Icons.arrow_back,
               color: AppColors.primaryText,
             ),
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => context.pop(),
           ),
           actions: [
             IconButton(
@@ -181,7 +209,7 @@ class _UserManagementPageState extends ConsumerState<UserManagementPage> {
                 Icons.refresh,
                 color: AppColors.neonTurquoise,
               ),
-              onPressed: _loadUsers,
+              onPressed: () => _loadUsers(isRefresh: true),
               tooltip: 'רענן',
             ),
           ],
@@ -230,7 +258,7 @@ class _UserManagementPageState extends ConsumerState<UserManagementPage> {
               ),
               borderRadius: BorderRadius.circular(25),
               border: Border.all(
-                color: AppColors.neonBlue.withOpacity(0.3),
+                color: AppColors.neonBlue.withValues(alpha: 0.3),
                 width: 1,
               ),
             ),
@@ -264,6 +292,7 @@ class _UserManagementPageState extends ConsumerState<UserManagementPage> {
                 setState(() {
                   _searchQuery = value;
                 });
+                _debounceSearch();
               },
             ),
           ),
@@ -279,12 +308,15 @@ class _UserManagementPageState extends ConsumerState<UserManagementPage> {
                   _selectedRole,
                   {
                     'all': 'הכל',
-                    AppConstants.roleStudent: 'תלמידים',
-                    AppConstants.roleParent: 'הורים',
-                    AppConstants.roleInstructor: 'מדריכים',
-                    AppConstants.roleAdmin: 'מנהלים',
+                    'student': 'תלמידים',
+                    'parent': 'הורים',
+                    'instructor': 'מדריכים',
+                    'admin': 'מנהלים',
                   },
-                  (value) => setState(() => _selectedRole = value!),
+                  (value) {
+                    setState(() => _selectedRole = value!);
+                    _loadUsers(isRefresh: true);
+                  },
                 ),
               ),
               const SizedBox(width: 12),
@@ -298,11 +330,17 @@ class _UserManagementPageState extends ConsumerState<UserManagementPage> {
                     'email': 'אימייל',
                     'role': 'תפקיד',
                   },
-                  (value) => setState(() => _sortBy = value!),
+                  (value) {
+                    setState(() => _sortBy = value!);
+                    _loadUsers(isRefresh: true);
+                  },
                 ),
               ),
               IconButton(
-                onPressed: () => setState(() => _sortDescending = !_sortDescending),
+                onPressed: () {
+                  setState(() => _sortDescending = !_sortDescending);
+                  _loadUsers(isRefresh: true);
+                },
                 icon: Icon(
                   _sortDescending ? Icons.arrow_downward : Icons.arrow_upward,
                   color: AppColors.neonTurquoise,
@@ -328,7 +366,7 @@ class _UserManagementPageState extends ConsumerState<UserManagementPage> {
         color: AppColors.darkSurface,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: AppColors.neonBlue.withOpacity(0.3),
+          color: AppColors.neonBlue.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -365,10 +403,10 @@ class _UserManagementPageState extends ConsumerState<UserManagementPage> {
 
   Widget _buildUserStats() {
     final totalUsers = _users.length;
-    final students = _users.where((u) => u.role == AppConstants.roleStudent).length;
-    final parents = _users.where((u) => u.role == AppConstants.roleParent).length;
-    final instructors = _users.where((u) => u.role == AppConstants.roleInstructor).length;
-    final admins = _users.where((u) => u.role == AppConstants.roleAdmin).length;
+    final students = _users.where((u) => u.role == UserRole.student).length;
+    final parents = _users.where((u) => u.role == UserRole.parent).length;
+    final instructors = _users.where((u) => u.role == UserRole.instructor).length;
+    final admins = _users.where((u) => u.role == UserRole.admin).length;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -381,7 +419,7 @@ class _UserManagementPageState extends ConsumerState<UserManagementPage> {
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppColors.neonBlue.withOpacity(0.3),
+          color: AppColors.neonBlue.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -420,9 +458,43 @@ class _UserManagementPageState extends ConsumerState<UserManagementPage> {
   }
 
   Widget _buildUsersList() {
-    final filteredUsers = _filteredUsers;
+    if (_hasError && _users.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: 80,
+              color: AppColors.error,
+            ),
+            const SizedBox(height: 20),
+            NeonText(
+              text: 'שגיאה בטעינת נתונים',
+              fontSize: 18,
+              glowColor: AppColors.error,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              _errorMessage,
+              style: TextStyle(
+                color: AppColors.secondaryText,
+                fontSize: 14,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            NeonButton(
+              text: 'נסה שוב',
+              onPressed: () => _loadUsers(isRefresh: true),
+              glowColor: AppColors.neonBlue,
+            ),
+          ],
+        ),
+      );
+    }
 
-    if (filteredUsers.isEmpty) {
+    if (_users.isEmpty && !_isLoading) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -436,7 +508,7 @@ class _UserManagementPageState extends ConsumerState<UserManagementPage> {
             NeonText(
               text: _searchQuery.isNotEmpty 
                   ? 'לא נמצאו משתמשים'
-                  : 'אין משתמשים',
+                  : 'אין משתמשים במערכת',
               fontSize: 18,
               glowColor: AppColors.neonBlue,
             ),
@@ -449,6 +521,7 @@ class _UserManagementPageState extends ConsumerState<UserManagementPage> {
                 color: AppColors.secondaryText,
                 fontSize: 14,
               ),
+              textAlign: TextAlign.center,
             ),
           ],
         ),
@@ -457,10 +530,25 @@ class _UserManagementPageState extends ConsumerState<UserManagementPage> {
 
     return ListView.separated(
       padding: const EdgeInsets.all(20),
-      itemCount: filteredUsers.length,
+      itemCount: _users.length + (_hasMoreData ? 1 : 0),
       separatorBuilder: (context, index) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
-        final user = filteredUsers[index];
+        if (index == _users.length) {
+          // Load more indicator
+          return Center(
+            child: _isLoading
+                ? CircularProgressIndicator(
+                    color: AppColors.neonTurquoise,
+                  )
+                : NeonButton(
+                    text: 'טען עוד',
+                    onPressed: () => _loadUsers(),
+                    glowColor: AppColors.neonBlue,
+                  ),
+          );
+        }
+        
+        final user = _users[index];
         return _buildUserCard(user, index);
       },
     );
@@ -484,7 +572,7 @@ class _UserManagementPageState extends ConsumerState<UserManagementPage> {
             ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: roleColor.withOpacity(0.3),
+              color: roleColor.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -496,10 +584,10 @@ class _UserManagementPageState extends ConsumerState<UserManagementPage> {
                 child: CircleAvatar(
                   radius: 25,
                   backgroundColor: AppColors.darkSurface,
-                  backgroundImage: user.profileImageUrl != null
-                      ? NetworkImage(user.profileImageUrl!)
+                  backgroundImage: user.avatarUrl != null
+                      ? NetworkImage(user.avatarUrl!)
                       : null,
-                  child: user.profileImageUrl == null
+                  child: user.avatarUrl == null
                       ? Icon(
                           _getRoleIcon(user.role),
                           color: roleColor,
@@ -538,10 +626,10 @@ class _UserManagementPageState extends ConsumerState<UserManagementPage> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
-                            color: roleColor.withOpacity(0.2),
+                            color: roleColor.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
-                              color: roleColor.withOpacity(0.5),
+                              color: roleColor.withValues(alpha: 0.5),
                               width: 1,
                             ),
                           ),
@@ -556,7 +644,7 @@ class _UserManagementPageState extends ConsumerState<UserManagementPage> {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          '${_formatDate(user.createdAt)}',
+                          _formatDate(user.createdAt),
                           style: GoogleFonts.assistant(
                             color: AppColors.secondaryText,
                             fontSize: 10,
@@ -603,7 +691,7 @@ class _UserManagementPageState extends ConsumerState<UserManagementPage> {
                       ],
                     ),
                   ),
-                  if (user.role != AppConstants.roleAdmin)
+                  if (user.role != UserRole.admin)
                     PopupMenuItem(
                       value: 'delete',
                       child: Row(
@@ -672,7 +760,7 @@ class _UserManagementPageState extends ConsumerState<UserManagementPage> {
                 const SizedBox(height: 40),
                 NeonButton(
                   text: 'חזור',
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: () => context.pop(),
                   glowColor: AppColors.neonTurquoise,
                 ),
               ],
@@ -683,46 +771,34 @@ class _UserManagementPageState extends ConsumerState<UserManagementPage> {
     );
   }
 
-  Color _getRoleColor(String role) {
+  Color _getRoleColor(UserRole role) {
     switch (role) {
-      case AppConstants.roleAdmin:
+      case UserRole.admin:
         return AppColors.error;
-      case AppConstants.roleInstructor:
+      case UserRole.instructor:
         return AppColors.neonPink;
-      case AppConstants.roleParent:
+      case UserRole.parent:
         return AppColors.neonTurquoise;
-      case AppConstants.roleStudent:
-      default:
+      case UserRole.student:
         return AppColors.neonGreen;
     }
   }
 
-  IconData _getRoleIcon(String role) {
+  IconData _getRoleIcon(UserRole role) {
     switch (role) {
-      case AppConstants.roleAdmin:
+      case UserRole.admin:
         return Icons.admin_panel_settings;
-      case AppConstants.roleInstructor:
+      case UserRole.instructor:
         return Icons.school;
-      case AppConstants.roleParent:
+      case UserRole.parent:
         return Icons.family_restroom;
-      case AppConstants.roleStudent:
-      default:
+      case UserRole.student:
         return Icons.person;
     }
   }
 
-  String _getRoleDisplayName(String role) {
-    switch (role) {
-      case AppConstants.roleAdmin:
-        return 'מנהל';
-      case AppConstants.roleInstructor:
-        return 'מדריך';
-      case AppConstants.roleParent:
-        return 'הורה';
-      case AppConstants.roleStudent:
-      default:
-        return 'תלמיד';
-    }
+  String _getRoleDisplayName(UserRole role) {
+    return role.displayName;
   }
 
   String _formatDate(DateTime date) {
@@ -756,7 +832,7 @@ class _UserManagementPageState extends ConsumerState<UserManagementPage> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
             side: BorderSide(
-              color: _getRoleColor(user.role).withOpacity(0.3),
+              color: _getRoleColor(user.role).withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -783,16 +859,15 @@ class _UserManagementPageState extends ConsumerState<UserManagementPage> {
                 _buildDetailRow('אימייל', user.email),
                 _buildDetailRow('תפקיד', _getRoleDisplayName(user.role)),
                 if (user.phone != null) _buildDetailRow('טלפון', user.phone!),
-                if (user.address != null) _buildDetailRow('כתובת', user.address!),
                 _buildDetailRow('תאריך הצטרפות', _formatDate(user.createdAt)),
-                _buildDetailRow('עדכון אחרון', _formatDate(user.updatedAt)),
+                if (user.updatedAt != null) _buildDetailRow('עדכון אחרון', _formatDate(user.updatedAt!)),
               ],
             ),
           ),
           actions: [
             NeonButton(
               text: 'סגור',
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => context.pop(),
               glowColor: _getRoleColor(user.role),
             ),
           ],
@@ -829,21 +904,227 @@ class _UserManagementPageState extends ConsumerState<UserManagementPage> {
   }
 
   void _showAddUserDialog() {
-    // TODO: Implement add user dialog
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('הוספת משתמש בפיתוח'),
-        backgroundColor: AppColors.info,
+    _createFirstNameController.clear();
+    _createLastNameController.clear();
+    _createEmailController.clear();
+    _createPhoneController.clear();
+    _createAddressController.clear();
+    _selectedCreateRole = 'student';
+    
+    showDialog(
+      context: context,
+      builder: (context) => _buildCreateUserDialog(),
+    );
+  }
+  
+  Widget _buildCreateUserDialog() {
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: AlertDialog(
+        backgroundColor: AppColors.darkSurface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+          side: BorderSide(
+            color: AppColors.neonGreen.withValues(alpha: 0.3),
+            width: 1,
+          ),
+        ),
+        title: Row(
+          children: [
+            Icon(Icons.person_add, color: AppColors.neonGreen),
+            const SizedBox(width: 8),
+            NeonText(
+              text: 'הוסף משתמש חדש',
+              fontSize: 18,
+              glowColor: AppColors.neonGreen,
+            ),
+          ],
+        ),
+        content: Form(
+          key: _createFormKey,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildFormField(
+                  controller: _createFirstNameController,
+                  label: 'שם פרטי',
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'שם פרטי הוא שדה חובה';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                _buildFormField(
+                  controller: _createLastNameController,
+                  label: 'שם משפחה',
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'שם משפחה הוא שדה חובה';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                _buildFormField(
+                  controller: _createEmailController,
+                  label: 'כתובת אימייל',
+                  keyboardType: TextInputType.emailAddress,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'כתובת אימייל היא שדה חובה';
+                    }
+                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                      return 'כתובת אימייל לא תקינה';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                _buildFormField(
+                  controller: _createPhoneController,
+                  label: 'מספר טלפון (אופציונלי)',
+                  keyboardType: TextInputType.phone,
+                ),
+                const SizedBox(height: 16),
+                _buildFormField(
+                  controller: _createAddressController,
+                  label: 'כתובת (אופציונלי)',
+                ),
+                const SizedBox(height: 16),
+                _buildRoleDropdown(
+                  value: _selectedCreateRole,
+                  onChanged: (value) => setState(() => _selectedCreateRole = value!),
+                ),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => context.pop(),
+            child: Text(
+              'ביטול',
+              style: TextStyle(color: AppColors.secondaryText),
+            ),
+          ),
+          NeonButton(
+            text: 'יצירה',
+            onPressed: _createUser,
+            glowColor: AppColors.neonGreen,
+          ),
+        ],
       ),
     );
   }
 
   void _showEditUserDialog(UserModel user) {
-    // TODO: Implement edit user dialog
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('עריכת משתמש בפיתוח'),
-        backgroundColor: AppColors.info,
+    _firstNameController.text = user.firstName ?? '';
+    _lastNameController.text = user.lastName ?? '';
+    _emailController.text = user.email;
+    _phoneController.text = user.phone ?? '';
+    _addressController.text = user.address ?? '';
+    _selectedEditRole = user.role.value;
+    
+    showDialog(
+      context: context,
+      builder: (context) => _buildEditUserDialog(user),
+    );
+  }
+  
+  Widget _buildEditUserDialog(UserModel user) {
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: AlertDialog(
+        backgroundColor: AppColors.darkSurface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+          side: BorderSide(
+            color: AppColors.neonTurquoise.withValues(alpha: 0.3),
+            width: 1,
+          ),
+        ),
+        title: Row(
+          children: [
+            Icon(Icons.edit, color: AppColors.neonTurquoise),
+            const SizedBox(width: 8),
+            NeonText(
+              text: 'ערוך משתמש',
+              fontSize: 18,
+              glowColor: AppColors.neonTurquoise,
+            ),
+          ],
+        ),
+        content: Form(
+          key: _editFormKey,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildFormField(
+                  controller: _firstNameController,
+                  label: 'שם פרטי',
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'שם פרטי הוא שדה חובה';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                _buildFormField(
+                  controller: _lastNameController,
+                  label: 'שם משפחה',
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'שם משפחה הוא שדה חובה';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                _buildFormField(
+                  controller: _emailController,
+                  label: 'כתובת אימייל',
+                  keyboardType: TextInputType.emailAddress,
+                  enabled: false, // Email can't be changed
+                ),
+                const SizedBox(height: 16),
+                _buildFormField(
+                  controller: _phoneController,
+                  label: 'מספר טלפון',
+                  keyboardType: TextInputType.phone,
+                ),
+                const SizedBox(height: 16),
+                _buildFormField(
+                  controller: _addressController,
+                  label: 'כתובת',
+                ),
+                const SizedBox(height: 16),
+                _buildRoleDropdown(
+                  value: _selectedEditRole,
+                  onChanged: (value) => setState(() => _selectedEditRole = value!),
+                ),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => context.pop(),
+            child: Text(
+              'ביטול',
+              style: TextStyle(color: AppColors.secondaryText),
+            ),
+          ),
+          NeonButton(
+            text: 'שמירה',
+            onPressed: () => _updateUser(user),
+            glowColor: AppColors.neonTurquoise,
+          ),
+        ],
       ),
     );
   }
@@ -858,7 +1139,7 @@ class _UserManagementPageState extends ConsumerState<UserManagementPage> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
             side: BorderSide(
-              color: AppColors.error.withOpacity(0.3),
+              color: AppColors.error.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -874,7 +1155,7 @@ class _UserManagementPageState extends ConsumerState<UserManagementPage> {
             ],
           ),
           content: Text(
-            'האם אתה בטוח שברצונך למחוק את המשתמש ${user.displayName}?\nפעולה זו לא ניתנת לביטול.',
+            'האם אתה בטוח שברצונך למחוק את המשתמש ${user.displayName}?\nפעולה זו תסמן את המשתמש כלא פעיל.',
             style: GoogleFonts.assistant(
               color: AppColors.primaryText,
               fontSize: 16,
@@ -882,7 +1163,7 @@ class _UserManagementPageState extends ConsumerState<UserManagementPage> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => context.pop(),
               child: Text(
                 'ביטול',
                 style: TextStyle(color: AppColors.secondaryText),
@@ -891,7 +1172,7 @@ class _UserManagementPageState extends ConsumerState<UserManagementPage> {
             NeonButton(
               text: 'מחק',
               onPressed: () {
-                Navigator.of(context).pop();
+                context.pop();
                 _deleteUser(user);
               },
               glowColor: AppColors.error,
@@ -902,22 +1183,19 @@ class _UserManagementPageState extends ConsumerState<UserManagementPage> {
     );
   }
 
-  void _deleteUser(UserModel user) {
-    // TODO: Implement user deletion
-    setState(() {
-      _users.removeWhere((u) => u.id == user.id);
-    });
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('המשתמש ${user.displayName} נמחק'),
-        backgroundColor: AppColors.success,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-      ),
-    );
+  void _deleteUser(UserModel user) async {
+    try {
+      final result = await AdminUserService.deleteUser(user.id);
+      
+      if (result.isSuccess) {
+        _showSuccessSnackBar(result.message);
+        _loadUsers(isRefresh: true);
+      } else {
+        _showErrorSnackBar(result.message);
+      }
+    } catch (e) {
+      _showErrorSnackBar('שגיאה במחיקת משתמש: $e');
+    }
   }
 
   void _resetUserPassword(UserModel user) {
@@ -930,7 +1208,7 @@ class _UserManagementPageState extends ConsumerState<UserManagementPage> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
             side: BorderSide(
-              color: AppColors.warning.withOpacity(0.3),
+              color: AppColors.warning.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -954,7 +1232,7 @@ class _UserManagementPageState extends ConsumerState<UserManagementPage> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => context.pop(),
               child: Text(
                 'ביטול',
                 style: TextStyle(color: AppColors.secondaryText),
@@ -963,24 +1241,173 @@ class _UserManagementPageState extends ConsumerState<UserManagementPage> {
             NeonButton(
               text: 'שלח',
               onPressed: () {
-                Navigator.of(context).pop();
-                // TODO: Send password reset email
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('אימייל לאיפוס סיסמה נשלח ל-${user.displayName}'),
-                    backgroundColor: AppColors.info,
-                    behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                );
+                context.pop();
+                _sendPasswordReset(user);
               },
               glowColor: AppColors.warning,
             ),
           ],
         ),
       ),
+    );
+  }
+  
+  void _sendPasswordReset(UserModel user) async {
+    try {
+      final result = await AdminUserService.sendPasswordReset(user.email);
+      
+      if (result.isSuccess) {
+        _showSuccessSnackBar(result.message);
+      } else {
+        _showErrorSnackBar(result.message);
+      }
+    } catch (e) {
+      _showErrorSnackBar('שגיאה בשליחת איפוס סיסמה: $e');
+    }
+  }
+  
+  void _createUser() async {
+    if (!_createFormKey.currentState!.validate()) return;
+    
+    try {
+      final displayName = '${_createFirstNameController.text.trim()} ${_createLastNameController.text.trim()}';
+      
+      final result = await AdminUserService.createUser(
+        email: _createEmailController.text.trim(),
+        displayName: displayName,
+        role: _selectedCreateRole,
+        phone: _createPhoneController.text.trim().isEmpty ? null : _createPhoneController.text.trim(),
+        address: _createAddressController.text.trim().isEmpty ? null : _createAddressController.text.trim(),
+      );
+      
+      if (result.isSuccess) {
+        if (mounted) {
+          context.pop();
+          _showSuccessSnackBar(result.message);
+          _loadUsers(isRefresh: true);
+        }
+      } else {
+        _showErrorSnackBar(result.message);
+      }
+    } catch (e) {
+      _showErrorSnackBar('שגיאה ביצירת משתמש: $e');
+    }
+  }
+  
+  void _updateUser(UserModel user) async {
+    if (!_editFormKey.currentState!.validate()) return;
+    
+    try {
+      final updateData = <String, dynamic>{
+        'first_name': _firstNameController.text.trim(),
+        'last_name': _lastNameController.text.trim(),
+        'display_name': '${_firstNameController.text.trim()} ${_lastNameController.text.trim()}',
+        'phone': _phoneController.text.trim().isEmpty ? null : _phoneController.text.trim(),
+        'address': _addressController.text.trim().isEmpty ? null : _addressController.text.trim(),
+      };
+      
+      // Check if role changed
+      if (_selectedEditRole != user.role.value) {
+        final roleResult = await AdminUserService.changeUserRole(user.id, _selectedEditRole);
+        if (!roleResult.isSuccess) {
+          _showErrorSnackBar(roleResult.message);
+          return;
+        }
+      }
+      
+      final result = await AdminUserService.updateUser(user.id, updateData);
+      
+      if (result.isSuccess) {
+        if (mounted) {
+          context.pop();
+          _showSuccessSnackBar(result.message);
+          _loadUsers(isRefresh: true);
+        }
+      } else {
+        _showErrorSnackBar(result.message);
+      }
+    } catch (e) {
+      _showErrorSnackBar('שגיאה בעדכון משתמש: $e');
+    }
+  }
+  
+  Widget _buildFormField({
+    required TextEditingController controller,
+    required String label,
+    String? Function(String?)? validator,
+    TextInputType? keyboardType,
+    bool enabled = true,
+  }) {
+    return TextFormField(
+      controller: controller,
+      validator: validator,
+      keyboardType: keyboardType,
+      enabled: enabled,
+      style: GoogleFonts.assistant(
+        color: enabled ? AppColors.primaryText : AppColors.secondaryText,
+      ),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: GoogleFonts.assistant(color: AppColors.secondaryText),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: AppColors.inputBorder),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: AppColors.inputBorder),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: AppColors.neonBlue, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: AppColors.error, width: 2),
+        ),
+        disabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: AppColors.darkBorder),
+        ),
+        filled: true,
+        fillColor: enabled ? AppColors.darkCard : AppColors.darkSurface,
+      ),
+    );
+  }
+  
+  Widget _buildRoleDropdown({
+    required String value,
+    required ValueChanged<String?> onChanged,
+  }) {
+    return DropdownButtonFormField<String>(
+      initialValue: value,
+      onChanged: onChanged,
+      style: GoogleFonts.assistant(color: AppColors.primaryText),
+      dropdownColor: AppColors.darkSurface,
+      decoration: InputDecoration(
+        labelText: 'תפקיד',
+        labelStyle: GoogleFonts.assistant(color: AppColors.secondaryText),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: AppColors.inputBorder),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: AppColors.inputBorder),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: AppColors.neonBlue, width: 2),
+        ),
+        filled: true,
+        fillColor: AppColors.darkCard,
+      ),
+      items: const [
+        DropdownMenuItem(value: 'student', child: Text('תלמיד')),
+        DropdownMenuItem(value: 'parent', child: Text('הורה')),
+        DropdownMenuItem(value: 'instructor', child: Text('מדריך')),
+        DropdownMenuItem(value: 'admin', child: Text('מנהל')),
+      ],
     );
   }
 }

@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../../../core/models/user_model.dart';
+import '../../../shared/models/user_model.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../services/profile_service.dart';
 import './profile_provider.dart';
@@ -101,15 +101,22 @@ class EditProfileNotifier extends StateNotifier<EditProfileState> {
       state = state.copyWith(isAutoSaving: true);
       
       // Perform silent auto-save
-      final user = _ref.read(currentUserProvider).value;
-      if (user == null) return;
+      final userAsync = _ref.read(currentUserProvider);
+      final user = userAsync.value;
+      if (user == null) {
+        state = state.copyWith(isAutoSaving: false);
+        return;
+      }
 
+      // Only update fields that have changed
+      final changes = Map<String, dynamic>.from(state.pendingChanges);
+      
       await _profileService.updateProfile(
         userId: user.id,
-        fullName: state.pendingChanges['fullName'],
-        phoneNumber: state.pendingChanges['phoneNumber'],
-        address: state.pendingChanges['address'],
-        birthDate: state.pendingChanges['birthDate'],
+        fullName: changes['fullName'],
+        phoneNumber: changes['phoneNumber'],
+        address: changes['address'],
+        birthDate: changes['birthDate'],
       );
 
       state = state.copyWith(
@@ -124,9 +131,12 @@ class EditProfileNotifier extends StateNotifier<EditProfileState> {
       
     } catch (error) {
       if (kDebugMode) {
-        print('EditProfileNotifier: Auto-save failed: $error');
+        debugPrint('EditProfileNotifier: Auto-save failed: $error');
       }
-      state = state.copyWith(isAutoSaving: false);
+      state = state.copyWith(
+        isAutoSaving: false,
+        error: 'שמירה אוטומטית נכשלה',
+      );
     }
   }
 
@@ -196,7 +206,7 @@ class EditProfileNotifier extends StateNotifier<EditProfileState> {
       return true;
     } catch (error) {
       if (kDebugMode) {
-        print('EditProfileNotifier: Auto-save error: $error');
+        debugPrint('EditProfileNotifier: Auto-save error: $error');
       }
       state = state.copyWith(
         isAutoSaving: false,
@@ -242,7 +252,7 @@ class EditProfileNotifier extends StateNotifier<EditProfileState> {
         phoneNumber: phoneNumber,
         address: address,
         birthDate: birthDate,
-        profileImageUrl: imageUrl,
+        avatarUrl: imageUrl,
       );
 
       // Update bio separately if needed (since it's in metadata)
@@ -266,7 +276,7 @@ class EditProfileNotifier extends StateNotifier<EditProfileState> {
       return true;
     } catch (error) {
       if (kDebugMode) {
-        print('EditProfileNotifier: Save error: $error');
+        debugPrint('EditProfileNotifier: Save error: $error');
       }
       state = state.copyWith(
         isSaving: false,
@@ -279,21 +289,36 @@ class EditProfileNotifier extends StateNotifier<EditProfileState> {
 
   Future<String?> _uploadProfileImage(String userId, XFile imageFile) async {
     try {
-      // Validate image size
+      // Validate image file
       final file = File(imageFile.path);
-      final fileSize = await file.length();
       
+      // Check if file exists
+      if (!await file.exists()) {
+        throw Exception('קובץ התמונה לא נמצא');
+      }
+      
+      // Validate image size
+      final fileSize = await file.length();
       if (fileSize > 5 * 1024 * 1024) { // 5MB limit
         throw Exception('התמונה גדולה מדי. גודל מקסימלי: 5MB');
+      }
+      
+      // Validate image format
+      final fileName = imageFile.name.toLowerCase();
+      final allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+      final hasValidExtension = allowedExtensions.any((ext) => fileName.endsWith('.$ext'));
+      
+      if (!hasValidExtension) {
+        throw Exception('סוג קובץ לא נתמך. נתמכים: JPG, PNG, GIF, WebP');
       }
 
       // Upload image
       return await _profileService.updateProfileImage(userId);
     } catch (error) {
       if (kDebugMode) {
-        print('EditProfileNotifier: Image upload error: $error');
+        debugPrint('EditProfileNotifier: Image upload error: $error');
       }
-      throw error;
+      rethrow;
     }
   }
 
@@ -307,7 +332,7 @@ class EditProfileNotifier extends StateNotifier<EditProfileState> {
         // Update user profile with new image URL
         final updatedUser = await _profileService.updateProfile(
           userId: userId,
-          profileImageUrl: imageUrl,
+          avatarUrl: imageUrl,
         );
 
         // Refresh user data
@@ -329,7 +354,7 @@ class EditProfileNotifier extends StateNotifier<EditProfileState> {
       }
     } catch (error) {
       if (kDebugMode) {
-        print('EditProfileNotifier: Image upload error: $error');
+        debugPrint('EditProfileNotifier: Image upload error: $error');
       }
       state = state.copyWith(
         isImageUploading: false,
@@ -346,7 +371,7 @@ class EditProfileNotifier extends StateNotifier<EditProfileState> {
       // Update profile to remove image URL
       final updatedUser = await _profileService.updateProfile(
         userId: userId,
-        profileImageUrl: null,
+        avatarUrl: null,
       );
 
       // Refresh user data
@@ -361,7 +386,7 @@ class EditProfileNotifier extends StateNotifier<EditProfileState> {
       return true;
     } catch (error) {
       if (kDebugMode) {
-        print('EditProfileNotifier: Remove image error: $error');
+        debugPrint('EditProfileNotifier: Remove image error: $error');
       }
       state = state.copyWith(
         isImageUploading: false,

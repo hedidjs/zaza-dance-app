@@ -55,7 +55,7 @@ class NeonText extends StatelessWidget {
       textAlign: textAlign,
       maxLines: maxLines,
       overflow: overflow,
-      glowColor: glowColor.withOpacity(glowOpacity),
+      glowColor: glowColor.withValues(alpha: glowOpacity),
       blurRadius: effectiveGlowRadius,
       offset: const Offset(0, 0),
       textDirection: TextDirection.rtl, // Always RTL for Hebrew

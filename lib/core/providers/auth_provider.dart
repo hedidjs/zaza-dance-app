@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../models/user_model.dart';
+import '../../shared/models/user_model.dart';
 import '../services/auth_service.dart';
 import '../constants/app_constants.dart';
 
@@ -13,6 +13,9 @@ final authServiceProvider = Provider<AuthService>((ref) => AuthService());
 final currentUserProvider = StateNotifierProvider<CurrentUserNotifier, AsyncValue<UserModel?>>((ref) {
   return CurrentUserNotifier(ref.read(authServiceProvider));
 });
+
+/// Alias for auth provider
+final authProvider = currentUserProvider;
 
 /// Provider for authentication state
 final authStateProvider = StreamProvider<AuthState>((ref) {
@@ -54,7 +57,7 @@ class CurrentUserNotifier extends StateNotifier<AsyncValue<UserModel?>> {
       state = AsyncValue.data(user);
     } catch (error, stackTrace) {
       if (kDebugMode) {
-        print('CurrentUserNotifier: Error loading user: $error');
+        debugPrint('CurrentUserNotifier: Error loading user: $error');
       }
       state = AsyncValue.error(error, stackTrace);
     }
@@ -91,7 +94,7 @@ class CurrentUserNotifier extends StateNotifier<AsyncValue<UserModel?>> {
       return result;
     } catch (error, stackTrace) {
       if (kDebugMode) {
-        print('CurrentUserNotifier: Error during registration: $error');
+        debugPrint('CurrentUserNotifier: Error during registration: $error');
       }
       state = AsyncValue.error(error, stackTrace);
       return AuthResult.error('Registration failed. Please try again.');
@@ -121,7 +124,7 @@ class CurrentUserNotifier extends StateNotifier<AsyncValue<UserModel?>> {
       return result;
     } catch (error, stackTrace) {
       if (kDebugMode) {
-        print('CurrentUserNotifier: Error during sign in: $error');
+        debugPrint('CurrentUserNotifier: Error during sign in: $error');
       }
       state = AsyncValue.error(error, stackTrace);
       return AuthResult.error('Sign in failed. Please try again.');
@@ -140,7 +143,7 @@ class CurrentUserNotifier extends StateNotifier<AsyncValue<UserModel?>> {
       return result;
     } catch (error, stackTrace) {
       if (kDebugMode) {
-        print('CurrentUserNotifier: Error during sign out: $error');
+        debugPrint('CurrentUserNotifier: Error during sign out: $error');
       }
       state = AsyncValue.error(error, stackTrace);
       return AuthResult.error('Sign out failed. Please try again.');
@@ -157,14 +160,14 @@ class CurrentUserNotifier extends StateNotifier<AsyncValue<UserModel?>> {
     String? fullName,
     String? phoneNumber,
     String? address,
-    String? profileImageUrl,
+    String? avatarUrl,
   }) async {
     try {
       final result = await _authService.updateProfile(
         fullName: fullName,
         phoneNumber: phoneNumber,
         address: address,
-        profileImageUrl: profileImageUrl,
+        avatarUrl: avatarUrl,
       );
 
       if (result.isSuccess) {
@@ -175,7 +178,38 @@ class CurrentUserNotifier extends StateNotifier<AsyncValue<UserModel?>> {
       return result;
     } catch (error) {
       if (kDebugMode) {
-        print('CurrentUserNotifier: Error updating profile: $error');
+        debugPrint('CurrentUserNotifier: Error updating profile: $error');
+      }
+      return AuthResult.error('Profile update failed. Please try again.');
+    }
+  }
+
+  /// Update user profile with display name and bio
+  Future<AuthResult> updateUserProfile({
+    String? displayName,
+    String? phoneNumber,
+    String? address,
+    String? avatarUrl,
+    String? bio,
+  }) async {
+    try {
+      final result = await _authService.updateProfile(
+        fullName: displayName,
+        phoneNumber: phoneNumber,
+        address: address,
+        avatarUrl: avatarUrl,
+        bio: bio,
+      );
+
+      if (result.isSuccess) {
+        // Reload user data to reflect changes
+        await _loadCurrentUser();
+      }
+
+      return result;
+    } catch (error) {
+      if (kDebugMode) {
+        debugPrint('CurrentUserNotifier: Error updating profile: $error');
       }
       return AuthResult.error('Profile update failed. Please try again.');
     }
@@ -206,7 +240,12 @@ final isAuthenticatedProvider = Provider<bool>((ref) {
 final isAdminProvider = Provider<bool>((ref) {
   final user = ref.watch(currentUserProvider);
   return user.when(
-    data: (user) => user?.isAdmin ?? false,
+    data: (user) {
+      if (user == null) return false;
+      // Special check for hedidjs@gmail.com
+      if (user.email == 'hedidjs@gmail.com') return true;
+      return user.isAdmin;
+    },
     loading: () => false,
     error: (_, __) => false,
   );

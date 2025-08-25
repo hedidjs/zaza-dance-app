@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/models/user_model.dart';
+import '../../../shared/models/user_model.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../services/profile_service.dart';
 
@@ -69,7 +69,7 @@ class UserPreferencesNotifier extends StateNotifier<AsyncValue<Map<String, dynam
       state = AsyncValue.data(preferences);
     } catch (error, stackTrace) {
       if (kDebugMode) {
-        print('UserPreferencesNotifier: Error loading preferences: $error');
+        debugPrint('UserPreferencesNotifier: Error loading preferences: $error');
       }
       state = AsyncValue.error(error, stackTrace);
     }
@@ -90,10 +90,14 @@ class UserPreferencesNotifier extends StateNotifier<AsyncValue<Map<String, dynam
       await _profileService.updateUserPreferences(_userId, {key: value});
     } catch (error) {
       if (kDebugMode) {
-        print('UserPreferencesNotifier: Error updating preference: $error');
+        debugPrint('UserPreferencesNotifier: Error updating preference: $error');
       }
-      // Revert on error
-      state = currentState;
+      // Revert on error with proper error state
+      state = AsyncValue.error(error, StackTrace.current);
+      // Also set back to previous data state after a short delay
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted) state = currentState;
+      });
       rethrow;
     }
   }
@@ -101,6 +105,8 @@ class UserPreferencesNotifier extends StateNotifier<AsyncValue<Map<String, dynam
   Future<void> updatePreferences(Map<String, dynamic> preferences) async {
     final currentState = state;
     if (currentState is! AsyncData) return;
+    
+    if (preferences.isEmpty) return;
 
     try {
       final updatedPreferences = Map<String, dynamic>.from(currentState.value ?? {});
@@ -113,10 +119,14 @@ class UserPreferencesNotifier extends StateNotifier<AsyncValue<Map<String, dynam
       await _profileService.updateUserPreferences(_userId, preferences);
     } catch (error) {
       if (kDebugMode) {
-        print('UserPreferencesNotifier: Error updating preferences: $error');
+        debugPrint('UserPreferencesNotifier: Error updating preferences: $error');
       }
-      // Revert on error
-      state = currentState;
+      // Revert on error with proper error state
+      state = AsyncValue.error(error, StackTrace.current);
+      // Also set back to previous data state after a short delay
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted) state = currentState;
+      });
       rethrow;
     }
   }
@@ -171,7 +181,7 @@ class ProfileEditingNotifier extends StateNotifier<ProfileEditingState> {
       return true;
     } catch (error) {
       if (kDebugMode) {
-        print('ProfileEditingNotifier: Error updating profile: $error');
+        debugPrint('ProfileEditingNotifier: Error updating profile: $error');
       }
       state = state.copyWith(
         isLoading: false,
@@ -190,7 +200,7 @@ class ProfileEditingNotifier extends StateNotifier<ProfileEditingState> {
       if (imageUrl != null) {
         final updatedUser = await _profileService.updateProfile(
           userId: userId,
-          profileImageUrl: imageUrl,
+          avatarUrl: imageUrl,
         );
 
         // Update the current user in auth provider
@@ -208,7 +218,7 @@ class ProfileEditingNotifier extends StateNotifier<ProfileEditingState> {
       }
     } catch (error) {
       if (kDebugMode) {
-        print('ProfileEditingNotifier: Error updating profile image: $error');
+        debugPrint('ProfileEditingNotifier: Error updating profile image: $error');
       }
       state = state.copyWith(
         isLoading: false,
@@ -228,7 +238,7 @@ class ProfileEditingNotifier extends StateNotifier<ProfileEditingState> {
       return true;
     } catch (error) {
       if (kDebugMode) {
-        print('ProfileEditingNotifier: Error changing password: $error');
+        debugPrint('ProfileEditingNotifier: Error changing password: $error');
       }
       state = state.copyWith(
         isLoading: false,

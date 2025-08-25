@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/constants/app_colors.dart';
-import '../../features/gallery/presentation/pages/gallery_page.dart';
-import '../../features/home/presentation/pages/home_page.dart';
-import '../../features/tutorials/presentation/pages/tutorials_page.dart';
-import '../../features/updates/presentation/pages/updates_page.dart';
 
 enum NavigationPage { home, tutorials, gallery, updates }
 
@@ -28,13 +25,13 @@ class AppBottomNavigation extends StatelessWidget {
         ),
         border: Border(
           top: BorderSide(
-            color: AppColors.neonPink.withOpacity(0.2),
+            color: AppColors.neonPink.withValues(alpha: 0.2),
             width: 1,
           ),
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.neonPink.withOpacity(0.1),
+            color: AppColors.neonPink.withValues(alpha: 0.1),
             blurRadius: 10,
             spreadRadius: 2,
             offset: const Offset(0, -2),
@@ -88,7 +85,7 @@ class AppBottomNavigation extends StatelessWidget {
         boxShadow: isSelected
             ? [
                 BoxShadow(
-                  color: AppColors.neonPink.withOpacity(0.3),
+                  color: AppColors.neonPink.withValues(alpha: 0.3),
                   blurRadius: 8,
                   spreadRadius: 2,
                 ),
@@ -128,41 +125,22 @@ class AppBottomNavigation extends StatelessWidget {
     
     if (targetPage == currentPage) return; // Already on this page
 
-    Widget page;
+    String route;
     switch (targetPage) {
       case NavigationPage.home:
-        page = const HomePage();
+        route = '/home';
         break;
       case NavigationPage.tutorials:
-        page = const TutorialsPage();
+        route = '/tutorials';
         break;
       case NavigationPage.gallery:
-        page = const GalleryPage();
+        route = '/gallery';
         break;
       case NavigationPage.updates:
-        page = const UpdatesPage();
+        route = '/updates';
         break;
     }
 
-    Navigator.of(context).push(
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => page,
-        transitionDuration: const Duration(milliseconds: 300),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(1.0, 0.0);
-          const end = Offset.zero;
-          const curve = Curves.easeInOut;
-
-          var tween = Tween(begin: begin, end: end).chain(
-            CurveTween(curve: curve),
-          );
-
-          return SlideTransition(
-            position: animation.drive(tween),
-            child: child,
-          );
-        },
-      ),
-    );
+    context.go(route);
   }
 }

@@ -43,28 +43,34 @@ class GalleryModel {
   });
 
   factory GalleryModel.fromJson(Map<String, dynamic> json) {
-    return GalleryModel(
-      id: json['id'] as String,
-      titleHe: json['title_he'] as String,
-      titleEn: json['title_en'] as String?,
-      descriptionHe: json['description_he'] as String?,
-      descriptionEn: json['description_en'] as String?,
-      mediaUrl: json['media_url'] as String,
-      thumbnailUrl: json['thumbnail_url'] as String?,
-      mediaType: MediaType.fromString(json['media_type'] as String),
-      categoryId: json['category_id'] as String?,
-      category: json['categories'] != null 
-          ? CategoryModel.fromJson(json['categories'] as Map<String, dynamic>)
-          : null,
-      tags: List<String>.from(json['tags'] as List? ?? []),
-      isFeatured: json['is_featured'] as bool? ?? false,
-      likesCount: json['likes_count'] as int? ?? 0,
-      viewsCount: json['views_count'] as int? ?? 0,
-      sortOrder: json['sort_order'] as int? ?? 0,
-      isActive: json['is_active'] as bool? ?? true,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
-    );
+    try {
+      return GalleryModel(
+        id: json['id']?.toString() ?? '',
+        titleHe: json['title_he']?.toString() ?? json['title']?.toString() ?? '',
+        titleEn: json['title_en']?.toString(),
+        descriptionHe: json['description_he']?.toString() ?? json['description']?.toString(),
+        descriptionEn: json['description_en']?.toString(),
+        mediaUrl: json['media_url']?.toString() ?? '',
+        thumbnailUrl: json['thumbnail_url']?.toString(),
+        mediaType: MediaType.fromString(json['media_type']?.toString() ?? 'image'),
+        categoryId: json['category_id']?.toString(),
+        category: json['categories'] != null 
+            ? CategoryModel.fromJson(json['categories'] as Map<String, dynamic>)
+            : null,
+        tags: json['tags'] != null 
+            ? List<String>.from(json['tags'] as List)
+            : [],
+        isFeatured: json['is_featured'] as bool? ?? false,
+        likesCount: json['likes_count'] as int? ?? 0,
+        viewsCount: json['views_count'] as int? ?? 0,
+        sortOrder: json['sort_order'] as int? ?? 0,
+        isActive: json['is_active'] as bool? ?? true,
+        createdAt: DateTime.tryParse(json['created_at']?.toString() ?? '') ?? DateTime.now(),
+        updatedAt: DateTime.tryParse(json['updated_at']?.toString() ?? '') ?? DateTime.now(),
+      );
+    } catch (e) {
+      throw FormatException('Failed to parse GalleryModel from JSON: $e');
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -76,7 +82,7 @@ class GalleryModel {
       'description_en': descriptionEn,
       'media_url': mediaUrl,
       'thumbnail_url': thumbnailUrl,
-      'media_type': mediaType.toString(),
+      'media_type': mediaType.value,
       'category_id': categoryId,
       'tags': tags,
       'is_featured': isFeatured,
@@ -144,18 +150,37 @@ class GalleryModel {
 
   @override
   int get hashCode => id.hashCode;
+
+  // Additional convenience getters for compatibility
+  String get title => titleHe;
+  String get description => descriptionHe ?? '';
+  String? get altText => descriptionHe; // For accessibility
+  String get displayUrl => thumbnailUrl ?? mediaUrl;
+  bool get isVideo => mediaType.isVideo;
+  bool get isImage => mediaType.isImage;
+  String get categoryName => category?.nameHe ?? '';
 }
 
 /// Media type enum for gallery items
 enum MediaType {
-  image,
-  video;
+  image('image', 'תמונה'),
+  video('video', 'וידאו');
+
+  const MediaType(this.value, this.displayName);
+
+  final String value;
+  final String displayName;
 
   static MediaType fromString(String value) {
-    switch (value.toLowerCase()) {
+    final normalizedValue = value.toLowerCase().trim();
+    switch (normalizedValue) {
       case 'image':
+      case 'photo':
+      case 'picture':
         return MediaType.image;
       case 'video':
+      case 'movie':
+      case 'clip':
         return MediaType.video;
       default:
         return MediaType.image;
@@ -163,12 +188,9 @@ enum MediaType {
   }
 
   @override
-  String toString() {
-    switch (this) {
-      case MediaType.image:
-        return 'image';
-      case MediaType.video:
-        return 'video';
-    }
-  }
+  String toString() => value;
+
+  // Helper getters
+  bool get isImage => this == MediaType.image;
+  bool get isVideo => this == MediaType.video;
 }
