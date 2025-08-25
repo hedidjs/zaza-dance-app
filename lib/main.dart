@@ -242,11 +242,16 @@ class LoadingPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            const ZazaLogo(
+              width: 280,
+              height: 110,
+              withGlow: false,
+            ),
+            const SizedBox(height: 40),
             const CircularProgressIndicator(
               color: Color(0xFFFF00FF),
+              strokeWidth: 3,
             ),
-            const SizedBox(height: 20),
-            const ZazaLogo.splash(),
           ],
         ),
       ),

@@ -84,13 +84,9 @@
       z-index: 9999;
     }
     
-    .logo {
-      font-size: 2.5rem;
-      color: #FF00FF;
-      text-shadow: 0 0 20px #FF00FF, 0 0 40px #FF00FF;
-      animation: pulse 2s infinite;
-      margin-bottom: 2rem;
-      font-weight: 700;
+    .logo-image {
+      filter: drop-shadow(0 0 15px rgba(255, 0, 255, 0.3));
+      animation: fadeIn 1s ease-in-out;
     }
     
     .spinner {
@@ -102,16 +98,9 @@
       animation: spin 1s linear infinite;
     }
     
-    .loading-text {
-      color: #40E0D0;
-      margin-top: 1rem;
-      font-size: 1.1rem;
-      text-shadow: 0 0 10px #40E0D0;
-    }
-    
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.1); }
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: scale(0.8); }
+      100% { opacity: 1; transform: scale(1); }
     }
     
     @keyframes spin {
@@ -157,9 +146,11 @@
 <body>
   <!-- Loading Screen -->
   <div class="loading" id="loading">
-    <div class="logo">זזה דאנס</div>
+    <img src="https://yyvoavzgapsyycjwirmg.supabase.co/storage/v1/object/public/logo/ZAZA%20LOGO.png" 
+         alt="Zaza Dance" 
+         class="logo-image"
+         style="width: 280px; height: auto; margin-bottom: 40px;">
     <div class="spinner"></div>
-    <div class="loading-text">טוען...</div>
   </div>
   
   <!-- Auth Success Message (hidden by default) -->
