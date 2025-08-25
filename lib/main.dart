@@ -342,6 +342,8 @@ class _LandingPageState extends State<LandingPage>
       textDirection: TextDirection.rtl,
       child: Scaffold(
         body: Container(
+          width: double.infinity,
+          height: double.infinity,
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
@@ -356,13 +358,24 @@ class _LandingPageState extends State<LandingPage>
             ),
           ),
           child: SafeArea(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  _buildHeroSection(),
-                  const SizedBox(height: 60),
-                ],
-              ),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
+                      minWidth: constraints.maxWidth,
+                    ),
+                    child: IntrinsicHeight(
+                      child: Column(
+                        children: [
+                          Expanded(child: _buildHeroSection()),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         ),
@@ -371,23 +384,34 @@ class _LandingPageState extends State<LandingPage>
   }
 
   Widget _buildHeroSection() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isDesktop = screenWidth > 1024;
+    final isTablet = screenWidth > 768 && screenWidth <= 1024;
+    final isMobile = screenWidth <= 768;
+    
     return FadeTransition(
       opacity: _fadeAnimation,
       child: Container(
-        height: MediaQuery.of(context).size.height * 0.85,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+        width: double.infinity,
+        height: double.infinity,
+        padding: EdgeInsets.symmetric(
+          horizontal: isDesktop ? 80 : (isTablet ? 60 : 20),
+          vertical: isDesktop ? 60 : (isTablet ? 50 : 40),
+        ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Main logo - larger and clearer
+            // Main logo - responsive sizing
             AnimatedBuilder(
               animation: _pulseAnimation,
               builder: (context, child) {
                 return Transform.scale(
                   scale: 1.0 + (_pulseAnimation.value * 0.05),
-                  child: const ZazaLogo(
-                    width: 300,
-                    height: 120,
+                  child: ZazaLogo(
+                    width: isDesktop ? 500 : (isTablet ? 400 : 300),
+                    height: isDesktop ? 200 : (isTablet ? 160 : 120),
                     withGlow: false,
                   ),
                 );
@@ -396,28 +420,30 @@ class _LandingPageState extends State<LandingPage>
             
             const SizedBox(height: 40),
             
-            // Welcome message
+            // Welcome message - responsive text
             SlideTransition(
               position: _slideAnimation,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 30),
+                padding: EdgeInsets.symmetric(
+                  horizontal: isDesktop ? 60 : (isTablet ? 40 : 30),
+                ),
                 child: Column(
                   children: [
                     Text(
                       'ברוכים הבאים לסטודיו Zaza Dance',
                       style: GoogleFonts.assistant(
-                        fontSize: 24,
+                        fontSize: isDesktop ? 36 : (isTablet ? 30 : 24),
                         color: Colors.white.withValues(alpha: 0.95),
                         fontWeight: FontWeight.w500,
                         height: 1.4,
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: isDesktop ? 16 : (isTablet ? 12 : 8)),
                     Text(
                       'בהנהלת שרון צרפתי',
                       style: GoogleFonts.assistant(
-                        fontSize: 20,
+                        fontSize: isDesktop ? 28 : (isTablet ? 24 : 20),
                         color: Colors.white.withValues(alpha: 0.85),
                         fontWeight: FontWeight.w400,
                         height: 1.3,
@@ -429,7 +455,7 @@ class _LandingPageState extends State<LandingPage>
               ),
             ),
             
-            const SizedBox(height: 70),
+            SizedBox(height: isDesktop ? 100 : (isTablet ? 80 : 70)),
             
             // Enhanced CTA button
             SlideTransition(
@@ -488,6 +514,10 @@ class _LandingPageState extends State<LandingPage>
   }
 
   Widget _buildEnhancedCtaButton() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isDesktop = screenWidth > 1024;
+    final isTablet = screenWidth > 768 && screenWidth <= 1024;
+    
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(25),
@@ -516,24 +546,27 @@ class _LandingPageState extends State<LandingPage>
             context.go('/auth/login');
           },
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 45, vertical: 18),
+            padding: EdgeInsets.symmetric(
+              horizontal: isDesktop ? 60 : (isTablet ? 50 : 45),
+              vertical: isDesktop ? 22 : (isTablet ? 20 : 18),
+            ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   'גלה את הקסם',
                   style: GoogleFonts.assistant(
-                    fontSize: 18,
+                    fontSize: isDesktop ? 22 : (isTablet ? 20 : 18),
                     fontWeight: FontWeight.w600,
                     color: Colors.white,
                     letterSpacing: 0.5,
                   ),
                 ),
-                const SizedBox(width: 10),
-                const Icon(
+                SizedBox(width: isDesktop ? 15 : (isTablet ? 12 : 10)),
+                Icon(
                   Icons.arrow_back_ios,
                   color: Colors.white,
-                  size: 16,
+                  size: isDesktop ? 20 : (isTablet ? 18 : 16),
                 ),
               ],
             ),
