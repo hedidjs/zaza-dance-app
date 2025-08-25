@@ -54,13 +54,19 @@ Future<void> _autoLoginAdminForDev() async {
       return;
     }
     
-    // במצב רשת, לא ננסה להתחבר אוטומטית בגלל בעיות CORS
+    // במצב רשת, לא ננסה להתחבר אוטומטית כלל
     if (kIsWeb) {
-      print('Web mode: Skipping auto-login due to CORS restrictions');
+      print('Web mode: Skipping auto-login completely');
       return;
     }
     
-    // התחברות עם המשתמש האדמין למצב פיתוח (רק במובייל)
+    // במצב debug במובייל גם נדלג על auto-login כדי לא להפריע
+    if (kDebugMode) {
+      print('Debug mode: Skipping auto-login to allow manual testing');
+      return;
+    }
+    
+    // התחברות עם המשתמש האדמין למצב פיתוח (רק במובייל production)
     final response = await supabase.auth.signInWithPassword(
       email: 'dev@zazadance.com',
       password: 'dev123456',
